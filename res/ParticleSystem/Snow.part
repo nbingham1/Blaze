@@ -1,7 +1,0 @@
-Life 290
-Mass 1.0
-Size 10
-Force 0.0 -0.163333 0.0
-ConstantEmission
-Direct
-TexName res/ParticleSystem/Snow.tga

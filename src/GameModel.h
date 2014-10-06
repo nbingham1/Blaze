@@ -1,232 +1,161 @@
 /*
 	GameModel.h
-	Blaze Game Engine 0.02
+	Blaze Game Engine 0.01
 
-	Created by Ned Bingham on 6/6/06.
-	Copyright 2006 Sol Union. All rights reserved.
+	Created by Ned Bingham on 12/28/05.
+  	Copyright 2005 Sol Union. All rights reserved.
 
-    Blaze Game Engine 0.02 is free software: you can redistribute it and/or modify
+    Blaze Game Engine 0.01 is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    Blaze Game Engine 0.02 is distributed in the hope that it will be useful,
+    Blaze Game Engine 0.01 is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Blaze Game Engine 0.02.  If not, see <http://www.gnu.org/licenses/>.
-*/
-#include "GeometricalTypes.h"
-#include "PhysicsTypes.h"
+    along with Blaze Game Engine 0.01.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+#include "Main.h"
 #include "GameTexture.h"
-#include "GameMaterial.h"
+#include "GameMisc.h"
 
 #ifndef GameModel_h
 #define GameModel_h
 
-struct RotationFrame
+struct Triangle
 {
-	Quaternion Orientation;
+	short v[3];
+	short t[3];
+	short n[3];
+		
+	Triangle *Next;
 };
 
-struct TranslationFrame
+struct CTriangle
 {
-	Vector Position;
+	Vector  Vertices[3];
+	Vector  Normal;
+	GLfloat Distance;
+	
+	CTriangle *Next;
+	
+	CTriangle &operator =(CTriangle t);
 };
 
-struct Bone
+int intersect_RayPlane(Vector R1, Vector R2, CTriangle T, Vector *I);
+void AddCTriangle(CTriangle *List, CTriangle *Next);
+void DeleteCTriangle(CTriangle *List);
+
+struct Groups
 {
-	char BoneID[11];
-	char ParentID[11];
+	Triangle *Faces;
 	
-	Quaternion Orientation;
-	Quaternion AngularVelocity;
-	Quaternion AngularAccelaration;
-	
-	Vector Position;
-	Vector LinearVelocity;
-	Vector LinearAccelaration;
-	
-	int NumRotationFrames;
-	int NumTranslationFrames;
-	
-	RotationFrame *Rotation;
-	TranslationFrame *Translation;
-	Bone *Parent;
-	Bone *Next;
+	int Material;
 };
 
-Vector Transform(Bone *start, Vector v, int nextframe, GLfloat percent);
-
-struct ModelTriangle
+struct Material
 {
-	ModelTriangle();
-	ModelTriangle(short V1, short V2, short V3);
+	char Name[32];
 	
-	short v1, v2, v3;
-	short t1, t2, t3;
-	short n1, n2, n3;
-	Bone *b1, *b2, *b3;
-	short MatID;
+	Vector Emission;
 	
-	ModelTriangle *Next;
+	GLfloat Reflect;
+	GLfloat Specular;
+	GLfloat Opacity;
+	
+	char TextName[255];
+	char BumpName[255];
+	
+	texture_t TextMap;
+	texture_t BumpMap;
+	GLuint	  ReflectMap[6];
+	
+	bool hasTexts;
+	bool hasBumps;
 };
 
-void CheckEquality(ModelTriangle t1, ModelTriangle t2, int indices[3], int *count);
-
-struct ObjectGeometry
+struct MeshData
 {
-	Vertex		  Verts[750000];
-	Vertex		  Norms[750000];
-	Vertex		  Texts[750000];
-	short		  Edges[75000][2];
-	ModelTriangle *Faces;
+	Vector   Verts[75000];
+	Vector   Texts[75000];
+	Vector   Norms[75000];
+	Groups   Group[64];
+	Material Mtrls[64];
+	CTriangle CData[150000];
 	
 	short NumVerts;
-	short NumNorms;
 	short NumTexts;
+	short NumNorms;
 	short NumFaces;
-	short NumEdges;
+	short NumGroup;
 	
-	Vertex Max;
-	Vertex Min;
-	
+	Vector Max;
+	Vector Min;
 	GLfloat Radius;
+	
+	GLfloat Scale;
+	
+	GLuint *DispList;
+	
+	void InsertVert(Vector Vert);
+	void InsertNorm(Vector Norm);
+	void InsertText(Vector Text);
+	void InsertFace(Triangle *Face, int GroupNum);
+	void DeleteFace(int GroupNum);
+	
+	void Load(string filename, GLfloat scale);
+	void LoadMesh(string filename, GLfloat scale);
+	void LoadMats(char *filename);
+	void LoadCFaces();
+	
+	void GenNorms();
+	void GenList();
+	
+	void Render(bool list);
+	
+	void Release();
 };
 
-void OrderCounterclockwise(Vertex Center, Vertex v1, Vertex v2, Vertex v3, int indices[3]);
-
-GLfloat CalculateVolume(ObjectGeometry *G);
-GLfloat CalculateSurfaceArea(ObjectGeometry *G);
-
-struct ObjectMaterials
+class Model
 {
-	Material *Mats;
-	
-	short NumMats;
-};
-
-struct ObjectPhysics
-{
-	Box BoundingBox;
-	
-	Vertex		Position;
-	EulerAngle	Orientation;
-	
-	GLfloat		Mass;
-	GLfloat		Density;
-	GLfloat		Volume;
-	GLfloat		SurfaceArea;
-	GLfloat		Elasticity;
-	GLfloat		Radius;
-	
-	Vector		LinearAccelaration;
-	Vector		LinearVelocity;
-	Vector		Momentum;
-	
-	EulerAngle	AngularAccelaration;
-	EulerAngle	AngularVelocity;
-	
-	Vector		RotationalInertia;
-	Vector		Torque;
-};
-
-struct Animation
-{
-	string name;
-	int begin;
-	int next;
-	GLfloat percent;
-	int end;
-};
-
-struct ObjectAnimation
-{
-	int NumBones;
-	int NumFrameIndices;
-	
-	Bone *Skeleton;
-	
-	Animation FrameIndices;
-};
-
-struct GameModel
-{
-	ObjectPhysics		Physics;
-	ObjectGeometry		*Geometry;
-	ObjectMaterials		*Materials;
-	ObjectAnimation		*Animation;
-	int CurrentNode;
-	int NextNode;
-	
-	GLuint DisplayList;
-	void (*CollisionFunctionGround)(GameModel *M, Triangle t);
-	
-	bool collidewithground;
-	
-	GameModel *Next;
-};
-
-void	Update(GameModel *M, GLfloat DensityOfFluid);
-
-inline GLfloat getmin(Vector *points, int NumPoints, Vector axis)
-{
-	GLfloat min = 9999999999999.0;
-	
-	for (int ctr = 0; ctr < NumPoints; ctr++)
-    {
-		GLfloat dotprod = Dot(points[ctr], axis);
-		if (dotprod < min)
-			min = dotprod;
-    }
-	return min;
-}
-
-inline GLfloat getmax(Vector *points, int NumPoints, Vector axis)
-{
-	GLfloat max = -9999999999999.0;
-	
-	for (int ctr = 0; ctr < NumPoints; ctr++)
-    {
-		GLfloat dotprod = Dot(points[ctr], axis);
-		if (dotprod > max)
-			max = dotprod;
-    }
-	return max;
-}
-
-inline bool isect(Vector *P1, int PNum1, Vector *P2, int PNum2, Vector axis)
-{
-	if (getmin(P1, PNum1, axis) > getmax(P2, PNum2, axis))
-		return false;
-	if (getmax(P1, PNum1, axis) < getmin(P2, PNum2, axis))
-		return false;
+	public:
+		Model();
+		~Model();
 		
-	return true;     
-}
-
-bool isectboxtri(Vector BoxPoints[16], Triangle tri);
-bool isectboxbox(Vector BoxPoints1[16], Vector BoxPoints2[16]);
-bool BoxtoTriangleCollision(GameModel *M, Triangle t);
-bool BoxtoBoxCollision(GameModel *ModelOne, GameModel *ModelTwo);
-
-void LoadObj(GameModel *M, string filename, GLfloat sizeX, GLfloat sizeY, GLfloat sizeZ, GLfloat TexSize);
-void LoadWRL(GameModel *M, string filename, GLfloat sizeX, GLfloat sizeY, GLfloat sizeZ, GLfloat TexSize);
-void LoadHeightMap(GameModel *M, string heightmap, string materials, string physics, GLfloat size, GLfloat x_scale, GLfloat y_scale, GLfloat z_scale, GLfloat tex_scale);
-
-void LoadMats(GameModel *M, char *filename);
-void LoadPhysics(GameModel *M, char *filename);
-void LoadBones(GameModel *M, FILE *file);
-
-void GenNormals(GameModel *M);
-void GenDisplayLists(GameModel *M);
-void RenderModel(GameModel *M, bool list);
-void ReleaseModel(GameModel *M);
-void SetCollisionGroundFunction(GameModel *M, void (*pFunc)(GameModel *M, Triangle t));
-
-void AnimateObjectGroundCollision(GameModel *M, Triangle t);
-void InAnimateObjectGroundCollision(GameModel *M, Triangle t);
+		MeshData *Mesh;
+		
+		Vector Box[8];
+		
+		Vector Position;
+		Vector Orientation;
+		
+		GLfloat Mass;
+		GLfloat Radius;
+		
+		Vector LinearAccelaration;
+		Vector LinearVelocity;
+		
+		Vector AngularAccelaration;
+		Vector AngularVelocity;
+		
+		Vector Torque;
+		Vector RotationalInertia;
+		
+		Vector Force;
+		Vector ApplicationPoint;
+		
+		bool jump;
+		
+		void Initialize(MeshData *m);
+		void Update();
+		void UpdatePos();
+		void Render(bool list);
+		
+		Model *Next;
+};
 
 #endif
