@@ -1,0 +1,6 @@
+Life 30
+Mass 1.0
+Size 50
+Force 0.0 -10.0 0.0
+ConstantEmission
+TexName res/ParticleSystem/Rain.tga

@@ -1,0 +1,140 @@
+/*
+	GameSound.cpp
+	Blaze Game Engine 0.02
+
+	Created by Ned Bingham on 8/8/05.
+	Copyright 2005 Sol Union. All rights reserved.
+
+    Blaze Game Engine 0.02 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Blaze Game Engine 0.02 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Blaze Game Engine 0.02.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#include "GameSound.h"
+
+GameSound::GameSound()
+{
+    EnterMovies();
+}
+
+GameSound::~GameSound()
+{
+}
+
+void GameSound::ReadSoundFile(const Str255 filename)
+{
+    OSErr error;
+    FSSpec soundFile;
+
+    CFBundleRef gameBundle = CFBundleGetMainBundle();
+    CFURLRef resourceFileLocation;
+    
+    CFStringRef resourceFileToFind; 
+    resourceFileToFind = CFStringCreateWithPascalString(nil, filename, CFStringGetSystemEncoding());
+    
+    CFStringRef resourceFileType = nil;
+    resourceFileLocation = CFBundleCopyResourceURL(gameBundle, resourceFileToFind,
+        resourceFileType, nil);
+    
+    if (resourceFileLocation == nil)
+        return;
+        
+    FSRef fileRef;
+    Boolean success = CFURLGetFSRef(resourceFileLocation, &fileRef);
+    
+    if (!success)
+        return;
+        
+    error = FSGetCatalogInfo(&fileRef, kFSCatInfoGettableInfo, nil, nil,
+            &soundFile, nil);
+    if (error != noErr)
+        return;
+        			
+    short soundFileRefNum;
+    
+    error = OpenMovieFile(&soundFile, &soundFileRefNum, fsRdPerm);
+    
+    if (error != noErr)
+        return;
+    
+    short fileID = movieInDataForkResID;
+    error = NewMovieFromFile(&theSound, soundFileRefNum, 
+            &fileID, nil, newMovieActive, nil);
+    
+    error = CloseMovieFile(soundFileRefNum);
+    
+    CFRelease(resourceFileToFind);
+    CFRelease(resourceFileLocation);
+}
+
+void GameSound::Play()
+{
+    StartMovie(theSound);
+    IsPlaying = true;
+}
+
+void GameSound::Repeat()
+{
+    if (IsMovieDone(theSound))
+    {
+        GoToBeginningOfMovie(theSound);
+        StartMovie(theSound);
+    }
+}
+
+void GameSound::SetVolume(short volume)
+{
+    SetMovieVolume(theSound, volume);
+}
+
+void GameSound::Mute()
+{
+    short cVolume = GetMovieVolume(theSound);
+    SetVolume(cVolume * -1);
+}
+
+void GameSound::Pause()
+{
+    StopMovie(theSound);
+    IsPlaying = false;
+}
+
+void GameSound::Resume()
+{
+    StartMovie(theSound);
+    IsPlaying = true;
+}
+
+void GameSound::Stop()
+{
+    StopMovie(theSound);
+    GoToBeginningOfMovie(theSound);
+    IsPlaying = true;
+}
+
+void GameSound::GiveTime(long time)
+{
+    MoviesTask(theSound, time);
+}
+
+void GameSound::Update()
+{
+    if (IsPlaying)
+        GiveTime(0);
+}
+
+void GameSound::CleanUpSound()
+{
+	Stop();
+    DisposeMovie(theSound);
+    ExitMovies();
+}

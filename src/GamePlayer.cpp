@@ -1,23 +1,23 @@
 /*
 	GamePlayer.cpp
-	Blaze Game Engine 0.01
+	Blaze Game Engine 0.02
 
-	Created by Ned Bingham on 1/17/06.
-  	Copyright 2006 Sol Union. All rights reserved.
+	Created by Ned Bingham on 6/03/06.
+	Copyright 2006 Sol Union. All rights reserved.
 
-    Blaze Game Engine 0.01 is free software: you can redistribute it and/or modify
+    Blaze Game Engine 0.02 is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    Blaze Game Engine 0.01 is distributed in the hope that it will be useful,
+    Blaze Game Engine 0.02 is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Blaze Game Engine 0.01.  If not, see <http://www.gnu.org/licenses/>.
- */
+    along with Blaze Game Engine 0.02.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "GamePlayer.h"
 
@@ -27,40 +27,66 @@ GamePlayer::GamePlayer()
 	cz = 0;
 }
 
-void GamePlayer::Init(MeshData *Data)
+void GamePlayer::Init(string filename)
 {
-	PlayerModel.Initialize(Data);
+	LoadObj(&PlayerModel, filename, 1, 1, 1, 1);
+	//LoadWRL(&PlayerModel, filename, 1, 1, 1, 1);
+	LoadMats(&PlayerModel, "res/Player/Player.mtl");
+	LoadPhysics(&PlayerModel, "res/Player/Player.phs");
+	GenNormals(&PlayerModel);
+	GenDisplayLists(&PlayerModel);
+	SetCollisionGroundFunction(&PlayerModel, &AnimateObjectGroundCollision);
 }
 
 void GamePlayer::Prepare()
 {
-	PlayerModel.Update();
+	if (jumping && PlayerModel.collidewithground)
+	{
+		PlayerModel.Physics.LinearVelocity.y += 10;
+		PlayerModel.Physics.Position.y += 2;
+		PlayerModel.collidewithground = false;
+		if (jumping)
+		{
+			PlayerModel.Physics.LinearVelocity.x *= 2;
+			PlayerModel.Physics.LinearVelocity.z *= 2;
+		}
+	}
+	Update(&PlayerModel, .0013);
+	if (PlayerModel.collidewithground)
+	{
+		PlayerModel.Physics.LinearVelocity.x = (cx*cos(pi/180 * Camera.rotate.y) + cz*cos(pi/180 * (Camera.rotate.y-90)));
+		PlayerModel.Physics.LinearVelocity.z = (cx*sin(pi/180 * Camera.rotate.y) + cz*sin(pi/180 * (Camera.rotate.y-90)));
+	}
+	jumping = false;
 }
 
 void GamePlayer::RenderCamera()
 {
-	PlayerModel.UpdatePos();
-	Camera.translate = PlayerModel.Position*-1;
-	Camera.translate.y -= PlayerModel.Mesh->Max.y + 5;
-	PlayerModel.Orientation.y = -Camera.rotate.y;
+	//glTranslatef(0.0, 0.0, -20.0);
 	Camera.Render();
+	glTranslatef(0.0, -(PlayerModel.Physics.BoundingBox.v[6].y+3), 0.0);
+	glRotatef(PlayerModel.Physics.Orientation.z, 0.0, 0.0, -1.0);
+	glRotatef(PlayerModel.Physics.Orientation.y, 0.0, -1.0, 0.0);
+	glRotatef(PlayerModel.Physics.Orientation.x, -1.0, 0.0, 0.0);
+	glTranslatef(-PlayerModel.Physics.Position.x, -PlayerModel.Physics.Position.y, -PlayerModel.Physics.Position.z);
 }
 
-void GamePlayer::RenderModel()
+void GamePlayer::Render()
 {
-	PlayerModel.Render(false);
+	RenderModel(&PlayerModel, true);
 }
 
 void GamePlayer::MoveX(GLfloat x)
 {
-	cx = -x;
-	PlayerModel.LinearVelocity.x = cx*cos(pi/180 * Camera.rotate.y) + cz*cos(pi/180 * (Camera.rotate.y-90));
-	PlayerModel.LinearVelocity.z = cx*sin(pi/180 * Camera.rotate.y) + cz*sin(pi/180 * (Camera.rotate.y-90));
+	cx = x*10;
 }
 
 void GamePlayer::MoveZ(GLfloat z)
 {
-	cz = -z;
-	PlayerModel.LinearVelocity.x = cx*cos(pi/180 * Camera.rotate.y) + cz*cos(pi/180 * (Camera.rotate.y-90));
-	PlayerModel.LinearVelocity.z = cx*sin(pi/180 * Camera.rotate.y) + cz*sin(pi/180 * (Camera.rotate.y-90));
+	cz = z*10;
+}
+
+void GamePlayer::Release()
+{
+	ReleaseModel(&PlayerModel);
 }

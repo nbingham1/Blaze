@@ -1,26 +1,74 @@
 /*
 	Main.cpp
-	Blaze Game Engine 0.01
+	Blaze Game Engine 0.02
 
 	Created by Ned Bingham on 8/6/05.
-  	Copyright 2005 Sol Union. All rights reserved.
+	Copyright 2005 Sol Union. All rights reserved.
 
-    Blaze Game Engine 0.01 is free software: you can redistribute it and/or modify
+    Blaze Game Engine 0.02 is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    Blaze Game Engine 0.01 is distributed in the hope that it will be useful,
+    Blaze Game Engine 0.02 is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Blaze Game Engine 0.01.  If not, see <http://www.gnu.org/licenses/>.
- */
-
+    along with Blaze Game Engine 0.02.  If not, see <http://www.gnu.org/licenses/>.
+*/
 #include "Main.h"
 #include "GameApp.h"
+
+char* string_to_char(string value)
+{
+	char *result = new char[value.length() + 1];
+
+	value.copy(result, value.length());
+	result[value.length()] = '\0';
+
+	return result;
+}
+
+char* int_to_char(int Num)
+{
+	char* n = new char[20];
+	sprintf(n, "%i", Num);
+	return n;
+}
+
+char* better_fgets(char *line, int len, FILE *in_file)
+{
+   char *temp = line;
+   int   val;
+
+   if (--len < 0)
+      return NULL;
+
+   if (len)
+   {
+      do
+      {
+         val = getc(in_file);
+
+         if (val == EOF)
+         {
+            if (feof(in_file) && temp != line)
+               break;
+            else
+            {
+               line = NULL;
+               return NULL;
+            }
+         }
+         *temp++ = val;
+      } while (val != '\r' && val != '\n' && --len);
+   }
+   *temp = '\0';
+
+   return line;
+}
 
 GameApp App;
 bool windowed = false;
@@ -82,7 +130,7 @@ int main(int argc, char **argv)
 
 	if (windowed)
 	{
-		glutInitWindowSize(1366, 768);
+		glutInitWindowSize(1600, 900);
 		glutInitWindowPosition(0, 0);
 		glutCreateWindow("BGE");
 	}
@@ -99,6 +147,9 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 	fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
+	fprintf(stdout, "Status: Using OpenGL %s\n", glGetString(GL_VERSION));
+	fprintf(stdout, "Status: Using GLU %s\n", gluGetString(GLU_VERSION));
+	fprintf(stdout, "Status: Using GLSL %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
 	if (glewGetExtension("GL_ARB_vertex_program"))
 		fprintf(stdout, "Status: ARB vertex programs available.\n");

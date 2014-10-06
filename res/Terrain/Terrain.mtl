@@ -1,7 +1,9 @@
 newmtl initialShadingGroup
-Sr 0.6
+Am 0.0 0.0 0.0
+Di 0.1 0.1 0.1
+Sp 0.0 0.0 0.0
 Em 0.0 0.0 0.0
+Op 1.0
 Re 100.0
-Op 0.5
-TextMap res/ground08.tga
-BumpMap res/r_bk.tga
+Sr 0.6
+TextMap2D res/GrassSample.tga LOD
