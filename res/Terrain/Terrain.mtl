@@ -1,0 +1,7 @@
+newmtl initialShadingGroup
+Sr 0.6
+Em 0.0 0.0 0.0
+Re 100.0
+Op 0.5
+TextMap res/ground08.tga
+BumpMap res/r_bk.tga
