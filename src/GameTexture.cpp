@@ -1,31 +1,31 @@
 /*
 	GameTexture.cpp
-	Blaze Game Engine 0.01
+	Blaze Game Engine 0.02
 
 	Created by Ned Bingham on 12/18/05.
-  	Copyright 2005 Sol Union. All rights reserved.
+	Copyright 2005 Sol Union. All rights reserved.
 
-    Blaze Game Engine 0.01 is free software: you can redistribute it and/or modify
+    Blaze Game Engine 0.02 is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    Blaze Game Engine 0.01 is distributed in the hope that it will be useful,
+    Blaze Game Engine 0.02 is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Blaze Game Engine 0.01.  If not, see <http://www.gnu.org/licenses/>.
- */
+    along with Blaze Game Engine 0.02.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "GameTexture.h"
+#include "GameApp.h"
 
-texture_t LoadTexture(const char* filename, GLboolean MipMap, GLenum format, GLint internalFormat, short imageScale)
+extern GameApp App;
+
+void GetDimensions(const char *filename, long *Width, long *Height, long *Depth)
 {
-	texture_t				texture;
-	texture.Scale = imageScale;
-	
 	FILE *file = fopen(filename, "rb");
 	if (file == NULL)
 	{
@@ -54,9 +54,45 @@ texture_t LoadTexture(const char* filename, GLboolean MipMap, GLenum format, GLi
 	int m_width = header[13] * 256 + header[12];
 	int m_height = header[15] * 256 + header[14];
 	int m_bpp = header[16] / 8;
-	texture.Width = m_width;
-	texture.Height = m_height;
-	texture.Depth = m_bpp;
+	*Width = (long)m_width;
+	*Height = (long)m_height;
+	*Depth = (long)m_bpp;
+
+	fclose(file);
+}
+
+void LoadTexture(const char *filename, long *Width, long *Height, unsigned char *data, int start)
+{
+	FILE *file = fopen(filename, "rb");
+	if (file == NULL)
+	{
+		printf("Could not open the file: %s\n", filename);
+		exit(0);
+	}
+
+	unsigned char header[20];
+
+	//read all 18 bytes of the header
+	fread(header, sizeof(char), 18, file);
+
+	//should be image type 2 (color) or type 10 (rle compressed color)
+	if (header[2] != 2 && header[2] != 10)
+	{
+		fclose(file);
+		exit(0);
+	}
+
+	if (header[0])
+	{
+		fseek(file, header[0], SEEK_CUR);
+	}
+
+	// get the size and bitdepth from the header
+	int m_width = header[13] * 256 + header[12];
+	int m_height = header[15] * 256 + header[14];
+	int m_bpp = header[16] / 8;
+	*Width = (long)m_width;
+	*Height = (long)m_height;
 
 	if (m_bpp != 3 && m_bpp != 4)
 	{
@@ -66,13 +102,10 @@ texture_t LoadTexture(const char* filename, GLboolean MipMap, GLenum format, GLi
 
 	int imageSize = m_width * m_height * m_bpp;
 
-	//allocate memory for image data
-	unsigned char *data = new unsigned char[imageSize];
-
 	//read the uncompressed image data if type 2
 	if (header[2] == 2)
 	{
-		fread(data, sizeof(char), imageSize, file);
+		fread(&data[start], sizeof(char), imageSize, file);
 	}
 
 	long ctpixel = 0,
@@ -93,7 +126,7 @@ texture_t LoadTexture(const char* filename, GLboolean MipMap, GLenum format, GLi
 			// if the rle header is below 128 it means that what folows is just raw data with rle+1 pixels
 			if (rle < 128)
 			{
-				fread(&data[ctpixel], m_bpp, rle+1, file);
+				fread(&data[start + ctpixel], m_bpp, rle+1, file);
 				ctpixel += m_bpp*(rle+1);
 			}
 
@@ -108,12 +141,12 @@ texture_t LoadTexture(const char* filename, GLboolean MipMap, GLenum format, GLi
 				ctloop = 0;
 				while (ctloop < (rle-127))
 				{
-					data[ctpixel] = color[0];
-					data[ctpixel+1] = color[1];
-					data[ctpixel+2] = color[2];
+					data[start + ctpixel] = color[0];
+					data[start + ctpixel+1] = color[1];
+					data[start + ctpixel+2] = color[2];
 					if (m_bpp == 4)
 					{
-						data[ctpixel+3] = color[3];
+						data[start + ctpixel+3] = color[3];
 					}
 
 					ctpixel += m_bpp;
@@ -129,23 +162,90 @@ texture_t LoadTexture(const char* filename, GLboolean MipMap, GLenum format, GLi
 	unsigned char temp;
 	while (ctpixel < imageSize)
 	{
-		temp = data[ctpixel];
-		data[ctpixel] = data[ctpixel+2];
-		data[ctpixel+2] = temp;
+		temp = data[start + ctpixel];
+		data[start + ctpixel] = data[start + ctpixel+2];
+		data[start + ctpixel+2] = temp;
 		ctpixel += m_bpp;
 	}
 
 	//close file
 	fclose(file);
+}
+
+GLuint Load2DTexture(string filename, bool LOD)
+{
+	printf("%s\n", filename.c_str());
+	long Width, Height, Depth;
+	GetDimensions(filename.c_str(), &Width, &Height, &Depth);
+	unsigned char *Data = new unsigned char[Width*Height*Depth];
+	GLuint Texture;
 	
+	LoadTexture(filename.c_str(), &Width, &Height, Data, 0);
+
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-	glGenTextures(1, &texture.Image);
-	glBindTexture(GL_TEXTURE_2D, texture.Image);
-	if (!MipMap)
-		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, texture.Width, texture.Height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+	glPixelStorei(GL_PACK_ALIGNMENT, 1);
+	glGenTextures(1, &Texture);
+	glBindTexture(GL_TEXTURE_2D, Texture);
+	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, App.MaxAnisotropy);
+	if (LOD)
+	{
+		if (Depth == 3)
+			gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, Width, Height, GL_RGB, GL_UNSIGNED_BYTE, Data);
+		else if (Depth == 4)
+			gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGBA, Width, Height, GL_RGBA, GL_UNSIGNED_BYTE, Data);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	}
 	else
-		gluBuild2DMipmaps(GL_TEXTURE_2D, GL_RGB, texture.Width, texture.Height, GL_RGB, GL_UNSIGNED_BYTE, data);
-	free(data);
+	{
+		if (Depth == 3)
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, Width, Height, 0, GL_RGB, GL_UNSIGNED_BYTE, Data);
+		else if (Depth == 4)
+			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Width, Height, 0, GL_RGBA, GL_UNSIGNED_BYTE, Data);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	}
+	free(Data);
+
+	return Texture;
+}
+
+GLuint Load3DTexture(string *filename, int Depth, bool LOD)
+{
+	long Width, Height, depth;
+	GLuint Texture;
+	GetDimensions((filename[0]).c_str(), &Width, &Height, &depth);
+	unsigned char *Data = new unsigned char[Width*Height*Depth*depth];
 	
-	return texture;
+	for (int x = 0; x < Depth; x++)
+		LoadTexture((filename[x]).c_str(), &Width, &Height, Data, Height*Width*x*depth);
+	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
+	glPixelStorei(GL_PACK_ALIGNMENT, 1);
+	glGenTextures(1, &Texture);
+	glBindTexture(GL_TEXTURE_3D, Texture);
+	if (LOD)
+	{
+		//gluBuild3DMipmaps(GL_TEXTURE_3D, GL_RGB, Width, Height, Depth, GL_RGB, GL_UNSIGNED_BYTE, Data);
+		glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+		glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+	}
+	else
+	{
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+		glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB, Width, Height, Depth, 0, GL_RGB, GL_UNSIGNED_BYTE, Data);
+	}
+	free(Data);
+
+	return Texture;
 }

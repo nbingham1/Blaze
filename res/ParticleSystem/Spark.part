@@ -1,0 +1,8 @@
+Life 10
+Mass 1.0
+Size 2.5
+Force 0.0 -0.163333 0.0
+Explosion
+ConstantEmission
+Direct
+TexName res/ParticleSystem/Spark.tga

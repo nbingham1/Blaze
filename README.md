@@ -3,31 +3,28 @@ Blaze
 
 Planetary game engine
 
-This was my first attempt at some kind of graphics engine, 
-so there is no collision detection, no fancy stuff, just the 
-basics. It loads models and skyboxes, and it has a prevailing 
-acceleration down, So you need to hold the spacebar to stay
-afloat.
+I went through a couple iterations of engines between Blaze Game
+Engine 0.01 and this. During that time, I implemented a sound
+library for Mac OS X, I implemented basic collision detection and
+response, I developed a very basic water effect, I implemented
+a heightmap loader, and I developed a particle engine.
 
 Controls:
+Movement:
 w	->	Forward
 a	->	Strafe Left
 s	->	Backward
 d	->	Strafe Right
 space	->	Jump
+
+Application:
 esc	->	Quit
 
-To play the executable alone, you have to put the following files
-and directories in the same directory:
-
-Player
-Terrain
-Blaze Game Engine.exe
-ground08.tga
-m_bk.tga
-m_dn.tga
-m_ft.tga
-m_lt.tga
-m_rt.tga
-m_up.tga
-m_bk.tga
+Particle Generation:
+1	->	Rain
+2	->	Snow
+3	->	Fire
+4	->	Dirt
+5	->	Grass
+6	->	Sparks
+7	->	Smoke

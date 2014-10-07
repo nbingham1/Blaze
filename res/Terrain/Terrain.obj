@@ -1,6 +1,7 @@
 # This file uses centimeters as units for non-parametric coordinates.
 
 mtllib res/Terrain/Terrain.mtl
+phslib res/Terrain/Terrain.phs
 v -5.000000 -0.560349 5.000000
 v -4.900000 -0.550432 5.000000
 v -4.800000 -0.535171 5.000000
