@@ -25,17 +25,19 @@ struct Player
 	Vector Move;
 	bool   Jump;
 	bool   on_ground;
-	double scale;
+	GLdouble scale;
+	GLdouble distance;
 	
 	int GridX, GridY;
 	int Planet;
 	int System;
 	int Galaxy;
+	GLdouble mult;
 	
 	void Init(char *mn, int mt);
-	void MoveForward(double z);
-	void MoveSideways(double x);
-	void MoveVertically(double y);
+	void MoveForward(GLdouble z);
+	void MoveSideways(GLdouble x);
+	void MoveVertically(GLdouble y);
 	void Render();
 	void Release();
 };

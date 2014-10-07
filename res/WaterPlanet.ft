@@ -1,0 +1,13 @@
+varying vec3 norm;
+
+varying vec3 Specular;
+varying float Diffuse;
+
+uniform sampler2D texture;
+varying vec2 texcoord;
+
+
+void main()
+{
+	gl_FragColor = vec4(vec3(0.0, 0.3, 0.5)*texture2D(texture, texcoord).rgb, 0.8);
+}

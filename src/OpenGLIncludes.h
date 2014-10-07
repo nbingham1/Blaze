@@ -12,7 +12,6 @@
 
 #define GLEW_STATIC
 
-// OpenGL Libraries
 #include <GL/glew.h>
 #include <GL/glut.h>
 #include <GL/gl.h>

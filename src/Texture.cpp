@@ -9,7 +9,6 @@
 
 #include "Texture.h"
 #include "CoreGraphics.h"
-#include "Input.h"
 
 extern CoreGraphics Renderer;
 

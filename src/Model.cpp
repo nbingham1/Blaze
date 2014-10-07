@@ -8,9 +8,8 @@
  */
 
 #include "Model.h"
-#include "Input.h"
 
-void Model::AddVert(GLfloat x, GLfloat y, GLfloat z)
+void Model::AddVert(GLdouble x, GLdouble y, GLdouble z)
 {
 	if (NumVerts < 750000)
 	{
@@ -36,7 +35,7 @@ void Model::AddVert(GLfloat x, GLfloat y, GLfloat z)
 		printf("Too many vertices.\n");
 }
 
-void Model::AddNorm(GLfloat x, GLfloat y, GLfloat z)
+void Model::AddNorm(GLdouble x, GLdouble y, GLdouble z)
 {
 	if (NumNorms < 750000)
 	{
@@ -49,7 +48,7 @@ void Model::AddNorm(GLfloat x, GLfloat y, GLfloat z)
 		printf("Too many normals.\n");
 }
 
-void Model::AddText(GLfloat x, GLfloat y, GLfloat z)
+void Model::AddText(GLdouble x, GLdouble y, GLdouble z)
 {
 	if (NumTexts < 750000)
 	{
@@ -73,7 +72,7 @@ void Model::AddEdge(ModelEdge *Edge)
 	{
 		bool Duplicate = false;
 		ModelEdge *Current = Edges;
-		while (Current != NULL && Current->Next != NULL)
+		while (Current->Next != NULL)
 		{
 			if ((*Edge) == (*Current))
 			{
@@ -81,8 +80,9 @@ void Model::AddEdge(ModelEdge *Edge)
 				free(Edge);
 				break;
 			}
-
-			Current = Current->Next;
+			else
+				Current = Current->Next;
+				
 		}
 		
 		if (!Duplicate)
@@ -118,7 +118,7 @@ void Model::Move(double x, double y, double z)
 
 void LoadObj(Model *mdl, char *filename)
 {
-	FILE *file;
+	CoreFile File;
 	char oneline[255];
 	char mtlname[255];
 	char phsname[255];
@@ -129,7 +129,7 @@ void LoadObj(Model *mdl, char *filename)
 	int t1, t2, t3, t4;
 	GLfloat x, y, z;
 	
-	file = fopen(filename, "r");
+	File.Open(filename);
 	
 	mdl->NumVerts = 0;
 	mdl->NumNorms = 0;
@@ -141,9 +141,9 @@ void LoadObj(Model *mdl, char *filename)
 	mdl->Faces = NULL;
 	mdl->Materials = NULL;	
 	
-	while (!feof(file))
+	while (!feof(File.file))
 	{
-		if (fgets(oneline, 255, file) == NULL)
+		if (better_fgets(oneline, 255, File.file) == NULL)
 			break;
 		
 		if (strncmp(oneline, "mtllib", 6) == 0)
@@ -207,6 +207,8 @@ void LoadObj(Model *mdl, char *filename)
 		else if (sscanf(oneline, "f %d/%d/%d %d/%d/%d %d/%d/%d %d/%d/%d", &v1, &n1, &t1, &v2, &n2, &t2, &v3, &n3, &t3, &v4, &n4, &t4) == 12)
 		{
 			ModelFace *Face1 = (ModelFace*)malloc(sizeof(ModelFace));
+			if (!Face1)
+					cout << "ARRG" << endl;
 			Face1->Next = NULL;
 			
 			Face1->v1 = (v1 < 0) ? (mdl->NumVerts + v1) : (v1 - 1);
@@ -226,6 +228,8 @@ void LoadObj(Model *mdl, char *filename)
 			mdl->AddFace(Face1);
 			
 			ModelFace *Face2 = (ModelFace*)malloc(sizeof(ModelFace));
+			if (!Face2)
+					cout << "ARRG" << endl;
 			Face2->Next = NULL;
 			
 			Face2->v1 = (v3 < 0) ? (mdl->NumVerts + v3) : (v3 - 1);
@@ -245,30 +249,40 @@ void LoadObj(Model *mdl, char *filename)
 			mdl->AddFace(Face2);
 			
 			ModelEdge *Edge1 = (ModelEdge*)malloc(sizeof(ModelEdge));
+			if (!Edge1)
+					cout << "ARRG" << endl;
 			Edge1->v1 = (v1 < 0) ? (mdl->NumVerts + v1) : (v1 - 1);
 			Edge1->v2 = (v2 < 0) ? (mdl->NumVerts + v2) : (v2 - 1);
 			Edge1->Next = NULL;
 			mdl->AddEdge(Edge1);
 			
 			ModelEdge *Edge2 = (ModelEdge*)malloc(sizeof(ModelEdge));
+			if (!Edge2)
+					cout << "ARRG" << endl;
 			Edge2->v1 = (v2 < 0) ? (mdl->NumVerts + v2) : (v2 - 1);
 			Edge2->v2 = (v3 < 0) ? (mdl->NumVerts + v3) : (v3 - 1);
 			Edge2->Next = NULL;
 			mdl->AddEdge(Edge2);
 			
 			ModelEdge *Edge3 = (ModelEdge*)malloc(sizeof(ModelEdge));
+			if (!Edge3)
+					cout << "ARRG" << endl;
 			Edge3->v1 = (v3 < 0) ? (mdl->NumVerts + v3) : (v3 - 1);
 			Edge3->v2 = (v4 < 0) ? (mdl->NumVerts + v4) : (v4 - 1);
 			Edge3->Next = NULL;
 			mdl->AddEdge(Edge3);
 			
 			ModelEdge *Edge4 = (ModelEdge*)malloc(sizeof(ModelEdge));
+			if (!Edge3)
+					cout << "ARRG" << endl;
 			Edge4->v1 = (v4 < 0) ? (mdl->NumVerts + v4) : (v4 - 1);
 			Edge4->v2 = (v1 < 0) ? (mdl->NumVerts + v1) : (v1 - 1);
 			Edge4->Next = NULL;
 			mdl->AddEdge(Edge4);
 			
 			ModelEdge *Edge5 = (ModelEdge*)malloc(sizeof(ModelEdge));
+			if (!Edge5)
+					cout << "ARRG" << endl;
 			Edge5->v1 = (v1 < 0) ? (mdl->NumVerts + v1) : (v1 - 1);
 			Edge5->v2 = (v3 < 0) ? (mdl->NumVerts + v3) : (v3 - 1);
 			Edge5->Next = NULL;
@@ -278,6 +292,8 @@ void LoadObj(Model *mdl, char *filename)
 		else if (sscanf(oneline, "f %d//%d %d//%d %d//%d %d//%d", &v1, &n1, &v2, &n2, &v3, &n3, &v4, &n4) == 8)
 		{
 			ModelFace *Face1 = (ModelFace*)malloc(sizeof(ModelFace));
+			if (!Face1)
+					cout << "ARRG" << endl;
 			Face1->Next = NULL;
 			
 			Face1->v1 = (v1 < 0) ? (mdl->NumVerts + v1) : (v1 - 1);
@@ -297,6 +313,8 @@ void LoadObj(Model *mdl, char *filename)
 			mdl->AddFace(Face1);
 			
 			ModelFace *Face2 = (ModelFace*)malloc(sizeof(ModelFace));
+			if (!Face2)
+					cout << "ARRG" << endl;
 			Face2->Next = NULL;
 			
 			Face2->v1 = (v3 < 0) ? (mdl->NumVerts + v3) : (v3 - 1);
@@ -316,30 +334,40 @@ void LoadObj(Model *mdl, char *filename)
 			mdl->AddFace(Face2);
 			
 			ModelEdge *Edge1 = (ModelEdge*)malloc(sizeof(ModelEdge));
+			if (!Edge1)
+					cout << "ARRG" << endl;
 			Edge1->v1 = (v1 < 0) ? (mdl->NumVerts + v1) : (v1 - 1);
 			Edge1->v2 = (v2 < 0) ? (mdl->NumVerts + v2) : (v2 - 1);
 			Edge1->Next = NULL;
 			mdl->AddEdge(Edge1);
 			
 			ModelEdge *Edge2 = (ModelEdge*)malloc(sizeof(ModelEdge));
+			if (!Edge2)
+					cout << "ARRG" << endl;
 			Edge2->v1 = (v2 < 0) ? (mdl->NumVerts + v2) : (v2 - 1);
 			Edge2->v2 = (v3 < 0) ? (mdl->NumVerts + v3) : (v3 - 1);
 			Edge2->Next = NULL;
 			mdl->AddEdge(Edge2);
 			
 			ModelEdge *Edge3 = (ModelEdge*)malloc(sizeof(ModelEdge));
+			if (!Edge3)
+					cout << "ARRG" << endl;
 			Edge3->v1 = (v3 < 0) ? (mdl->NumVerts + v3) : (v3 - 1);
 			Edge3->v2 = (v4 < 0) ? (mdl->NumVerts + v4) : (v4 - 1);
 			Edge3->Next = NULL;
 			mdl->AddEdge(Edge3);
 			
 			ModelEdge *Edge4 = (ModelEdge*)malloc(sizeof(ModelEdge));
+			if (!Edge4)
+					cout << "ARRG" << endl;
 			Edge4->v1 = (v4 < 0) ? (mdl->NumVerts + v4) : (v4 - 1);
 			Edge4->v2 = (v1 < 0) ? (mdl->NumVerts + v1) : (v1 - 1);
 			Edge4->Next = NULL;
 			mdl->AddEdge(Edge4);
 			
 			ModelEdge *Edge5 = (ModelEdge*)malloc(sizeof(ModelEdge));
+			if (!Edge5)
+					cout << "ARRG" << endl;
 			Edge5->v1 = (v1 < 0) ? (mdl->NumVerts + v1) : (v1 - 1);
 			Edge5->v2 = (v3 < 0) ? (mdl->NumVerts + v3) : (v3 - 1);
 			Edge5->Next = NULL;
@@ -648,8 +676,7 @@ void LoadObj(Model *mdl, char *filename)
 			mdl->AddEdge(Edge3);
 		}
 	}
-
-	fclose(file);
+	File.Close();
 		
 	if (phsname[0] != '\0')
 		LoadPhysics(mdl, phsname);
@@ -657,7 +684,7 @@ void LoadObj(Model *mdl, char *filename)
 	GenerateNormals(mdl);
 	
 	mdl->Radius = Magnitude(mdl->Max);
-	GLfloat mag = Magnitude(mdl->Min);
+	GLdouble mag = Magnitude(mdl->Min);
 	if (mag > mdl->Radius)
 		mdl->Radius = mag;
 	
@@ -666,16 +693,16 @@ void LoadObj(Model *mdl, char *filename)
 
 void LoadMaterials(Model *mdl, char *filename)
 {
-	FILE *file;
+	CoreFile File;
 	char oneline[255];
-	GLfloat v1, v2, v3;
+	GLdouble v1, v2, v3;
 	
-	file = fopen(filename, "r");
+	File.Open(filename);
 	
 	Material *Current;
-	while (!feof(file))
+	while (!feof(File.file))
 	{
-		if (fgets(oneline, 255, file) == NULL)
+		if (better_fgets(oneline, 255, File.file) == NULL)
 			break;
 		
 		if (strncmp(oneline, "newmtl", 6) == 0)
@@ -760,23 +787,23 @@ void LoadMaterials(Model *mdl, char *filename)
 				Current->DetailMap = Load2DTexture(string(Current->DetailName), false);
 		}
 	}
-	fclose(file);
+	File.Close();
 }
 
 void LoadPhysics(Model *mdl, char *filename)
 {
-	FILE *file;
+	CoreFile File;
 	char oneline[255];
 	GLfloat v1, v2, v3;
 	
 	mdl->Physics.Mass = 1.0;
 	mdl->Physics.Elasticity = 1.0;
 	
-	file = fopen(filename, "r");
+	File.Open(filename);
 	
-	while (!feof(file))
+	while (!feof(File.file))
 	{
-		if (fgets(oneline, 255, file) == NULL)
+		if (better_fgets(oneline, 255, File.file) == NULL)
 			break;
 		
 		if (strncmp(oneline, "Ma", 2) == 0)
@@ -807,8 +834,7 @@ void LoadPhysics(Model *mdl, char *filename)
 			mdl->Physics.Orientation.z = v3;
 		}
 	}
-
-	fclose(file);
+	File.Close();
 	
 	mdl->Physics.Volume = (mdl->Max.x-mdl->Min.x)*(mdl->Max.y-mdl->Min.y)*(mdl->Max.z-mdl->Min.z);
 	mdl->Physics.Density = mdl->Physics.Mass/mdl->Physics.Volume;
@@ -869,25 +895,25 @@ void RenderMdl(Model *mdl)
 	while (Current != NULL)
 	{
 		if (Current->t1 != -1)
-			glTexCoord3fv(&mdl->Texts[Current->t1*3]);
+			glTexCoord3dv(&mdl->Texts[Current->t1*3]);
 		if (Current->n1 != -1)
-			glNormal3fv(&mdl->Norms[Current->n1*3]);
+			glNormal3dv(&mdl->Norms[Current->n1*3]);
 		if (Current->v1 != -1)
-			glVertex3fv(&mdl->Verts[Current->v1*3]);
+			glVertex3dv(&mdl->Verts[Current->v1*3]);
 		
 		if (Current->t2 != -1)
-			glTexCoord3fv(&mdl->Texts[Current->t2*3]);
+			glTexCoord3dv(&mdl->Texts[Current->t2*3]);
 		if (Current->n2 != -1)
-			glNormal3fv(&mdl->Norms[Current->n2*3]);
+			glNormal3dv(&mdl->Norms[Current->n2*3]);
 		if (Current->v2 != -1)
-			glVertex3fv(&mdl->Verts[Current->v2*3]);
+			glVertex3dv(&mdl->Verts[Current->v2*3]);
 		
 		if (Current->t3 != -1)
-			glTexCoord3fv(&mdl->Texts[Current->t3*3]);
+			glTexCoord3dv(&mdl->Texts[Current->t3*3]);
 		if (Current->n3 != -1)
-			glNormal3fv(&mdl->Norms[Current->n3*3]);
+			glNormal3dv(&mdl->Norms[Current->n3*3]);
 		if (Current->v3 != -1)
-			glVertex3fv(&mdl->Verts[Current->v3*3]);
+			glVertex3dv(&mdl->Verts[Current->v3*3]);
 		
 		Current = Current->Next;
 	}

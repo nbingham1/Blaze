@@ -10,7 +10,6 @@
 #include "CoreGraphics.h"
 #include "Keyboard.h"
 #include "Mouse.h"
-#include "Input.h"
 
 CoreGraphics		Renderer;		// Handles all of the OpenGL rendering
 Keyboard		KeyboardHandler;// Handles all keyboard input events
@@ -21,7 +20,7 @@ bool windowed = false;
 void init()
 {
 	glClearColor(0.0, 0.0, 0.0, 0.0);
-	glViewport(0, 0, 1366, 768);
+	glViewport(0, 0, 1440, 900);
 	Renderer.Init();
 	glLoadIdentity();
 	// initialize anything you need to here
@@ -90,13 +89,13 @@ int main(int argc, char **argv)
 
 	if (windowed)
 	{
-		glutInitWindowSize(1600, 900);
+		glutInitWindowSize(1400, 900);
 		glutInitWindowPosition(0, 0);
 		glutCreateWindow("BGE");
 	}
 	else
 	{
-		glutGameModeString("1600x900:32@60");
+		glutGameModeString("1440x900:32@60");
 		glutEnterGameMode();
 	}
 

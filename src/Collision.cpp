@@ -2,43 +2,44 @@
  *  Collision.cpp
  *  Blaze Game Engine
  *
- *  Created by Ned Bingham on 4/23/07.
- *  Copyright 2007 Sol Union. All rights reserved.
+ *  Created by Ned Bingham on 8/11/07.
+ *  Copyright 2007 __MyCompanyName__. All rights reserved.
  *
  */
 
 #include "Collision.h"
+#include "BasicPhysics.h"
 
-void bsp_tree::create_node(bsp_node *n, unsigned short *indices)
+bool model_triangle_collision(Model *m, Vector *t)
 {
-	bsp_node *children = (bsp_node*)malloc(sizeof(bsp_node)*2);
-	Vector normal;
-	Vector v1, v2, v3, v4;
+	Matrix A1, A2;
+	Vector v[16];
+	Vector up = -1*Normalize(m->Physics.Gravity);
+	Vector next = m->Physics.Position + m->Physics.LinearVelocity;
+	Vector current = m->Physics.Position + MidPoint(m->Min, m->Max);
+	Box b;
+	b.SetBox(m->Min, m->Max);
+	EulertoMatrix(m->Physics.Orientation, A1);
+	EulertoMatrix(m->Physics.Orientation + m->Physics.AngularVelocity, A2);
+	for (int x = 0; x < 8; x++)
+	{
+		v[x] = A1*b.Vertices[x] + m->Physics.Position;
+		v[x+8] = A2*b.Vertices[x] + next;
+	}
 	
-	for (int x = 0; x < sizeof(indices)/(sizeof(unsigned short)*4); x+=4)
+	bool coll = IntersectBoxTri(v, t[0], t[1], t[2]);
+		
+	if (coll)
 	{
-		v1 = Vector(indices[x+0], indices[x+1], indices[x+2]);
-		v2 = Vector(indices[x+3], indices[x+4], indices[x+5]);
-		v3 = Vector(indices[x+6], indices[x+7], indices[x+8]);
-		v4 = Vector(indices[x+9], indices[x+10], indices[x+11]);
-		normal = CalculateNormal(v1, v2, v3);
+		Vector n = CalculateNormal(t[0], t[1], t[2]);
 		
+		if (Dot(n, up) < 0.0001)
+			n*=-1.0;
+		
+		GLdouble dot = Dot(m->Physics.LinearVelocity, n);
+		
+		m->Physics.SumForces.Force -= (m->Physics.LinearMomentum - m->Physics.Mass*(m->Physics.LinearVelocity - 2*dot*n));
 	}
-}
-
-void bsp_tree::destroy_node(bsp_node *n)
-{
-}
-
-void bsp_tree::binary_sort(unsigned short *indices)
-{
-	int low = 0;
-	int high = sizeof(indices)/(sizeof(unsigned short)*3);
-	int pivot;
-	unsigned short temp;
-		
-	while (low != high)
-	{
-		
-	}
+	
+	return coll;
 }

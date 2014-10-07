@@ -1,0 +1,31 @@
+varying vec3 norm;
+uniform vec3 pvec;
+uniform float dist;
+
+varying vec3 Specular;
+varying float Diffuse;
+
+varying vec2 texcoord;
+
+vec3 light_pos = vec3(.97*1000000.0, 0.24*1000000.0, 0.0);
+
+void main()
+{
+	norm = (normalize(gl_Normal) + normalize(vec3((gl_Vertex + vec4(dist*pvec, 1.0)))));
+	
+	vec3 ecPos = vec3(gl_ModelViewMatrix*(gl_Vertex + vec4(dist*pvec, 1.0)));
+	vec3 tnorm = normalize(norm);
+	vec3 lightVec = normalize(light_pos - ecPos);
+	vec3 reflectVec = reflect(-lightVec, tnorm);
+	vec3 viewVec = normalize(-ecPos);
+	
+	float spec = clamp(dot(reflectVec, tnorm), 0.0, 1.0)*.8;
+	spec = pow(spec, 8.0);
+	
+	Specular = vec3(spec)*vec3(1.0, 0.941, 0.898);
+	Diffuse = 2.0*(max(max(dot(lightVec, tnorm), 0.0) - .5, 0.1));
+		
+	texcoord = gl_MultiTexCoord0.st;
+	
+	gl_Position = ftransform();
+}

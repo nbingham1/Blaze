@@ -19,11 +19,11 @@ struct Force
 	Vector AppPoint;
 };
 
-Vector CalculateRotationalInertia(GLfloat Mass, Vector *Points, int NumPoints);
+Vector CalculateRotationalInertia(GLdouble Mass, Vector *Points, int NumPoints);
 Vector CalculateTorque(Vector Force, Vector ApplicationPoint);
 Vector CalculateCenterOfMass(Vector *Points, int NumPoints);
-GLfloat CalculateDensity(GLfloat Volume, GLfloat Mass);
-Vector CalculateMomentum(GLfloat Mass, Vector Velocity);
-double CalculateGravitationalPull(GLfloat Mass1, GLfloat Mass2, Vector Position1, Vector Position2);
+GLdouble CalculateDensity(GLdouble Volume, GLdouble Mass);
+Vector CalculateMomentum(GLdouble Mass, Vector Velocity);
+GLdouble CalculateGravitationalPull(GLdouble Mass1, GLdouble Mass2, Vector Position1, Vector Position2);
 
 #endif

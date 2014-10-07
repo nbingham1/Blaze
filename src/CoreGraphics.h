@@ -16,15 +16,12 @@
 #include "Camera.h"
 #include "Player.h"
 #include "Planet.h"
-#include "World.h"
 
 struct CoreGraphics
 {
 	CorePhysics Physics;
-	
 	Player ThePlayer;
-	World W;
-	Planet P;
+	Planet n;
 	
 	void Init();
 	void RenderFrame();

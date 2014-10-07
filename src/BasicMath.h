@@ -29,8 +29,8 @@ using namespace std;
 
 double GetMin(Vector *Points, int Num, Vector Axis);
 double GetMax(Vector *Points, int Num, Vector Axis);
-GLfloat absolute(GLfloat f);
-GLfloat modulate(GLfloat f, GLfloat m);
+GLdouble absolute(GLdouble f);
+GLdouble modulate(GLdouble f, GLdouble m);
 
 bool Intersect(Vector *p1, int n1, Vector *p2, int n2, Vector Axis);
 bool IntersectBoxTri(Vector BoxPoints[16], Vector v1, Vector v2, Vector v3);

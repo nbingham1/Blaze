@@ -9,16 +9,16 @@
 
 #include "Camera.h"
 
-void Camera::Rotate(GLfloat x, GLfloat y, GLfloat z)
+void Camera::Rotate(GLdouble x, GLdouble y, GLdouble z)
 {
 	Orientation.x += x;
 	Orientation.y += y;
 	Orientation.z += z;
-	if (Orientation.x >= 90)
-		Orientation.x = 90;
+	if (Orientation.x >= 90.0)
+		Orientation.x = 90.0;
 	
-	else if (Orientation.x <= -80)
-		Orientation.x = -80;
+	else if (Orientation.x <= -80.0)
+		Orientation.x = -80.0;
 }
 
 void Camera::Rotate(Vector v)
@@ -26,22 +26,22 @@ void Camera::Rotate(Vector v)
 	Orientation.x += v.x;
 	Orientation.y += v.y;
 	Orientation.z += v.z;
-	if (Orientation.x >= 90)
-		Orientation.x = 90;
+	if (Orientation.x >= 90.0)
+		Orientation.x = 90.0;
 	
-	else if (Orientation.x <= -80)
-		Orientation.x = -80;
+	else if (Orientation.x <= -80.0)
+		Orientation.x = -80.0;
 }
 
-void Camera::Translate(GLfloat x, GLfloat y, GLfloat z)
+void Camera::Translate(GLdouble x, GLdouble y, GLdouble z)
 {
 	Position.y += y;
 
-    Position.x += x*cos(pi/180 * Orientation.y) + z*cos(pi/180 * (Orientation.y-90));
-	Position.z += x*sin(pi/180 * Orientation.y) + z*sin(pi/180 * (Orientation.y-90));
+    Position.x += x*cos(pi/180.0 * Orientation.y) + z*cos(pi/180.0 * (Orientation.y-90.0));
+	Position.z += x*sin(pi/180.0 * Orientation.y) + z*sin(pi/180.0 * (Orientation.y-90.0));
 	
 	if (Host != NULL && Control)
-		Host->Move(x*cos(pi/180 * Orientation.y) + z*cos(pi/180 * (Orientation.y-90)), y, x*sin(pi/180 * Orientation.y) + z*sin(pi/180 * (Orientation.y-90)));
+		Host->Move(x*cos(pi/180.0 * Orientation.y) + z*cos(pi/180.0 * (Orientation.y-90.0)), y, x*sin(pi/180.0 * Orientation.y) + z*sin(pi/180.0 * (Orientation.y-90.0)));
 }
 
 void Camera::AttachCamera(Model *HostAdress, Vector Dist, bool control)
@@ -62,15 +62,16 @@ void Camera::DetachCamera()
 
 void Camera::Render()
 {
-	glTranslatef(0.0, 0.0, CameraDistance);
-    glRotated(Orientation.x, 1, 0, 0);
-    glRotated(Orientation.y, 0, 1, 0);
-    glRotated(Orientation.z, 0, 0, 1);
+	glTranslated(0.0, 0.0, CameraDistance);
+    glRotated(Orientation.x, 1.0, 0, 0);
+    glRotated(Orientation.y, 0, 1.0, 0);
+    glRotated(Orientation.z, 0, 0, 1.0);
 	glTranslated(DistanceFromHost.x, DistanceFromHost.y, DistanceFromHost.z);
 	
-	glScalef(.125, .125, .125);
-	RenderMdl(Host);
-	glScalef(8.0, 8.0, 8.0);
+	glScaled(.125, .125, .125);
+	if (Host != NULL)
+		RenderMdl(Host);
+	glScaled(8.0, 8.0, 8.0);
 	
 	if (CameraDistance == 0.0 && Host != NULL)
 	{
@@ -78,9 +79,9 @@ void Camera::Render()
 		glRotated(Host->Physics.Orientation.y, 0, -1, 0);
 		glRotated(Host->Physics.Orientation.x, -1, 0, 0);
 	}
-	if (Host != NULL)
-		glTranslated(-Host->Physics.Position.x, -Host->Physics.Position.y, -Host->Physics.Position.z);
-	else
-		glTranslated(Position.x, Position.y, Position.z);
+	//if (Host != NULL)
+	//	glTranslated(-Host->Physics.Position.x, -Host->Physics.Position.y, -Host->Physics.Position.z);
+	//else
+	//	glTranslated(Position.x, Position.y, Position.z);
 	
 }

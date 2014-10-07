@@ -11,16 +11,18 @@
 #define Vector_h
 
 #include "Matrix.h"
+#include "OpenGLIncludes.h"
 
 #include <math.h>
 
 struct Vector
 {
-	Vector(double X, double Y, double Z);
+	Vector(GLdouble X, GLdouble Y, GLdouble Z);
+	Vector(GLdouble *arr);
 	Vector();
 	~Vector();
 	
-	double x, y, z;
+	GLdouble x, y, z;
 	
 	Vector &operator =(Vector v);
 	
@@ -29,10 +31,10 @@ struct Vector
 	Vector &operator *=(Vector v);
 	Vector &operator /=(Vector v);
 	
-	Vector &operator +=(double f);
-	Vector &operator -=(double f);
-	Vector &operator *=(double f);
-	Vector &operator /=(double f);
+	Vector &operator +=(GLdouble f);
+	Vector &operator -=(GLdouble f);
+	Vector &operator *=(GLdouble f);
+	Vector &operator /=(GLdouble f);
 };
 
 Vector Normalize(Vector v);
@@ -57,42 +59,42 @@ inline Vector operator /(Vector v1, Vector v2)
 	return Vector(v1.x / v2.x, v1.y / v2.y, v1.z / v2.z);
 }
 
-inline Vector operator +(Vector v, double f)
+inline Vector operator +(Vector v, GLdouble f)
 {
 	return Vector(v.x + f, v.y + f, v.z + f);
 }
 
-inline Vector operator -(Vector v, double f)
+inline Vector operator -(Vector v, GLdouble f)
 {
 	return Vector(v.x - f, v.y - f, v.z - f);
 }
 
-inline Vector operator *(Vector v, double f)
+inline Vector operator *(Vector v, GLdouble f)
 {
 	return Vector(v.x * f, v.y * f, v.z * f);
 }
 
-inline Vector operator /(Vector v, double f)
+inline Vector operator /(Vector v, GLdouble f)
 {
 	return Vector(v.x / f, v.y / f, v.z / f);
 }
 
-inline Vector operator +(double f, Vector v)
+inline Vector operator +(GLdouble f, Vector v)
 {
 	return Vector(f + v.x, f + v.y, f + v.z);
 }
 
-inline Vector operator -(double f, Vector v)
+inline Vector operator -(GLdouble f, Vector v)
 {
 	return Vector(f - v.x, f - v.y, f - v.z);
 }
 
-inline Vector operator *(double f, Vector v)
+inline Vector operator *(GLdouble f, Vector v)
 {
 	return Vector(f * v.x, f * v.y, f * v.z);
 }
 
-inline Vector operator /(double f, Vector v)
+inline Vector operator /(GLdouble f, Vector v)
 {
 	return Vector(f / v.x, f / v.y, f / v.z);
 }
@@ -118,17 +120,17 @@ inline Vector abs(Vector v)
 	return r;
 }
 
-inline double Magnitude(Vector v)
+inline GLdouble Magnitude(Vector v)
 {
 	return sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
 }
 
-inline double Distance(Vector v1, Vector v2)
+inline GLdouble Distance(Vector v1, Vector v2)
 {
 	return Magnitude(v2 - v1);
 }
 
-inline double Dot(Vector v1, Vector v2)
+inline GLdouble Dot(Vector v1, Vector v2)
 {
 	return (v1.x*v2.x + v1.y*v2.y + v1.z*v2.z);
 }
@@ -165,8 +167,8 @@ inline Vector operator /(Vector v, Matrix m)
 
 inline void EulertoMatrix(Vector e, Matrix m)
 {
-	double c1 = cos(e.x), c2 = cos(e.y), c3 = cos(e.z);
-	double s1 = sin(e.x), s2 = sin(e.y), s3 = sin(e.z);
+	GLdouble c1 = cos(e.x), c2 = cos(e.y), c3 = cos(e.z);
+	GLdouble s1 = sin(e.x), s2 = sin(e.y), s3 = sin(e.z);
 	
 	m[0] = c2*c1;
 	m[1] = s1;
@@ -186,17 +188,17 @@ inline void EulertoMatrix(Vector e, Matrix m)
 	m[15] = 0;
 }
 
-inline Vector RotateX(Vector v, double a)
+inline Vector RotateX(Vector v, GLdouble a)
 {
 	return Vector(v.x, v.y*cos(a) - v.z*sin(a), v.y*sin(a) + v.z*cos(a));
 }
 
-inline Vector RotateY(Vector v, double a)
+inline Vector RotateY(Vector v, GLdouble a)
 {
 	return Vector(v.x*cos(a) + v.z*sin(a), v.y, -v.x*sin(a) + v.z*cos(a));
 }
 
-inline Vector RotateZ(Vector v, double a)
+inline Vector RotateZ(Vector v, GLdouble a)
 {
 	return Vector(v.x*cos(a) - v.y*sin(a), v.x*sin(a) + v.y*cos(a), v.z);
 }

@@ -26,14 +26,15 @@ struct ModelPhysics
 		gravity = true;
 	}
 
-	double Mass;
-	double Volume;
-	double Density;
-	double Elasticity;
+	GLdouble Mass;
+	GLdouble Volume;
+	GLdouble Density;
+	GLdouble Elasticity;
 
 	Vector Position;
 	Vector LinearVelocity;
 	Vector LinearAccelaration;
+	Vector LinearMomentum;
 	
 	Vector Orientation;
 	Vector AngularVelocity;
@@ -44,9 +45,11 @@ struct ModelPhysics
 	
 	Force  SumForces;
 	bool   gravity;
+	Vector Gravity;
 	
 	ModelPhysics *Next;
 	
+	void UpdateAccAndVel();
 	void Update();
 	
 	void Enable();

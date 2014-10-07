@@ -2,7 +2,7 @@
  *  Planet.h
  *  Blaze Game Engine
  *
- *  Created by Ned Bingham on 1/13/07.
+ *  Created by Ned Bingham on 7/31/07.
  *  Copyright 2007 __MyCompanyName__. All rights reserved.
  *
  */
@@ -10,55 +10,64 @@
 #ifndef Planet_h
 #define Planet_h
 
-#include "Player.h"
-#include "Model.h"
+#include "OpenGLIncludes.h"
 #include "CoreMathematics.h"
 #include "CorePhysics.h"
-#include "Material.h"
-#include "OpenGLIncludes.h"
+#include "Shader.h"
+#include "Player.h"
+#include "Collision.h"
 
-#define GridSize 100
-#define WorldRes 50
+const int node_size = 16;
+
+struct planet_node
+{
+	int seed;
+	
+	GLdouble *heights;
+		
+	GLdouble percent_loaded;
+	
+	GLdouble x_size, x_angle;
+	GLdouble y_size, y_angle;
+	GLdouble radius;
+	
+	GLdouble average;
+	GLdouble minimum;
+	GLdouble maximum;
+	
+	planet_node *parent;
+	planet_node *children;
+		
+	void load(int s);
+	void destroy();
+	
+	void split();
+	void merge();
+	
+	void render(bool r, Player *p_player, Vector *player_vec, GLdouble ax, GLdouble ay, GLdouble nax, GLdouble nay, GLdouble dist);
+	void renderwater(bool r, Player *p_player, Vector *player_vec, GLdouble ax, GLdouble ay, GLdouble nax, GLdouble nay, GLdouble dist);
+};
 
 struct Planet
 {
-	string Name;
-	
+	string		name;
+	planet_node data;
 	ModelPhysics Physics;
-	Material	 PlanetTexture;
-	Material	 AtmosphereTexture;
-	Material	 GroundTexture;
 	
-	GLfloat grid_x, grid_y;
+	Player *player_pointer;
 	
-	unsigned char Roughness[WorldRes*WorldRes];
-	unsigned char Heights[WorldRes*WorldRes];
-	float *TempHeight;
-		
-	unsigned short sphere_indices[(WorldRes + 1)*(WorldRes + 1)*2];
-	GLfloat		   sphere_verts[(WorldRes + 1)*(WorldRes + 1)*3];
-	GLfloat		   sphere_texts[(WorldRes + 1)*(WorldRes + 1)*2];
-	GLfloat		   sphere_norms[(WorldRes + 1)*(WorldRes + 1)*3];
+	GLhandleARB VertShad;
+	GLhandleARB FragShad;
+	GLhandleARB ShadProg;
+	GLuint tex;
 	
-	unsigned short grid_indices[(GridSize + 1)*(GridSize + 1)*2];
-	GLfloat		   grid_verts[(GridSize + 1)*(GridSize + 1)*3];
-	GLfloat		   grid_texts[(GridSize + 1)*(GridSize + 1)*3];
-	GLfloat		   grid_norms[(GridSize + 1)*(GridSize + 1)*3];
+	GLhandleARB WaterVertShad;
+	GLhandleARB WaterFragShad;
+	GLhandleARB WaterShadProg;
+	GLuint watertex;
 	
-	double Radius;
-	double AtmRad;
-	
-	void CreateWorld();
-	void Initialize(string name);
-	
-	void LoadPhysics(const char *filename);
-	void LoadMaterials(const char *filename);
-	void LoadPlanet(char *filename);
-	void LoadGrids(GLfloat s, GLfloat t);
-	
-	void Render(Player *PlayerPointer);
-	void Draw(Player *PlayerPointer);
-	
+	void Load(string Name, Player *p_player);
+	void Render();
 	void Release();
 };
 

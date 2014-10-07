@@ -15,18 +15,10 @@
 #include "CoreMathematics.h"
 #include "Material.h"
 #include "CorePhysics.h"
+#include "File.h"
 
 struct ModelFace
 {
-	ModelFace()
-	{
-		Next = NULL;
-	}
-	~ModelFace()
-	{
-		Next = NULL;
-	}
-
 	int v1, v2, v3;
 	int n1, n2, n3;
 	int t1, t2, t3;
@@ -37,14 +29,6 @@ struct ModelFace
 
 struct ModelEdge
 {
-	ModelEdge()
-	{
-		Next = NULL;
-	}
-	~ModelEdge()
-	{
-		Next = NULL;
-	}
 	int v1, v2;
 	double RestDistance;
 	
@@ -61,27 +45,16 @@ inline bool operator ==(ModelEdge e1, ModelEdge e2)
 
 struct Model
 {
-	Model()
-	{
-		Edges = NULL;
-		Faces = NULL;
-		Current = NULL;
-		Materials = NULL;
-	}
-	~Model()
-	{
-	}
-
-	GLfloat		Verts[2250000];
-	GLfloat		Norms[2250000];
-	GLfloat		Texts[2250000];
+	GLdouble		Verts[2250000];
+	GLdouble		Norms[2250000];
+	GLdouble		Texts[2250000];
 	ModelEdge *Edges;
 	ModelFace *Faces;
 	
 	ModelFace *Current;
 	
 	Vector		Min, Max;
-	GLfloat		Radius;
+	GLdouble		Radius;
 	
 	Material   *Materials;
 	
@@ -94,9 +67,9 @@ struct Model
 	int NumFaces;
 	int NumMats;
 	
-	void AddVert(GLfloat x, GLfloat y, GLfloat z);
-	void AddNorm(GLfloat x, GLfloat y, GLfloat z);
-	void AddText(GLfloat x, GLfloat y, GLfloat z);
+	void AddVert(GLdouble x, GLdouble y, GLdouble z);
+	void AddNorm(GLdouble x, GLdouble y, GLdouble z);
+	void AddText(GLdouble x, GLdouble y, GLdouble z);
 	void AddEdge(ModelEdge *Edge);
 	void AddFace(ModelFace *Face);
 	

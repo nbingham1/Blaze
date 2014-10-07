@@ -1,14 +1,14 @@
 /*
- *  GameTexture.h
- *  Spiral
+ *  Texture.h
+ *  Blaze Game Engine
  *
- *  Created by Ned Bingham on 12/18/05.
- *  Copyright 2005 __MyCompanyName__. All rights reserved.
+ *  Created by Ned Bingham on 11/26/06.
+ *  Copyright 2006 Sol Gaming. All rights reserved.
  *
  */
 
-#include "CoreMathematics.h"
 #include "OpenGLIncludes.h"
+#include "CoreMathematics.h"
 
 #ifndef Texture_h
 #define Texture_h
@@ -28,8 +28,8 @@ struct rgb_t
 	unsigned char b;
 };
 
-void GetDimensions(const char *filename, long *Width, long *Height, long *Depth);
-void LoadTexture(const char *filename, long *Width, long *Height, unsigned char *data, int start);
+void GetDimensions(const char *filename, long *Width, long *Height);
+void LoadTexture(const char *filename, long *Width, long *Height, rgba_t *T, int start);
 GLuint Load2DTexture(string filename, bool LOD);
 GLuint Load3DTexture(string *filename, int Depth, bool LOD);
 

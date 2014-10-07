@@ -23,4 +23,3 @@
 #include "Frustum.h"
 
 #endif
-

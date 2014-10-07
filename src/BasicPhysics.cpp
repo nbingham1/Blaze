@@ -9,7 +9,7 @@
 
 #include "BasicPhysics.h"
 
-Vector CalculateRotationalInertia(GLfloat Mass, Vector *Points, int NumPoints)
+Vector CalculateRotationalInertia(GLdouble Mass, Vector *Points, int NumPoints)
 {
 	Vector I;
 	Vector Center = CalculateCenterOfMass(Points, NumPoints);
@@ -38,18 +38,18 @@ Vector CalculateCenterOfMass(Vector *Points, int NumPoints)
 	return Center/NumPoints;
 }
 
-GLfloat CalculateDensity(GLfloat Volume, GLfloat Mass)
+GLdouble CalculateDensity(GLdouble Volume, GLdouble Mass)
 {
 	return Mass/Volume;
 }
 
-Vector CalculateMomentum(GLfloat Mass, Vector Velocity)
+Vector CalculateMomentum(GLdouble Mass, Vector Velocity)
 {
 	return Velocity*Mass;
 }
 
-double CalculateGravitationalPull(GLfloat Mass1, GLfloat Mass2, Vector Position1, Vector Position2)
+GLdouble CalculateGravitationalPull(GLdouble Mass1, GLdouble Mass2, Vector Position1, Vector Position2)
 {
-	double r = Distance(Position1, Position2);
+	GLdouble r = Distance(Position1, Position2);
 	return ((6.673*pow(10, -11) * Mass1 * Mass2)/(r*r));
 }

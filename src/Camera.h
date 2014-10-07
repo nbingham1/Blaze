@@ -21,15 +21,15 @@ struct Camera
 	
 	Model *Host;
 	Vector DistanceFromHost;
-	GLfloat CameraDistance;	
+	GLdouble CameraDistance;	
 	bool	Control;
 	
 	Vector Position;
 	Vector Orientation;
 	
-	void Rotate(GLfloat x, GLfloat y, GLfloat z);
+	void Rotate(GLdouble x, GLdouble y, GLdouble z);
 	void Rotate(Vector v);
-	void Translate(GLfloat x, GLfloat y, GLfloat z);
+	void Translate(GLdouble x, GLdouble y, GLdouble z);
 	void AttachCamera(Model *HostAdress, Vector Dist, bool control);
 	void DetachCamera();
 	void Render();

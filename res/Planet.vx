@@ -1,0 +1,21 @@
+uniform float radius;
+uniform float max, min;
+uniform vec3 pos;
+uniform vec3 pvec;
+uniform float dist;
+
+varying float mult;
+
+varying vec2 texcoord;
+
+void main()
+{
+	float vert_length = length(gl_Vertex + vec4(dist*pvec, 0.0));
+	float height = 2.0*(vert_length - 256.0 - radius);
+	
+	mult = 2.0*max(min((height-min)/((max-625.0)-(min+625.0)) - 4.5, 1.0), 0.0);
+		
+	texcoord = gl_MultiTexCoord0.st;
+	
+	gl_Position = ftransform();
+}

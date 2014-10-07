@@ -24,4 +24,3 @@ float *GenerateFaultHeights(int RandomSeed, int Size, int Iterations, int MinHei
 float *GenerateRandomHeights(int RandomSeed, int Size, int MaxHeightChange, float Filter, float StartHeight);
 
 #endif
-

@@ -10,11 +10,18 @@
 #include "Vector.h"
 #include "BasicMath.h"
 
-Vector::Vector(double X, double Y, double Z)
+Vector::Vector(GLdouble X, GLdouble Y, GLdouble Z)
 {
 	x = X;
 	y = Y;
 	z = Z;
+}
+
+Vector::Vector(GLdouble *arr)
+{
+	x = arr[0];
+	y = arr[1];
+	z = arr[2];
 }
 
 Vector::Vector()
@@ -60,25 +67,25 @@ Vector &Vector::operator /=(Vector v)
 	return *this;
 }
 
-Vector &Vector::operator +=(double f)
+Vector &Vector::operator +=(GLdouble f)
 {
 	*this = *this + f;
 	return *this;
 }
 
-Vector &Vector::operator -=(double f)
+Vector &Vector::operator -=(GLdouble f)
 {
 	*this = *this - f;
 	return *this;
 }
 
-Vector &Vector::operator *=(double f)
+Vector &Vector::operator *=(GLdouble f)
 {
 	*this = *this * f;
 	return *this;
 }
 
-Vector &Vector::operator /=(double f)
+Vector &Vector::operator /=(GLdouble f)
 {
 	*this = *this / f;
 	return *this;
@@ -86,12 +93,12 @@ Vector &Vector::operator /=(double f)
 
 Vector Normalize(Vector v)
 {
-	return (v / max(Magnitude(v), 0.001));
+	return (v / GLdouble(max(double(Magnitude(v)), 0.001)));
 }
 
 Vector AngleBetween(Vector v1, Vector v2)
 {
-	double a = acos(Dot(v1, v2));
+	GLdouble a = acos(Dot(v1, v2));
 	Vector n = Normalize(Cross(v1, v2));
 
 	Vector result;

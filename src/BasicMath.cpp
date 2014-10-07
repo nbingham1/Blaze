@@ -11,7 +11,7 @@
 
 double GetMin(Vector *Points, int Num, Vector Axis)
 {
-	double min = 9999999999999.0;
+	double min = 9E99;
 	
 	for (int ctr = 0; ctr < Num; ctr++)
     {
@@ -24,7 +24,7 @@ double GetMin(Vector *Points, int Num, Vector Axis)
 
 double GetMax(Vector *Points, int Num, Vector Axis)
 {
-	double max = -9999999999999.0;
+	double max = -9E99;
 	
 	for (int ctr = 0; ctr < Num; ctr++)
     {
@@ -35,14 +35,14 @@ double GetMax(Vector *Points, int Num, Vector Axis)
 	return max;
 }
 
-GLfloat absolute(GLfloat f)
+GLdouble absolute(GLdouble f)
 {
 	return (f < 0.0) ? (f*-1) : f;
 }
 
-GLfloat modulate(GLfloat f, GLfloat m)
+GLdouble modulate(GLdouble f, GLdouble m)
 {
-	GLfloat h = f - GLfloat(int(f/m))*m;
+	GLdouble h = f - GLdouble(int(f/m))*m;
 	return h < 0.0 ? h+m : h;
 }
 

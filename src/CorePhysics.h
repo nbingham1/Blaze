@@ -30,8 +30,8 @@ struct CorePhysics
 	void AddObjectPhysics(ModelPhysics *phs);
 	void ApplyGravity();
 	void UpdatePhysicsHandlers();
+	void UpdatePhysicsHandlersAccAndVel();
 	void ReleasePhysics();
 };
 
 #endif
-

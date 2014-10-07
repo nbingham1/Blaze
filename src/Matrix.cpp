@@ -55,8 +55,8 @@ void Inverse(Matrix M)
 			}
 	for (int x = 0; x < 4; x++)
 	{
-		ScaleRow(i, x, GLfloat(1/M[(x*4) + x]));
-		ScaleRow(M, x, GLfloat(1/M[(x*4) + x]));
+		ScaleRow(i, x, GLdouble(1/M[(x*4) + x]));
+		ScaleRow(M, x, GLdouble(1/M[(x*4) + x]));
 	}
 	
 	SetMatrix(i, M);

@@ -25,8 +25,8 @@ struct Material
 	Vector Specular;
 	Vector Emission;
 	
-	GLfloat Shininess;
-	GLfloat Opacity;
+	GLdouble Shininess;
+	GLdouble Opacity;
 	
 	GLuint TextMap;
 	GLuint DetailMap;
@@ -38,6 +38,7 @@ struct Material
 	Material *Next;
 	
 	void Initialize();
+	void Enable(GLdouble *texts);
 	void Enable();
 	void Disable();
 	void Release();

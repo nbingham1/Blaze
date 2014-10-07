@@ -13,7 +13,7 @@
 #include "OpenGLIncludes.h"
 #include <math.h>
 
-typedef GLfloat Matrix[16];
+typedef GLdouble Matrix[16];
 
 void SetMatrix(Matrix Input, Matrix Output);
 
