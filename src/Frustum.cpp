@@ -1,9 +1,9 @@
 /*
-	GameSound.h
+	Frustm.cpp
 	Blaze Game Engine 0.03
 
-	Created by Ned Bingham on 8/8/05.
-	Copyright 2005 Sol Union. All rights reserved.
+	Created by Ned Bingham on 10/8/06.
+	Copyright 2006 Sol Union. All rights reserved.
 
     Blaze Game Engine 0.03 is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,34 +19,24 @@
     along with Blaze Game Engine 0.03.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Main.h"
+#include "Frustum.h"
 
-#ifndef GameSound_h
-#define GameSound_h
-
-class GameSound
+void Frustum::SetFrustum(GLfloat right, GLfloat left, GLfloat front, GLfloat back, GLfloat top, GLfloat bottom)
 {
-    public:
-        GameSound();
-        ~GameSound();
-        
-        Movie theSound;
-        
-        bool IsPlaying;
-        
-        void ReadSoundFile(const Str255 filename);
-        void Play();
-        void Repeat();
-        void SetVolume(short volume);
-        void Mute();
-        void Pause();
-        void Resume();
-        void Stop();
-        void GiveTime(long time);
-        
-        void Update();
-		
-		void CleanUpSound();
-};
+	Right = right;
+	Left = left;
+	Front = front;
+	Back = back;
+	Top = top;
+	Bottom = bottom;
+}
 
-#endif
+void Frustum::RenderFrustum()
+{
+	glMatrixMode(GL_PROJECTION);
+	glLoadIdentity();
+	glFrustum(Left, Right, Bottom, Top, Front, Back);
+	gluLookAt(0.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0, 1.0, 0.0);
+	glMatrixMode(GL_MODELVIEW);
+}
+

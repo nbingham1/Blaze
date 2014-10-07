@@ -1,8 +1,8 @@
 /*
-	GameSound.h
+	Texture.h
 	Blaze Game Engine 0.03
 
-	Created by Ned Bingham on 8/8/05.
+	Created by Ned Bingham on 12/18/05.
 	Copyright 2005 Sol Union. All rights reserved.
 
     Blaze Game Engine 0.03 is free software: you can redistribute it and/or modify
@@ -19,34 +19,30 @@
     along with Blaze Game Engine 0.03.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Main.h"
+#include "CoreMathematics.h"
+#include "BasicDefinitions.h"
 
-#ifndef GameSound_h
-#define GameSound_h
+#ifndef Texture_h
+#define Texture_h
 
-class GameSound
+struct rgba_t
 {
-    public:
-        GameSound();
-        ~GameSound();
-        
-        Movie theSound;
-        
-        bool IsPlaying;
-        
-        void ReadSoundFile(const Str255 filename);
-        void Play();
-        void Repeat();
-        void SetVolume(short volume);
-        void Mute();
-        void Pause();
-        void Resume();
-        void Stop();
-        void GiveTime(long time);
-        
-        void Update();
-		
-		void CleanUpSound();
+	unsigned char r;
+	unsigned char g;
+	unsigned char b;
+	unsigned char a;
 };
+
+struct rgb_t
+{
+	unsigned char r;
+	unsigned char g;
+	unsigned char b;
+};
+
+void GetDimensions(const char *filename, long *Width, long *Height, long *Depth);
+void LoadTexture(const char *filename, long *Width, long *Height, unsigned char *data, int start);
+GLuint Load2DTexture(string filename, bool LOD);
+GLuint Load3DTexture(string *filename, int Depth, bool LOD);
 
 #endif

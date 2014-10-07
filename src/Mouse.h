@@ -1,9 +1,9 @@
 /*
-	GameSound.h
+	Mouse.h
 	Blaze Game Engine 0.03
 
-	Created by Ned Bingham on 8/8/05.
-	Copyright 2005 Sol Union. All rights reserved.
+	Created by Ned Bingham on 10/6/06.
+	Copyright 2006 Sol Union. All rights reserved.
 
     Blaze Game Engine 0.03 is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,34 +19,17 @@
     along with Blaze Game Engine 0.03.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Main.h"
+#ifndef Mouse_h
+#define Mouse_h
 
-#ifndef GameSound_h
-#define GameSound_h
-
-class GameSound
+struct Mouse
 {
-    public:
-        GameSound();
-        ~GameSound();
-        
-        Movie theSound;
-        
-        bool IsPlaying;
-        
-        void ReadSoundFile(const Str255 filename);
-        void Play();
-        void Repeat();
-        void SetVolume(short volume);
-        void Mute();
-        void Pause();
-        void Resume();
-        void Stop();
-        void GiveTime(long time);
-        
-        void Update();
-		
-		void CleanUpSound();
+	int current_mouse_x;
+	int current_mouse_y;
+	
+	bool HandleMouseMoved(int x, int y);					// handles mouse movement
+	bool HandleMouseDown(int button, int x, int y);		// handles a mouse click
+	bool HandleMouseUp(int botton, int x, int y);			// handles a mouse release
 };
 
 #endif

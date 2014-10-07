@@ -1,9 +1,9 @@
 /*
-	GameSound.h
+	CoreMathematics.h
 	Blaze Game Engine 0.03
 
-	Created by Ned Bingham on 8/8/05.
-	Copyright 2005 Sol Union. All rights reserved.
+	Created by Ned Bingham on 10/18/06.
+	Copyright 2006 Sol Union. All rights reserved.
 
     Blaze Game Engine 0.03 is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,34 +19,37 @@
     along with Blaze Game Engine 0.03.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Main.h"
+#ifndef CoreMathematics_h
+#define CoreMathematics_h
 
-#ifndef GameSound_h
-#define GameSound_h
+#include "Matrix.h"
+#include "Vector.h"
+#include "Quaternion.h"
+#include "Plane.h"
+#include "Triangle.h"
 
-class GameSound
-{
-    public:
-        GameSound();
-        ~GameSound();
-        
-        Movie theSound;
-        
-        bool IsPlaying;
-        
-        void ReadSoundFile(const Str255 filename);
-        void Play();
-        void Repeat();
-        void SetVolume(short volume);
-        void Mute();
-        void Pause();
-        void Resume();
-        void Stop();
-        void GiveTime(long time);
-        
-        void Update();
-		
-		void CleanUpSound();
-};
+#ifndef NULL
+#define NULL 0
+#endif
+
+#ifndef pi
+#define pi 3.1415926535898
+#endif
+
+#ifndef Square
+#define Square(n) n*n
+#endif
+
+#ifndef DegToRad
+#define DegToRad(d) (pi/180)*d
+#endif
+
+#ifndef RadToDeg
+#define RadToDeg(r) (180/pi)*r
+#endif
+
+#ifndef Clamp
+#define Clamp(x, min, max)	((x = (x < min ? min : x < max ? x : max)))
+#endif
 
 #endif

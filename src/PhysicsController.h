@@ -1,9 +1,9 @@
 /*
-	GameSound.h
+	PhysicsController.h
 	Blaze Game Engine 0.03
 
-	Created by Ned Bingham on 8/8/05.
-	Copyright 2005 Sol Union. All rights reserved.
+	Created by Ned Bingham on 10/12/06.
+	Copyright 2006 Sol Union. All rights reserved.
 
     Blaze Game Engine 0.03 is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,34 +19,36 @@
     along with Blaze Game Engine 0.03.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Main.h"
+#include "CoreMathematics.h"
+#include "BasicDefinitions.h"
 
-#ifndef GameSound_h
-#define GameSound_h
+#ifndef PhysicsController_h
+#define PhysicsController_h
 
-class GameSound
+struct PhysicsController
 {
-    public:
-        GameSound();
-        ~GameSound();
-        
-        Movie theSound;
-        
-        bool IsPlaying;
-        
-        void ReadSoundFile(const Str255 filename);
-        void Play();
-        void Repeat();
-        void SetVolume(short volume);
-        void Mute();
-        void Pause();
-        void Resume();
-        void Stop();
-        void GiveTime(long time);
-        
-        void Update();
+	Vector Position;
+	Vector LinearVelocity;
+	Vector LinearMomentum;
+	
+	Vector Orientation;
+	Vector AngularVelocity;
+	Vector AngularMomentum;
+	
+	GLfloat Mass;
+	GLfloat Volume;
+	GLfloat Elasticity;
+	
+	Vector CenterOfMass;
+	Vector RotationalInertia;
+	Vector Torque;
+	
+	bool Grounded;
 		
-		void CleanUpSound();
+	PhysicsController *Next;
+		
+	void Update();
+	void Apply();
 };
 
 #endif

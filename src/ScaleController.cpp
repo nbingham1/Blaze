@@ -1,9 +1,9 @@
 /*
-	GameSound.h
+	ScaleController.cpp
 	Blaze Game Engine 0.03
 
-	Created by Ned Bingham on 8/8/05.
-	Copyright 2005 Sol Union. All rights reserved.
+	Created by Ned Bingham on 11/14/06.
+	Copyright 2006 Sol Union. All rights reserved.
 
     Blaze Game Engine 0.03 is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,34 +19,19 @@
     along with Blaze Game Engine 0.03.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Main.h"
+#include "ScaleController.h"
 
-#ifndef GameSound_h
-#define GameSound_h
-
-class GameSound
+void ScaleController::SetScaleValue(int GridX, int GridY, int Planet, int System, int Galaxy)
 {
-    public:
-        GameSound();
-        ~GameSound();
-        
-        Movie theSound;
-        
-        bool IsPlaying;
-        
-        void ReadSoundFile(const Str255 filename);
-        void Play();
-        void Repeat();
-        void SetVolume(short volume);
-        void Mute();
-        void Pause();
-        void Resume();
-        void Stop();
-        void GiveTime(long time);
-        
-        void Update();
-		
-		void CleanUpSound();
-};
+	if (Galaxy == -1)
+		scale_value = pow(10, -12);
+	else if (System == -1)
+		scale_value = pow(10, -6);
+	else if (Planet == -1)
+		scale_value = pow(10, -3);
+	else if (GridX == -1 || GridY == -1)
+		scale_value = 1;
+	else
+		scale_value = pow(10, 3)*6;
+}
 
-#endif

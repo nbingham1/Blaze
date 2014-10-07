@@ -1,9 +1,9 @@
 /*
-	GameSound.h
+	BasicDefinitions.h
 	Blaze Game Engine 0.03
 
-	Created by Ned Bingham on 8/8/05.
-	Copyright 2005 Sol Union. All rights reserved.
+	Created by Ned Bingham on 10/26/06.
+	Copyright 2006 Sol Union. All rights reserved.
 
     Blaze Game Engine 0.03 is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,34 +19,29 @@
     along with Blaze Game Engine 0.03.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Main.h"
 
-#ifndef GameSound_h
-#define GameSound_h
+#ifndef BasicDefinitions_h
+#define BasicDefinitions_h
 
-class GameSound
-{
-    public:
-        GameSound();
-        ~GameSound();
-        
-        Movie theSound;
-        
-        bool IsPlaying;
-        
-        void ReadSoundFile(const Str255 filename);
-        void Play();
-        void Repeat();
-        void SetVolume(short volume);
-        void Mute();
-        void Pause();
-        void Resume();
-        void Stop();
-        void GiveTime(long time);
-        
-        void Update();
-		
-		void CleanUpSound();
-};
+#define GLEW_STATIC
+
+// OpenGL Libraries
+#include <GL/glew.h>
+#include <GL/glut.h>
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <GL/glext.h>
+
+#include <iostream>
+#include <string.h>
+#include <stdlib.h>
+#include <fstream>
+#include <math.h>
+#include <time.h>
+
+using namespace std;
+
+char* better_fgets(char *line, int len, FILE *in_file);
+char* int_to_char(int Num);
 
 #endif

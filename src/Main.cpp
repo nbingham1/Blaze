@@ -1,106 +1,78 @@
 /*
 	Main.cpp
-	Blaze Game Engine 0.02
+	Blaze Game Engine 0.03
 
-	Created by Ned Bingham on 8/6/05.
-	Copyright 2005 Sol Union. All rights reserved.
+	Created by Ned Bingham on 10/2/06.
+	Copyright 2006 Sol Union. All rights reserved.
 
-    Blaze Game Engine 0.02 is free software: you can redistribute it and/or modify
+    Blaze Game Engine 0.03 is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
     the Free Software Foundation, either version 3 of the License, or
     (at your option) any later version.
 
-    Blaze Game Engine 0.02 is distributed in the hope that it will be useful,
+    Blaze Game Engine 0.03 is distributed in the hope that it will be useful,
     but WITHOUT ANY WARRANTY; without even the implied warranty of
     MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
     GNU General Public License for more details.
 
     You should have received a copy of the GNU General Public License
-    along with Blaze Game Engine 0.02.  If not, see <http://www.gnu.org/licenses/>.
+    along with Blaze Game Engine 0.03.  If not, see <http://www.gnu.org/licenses/>.
 */
-#include "Main.h"
-#include "GameApp.h"
 
-char* string_to_char(string value)
-{
-	char *result = new char[value.length() + 1];
+#include "CoreGraphics.h"
+#include "Keyboard.h"
+#include "Mouse.h"
 
-	value.copy(result, value.length());
-	result[value.length()] = '\0';
+CoreGraphics		Renderer;		// Handles all of the OpenGL rendering
+Keyboard		KeyboardHandler;// Handles all keyboard input events
+Mouse			MouseHandler;	// Handles all mouse input events
 
-	return result;
-}
-
-char* int_to_char(int Num)
-{
-	char* n = new char[20];
-	sprintf(n, "%i", Num);
-	return n;
-}
-
-char* better_fgets(char *line, int len, FILE *in_file)
-{
-   char *temp = line;
-   int   val;
-
-   if (--len < 0)
-      return NULL;
-
-   if (len)
-   {
-      do
-      {
-         val = getc(in_file);
-
-         if (val == EOF)
-         {
-            if (feof(in_file) && temp != line)
-               break;
-            else
-            {
-               line = NULL;
-               return NULL;
-            }
-         }
-         *temp++ = val;
-      } while (val != '\r' && val != '\n' && --len);
-   }
-   *temp = '\0';
-
-   return line;
-}
-
-GameApp App;
 bool windowed = false;
 
 void init()
 {
-	App.Init();
+	glClearColor(0.0, 0.0, 0.0, 0.0);
+	glViewport(0, 0, 1366, 768);
+	Renderer.SetupPerspective();
+	Renderer.Init();
+	glLoadIdentity();
+	// initialize anything you need to here
+
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Clears the back buffer
+	glutSwapBuffers();								// Switches the front and back buffers
 }
 
 void displayfunc()
 {
-	App.Update();
+	KeyboardHandler.HandleKeyStillDown();				// Checks for keys that are being held down
+
+	Renderer.DrawFrame();
+
+	glutSwapBuffers();							// Swaps the front and back buffers
 }
 
 void reshape(int w, int h)
 {
-	App.SetViewport(w, h);
+	glViewport(0, 0, w, h);
 }
 
 void pmotionfunc(int x, int y)
 {
-	App.Input.HandleMouseMoved(x, y);
+	MouseHandler.HandleMouseMoved(x, y);
 }
 
 void mousefunc(int button, int state, int x, int y)
 {
-	App.Input.HandleMouseDown(button, state, x, y);
+	if (state == GLUT_DOWN)
+		MouseHandler.HandleMouseDown(button, x, y);
+	else if (state == GLUT_UP)
+		MouseHandler.HandleMouseUp(button, x, y);
 }
 
 void motionfunc(int x, int y)
 {
-	App.Input.HandleMouseMoved(x, y);
+	MouseHandler.HandleMouseMoved(x, y);
+	MouseHandler.HandleMouseDown(0, x, y);
 }
 
 void keydownfunc(unsigned char key, int x, int y)
@@ -108,17 +80,17 @@ void keydownfunc(unsigned char key, int x, int y)
 	if (key == 27)
 		exit(0);
 
-	App.Input.HandleKeyDown(key);
+	KeyboardHandler.HandleKeyDown(key);
 }
 
 void keyupfunc(unsigned char key, int x, int y)
 {
-	App.Input.HandleKeyUp(key);
+	KeyboardHandler.HandleKeyUp(key);
 }
 
 void release()
 {
-	App.CleanUpApp();
+	Renderer.Release();
 }
 
 int main(int argc, char **argv)
@@ -130,13 +102,13 @@ int main(int argc, char **argv)
 
 	if (windowed)
 	{
-		glutInitWindowSize(1600, 900);
+		glutInitWindowSize(1366, 768);
 		glutInitWindowPosition(0, 0);
 		glutCreateWindow("BGE");
 	}
 	else
 	{
-		glutGameModeString("1600x900:32@60");
+		glutGameModeString("1366x768:32@60");
 		glutEnterGameMode();
 	}
 
@@ -147,11 +119,8 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 	fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
-	fprintf(stdout, "Status: Using OpenGL %s\n", glGetString(GL_VERSION));
-	fprintf(stdout, "Status: Using GLU %s\n", gluGetString(GLU_VERSION));
-	fprintf(stdout, "Status: Using GLSL %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
-	if (glewGetExtension("GL_ARB_vertex_program"))
+	if (GLEW_ARB_vertex_program)
 		fprintf(stdout, "Status: ARB vertex programs available.\n");
 
 	if (glewGetExtension("GL_ARB_fragment_program"))
@@ -176,3 +145,4 @@ int main(int argc, char **argv)
 	if (!windowed)
 		glutLeaveGameMode();
 }
+

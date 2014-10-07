@@ -1,9 +1,9 @@
 /*
-	GameSound.h
+	Matrix.h
 	Blaze Game Engine 0.03
 
-	Created by Ned Bingham on 8/8/05.
-	Copyright 2005 Sol Union. All rights reserved.
+	Created by Ned Bingham on 10/16/06.
+	Copyright 2006 Sol Union. All rights reserved.
 
     Blaze Game Engine 0.03 is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,34 +19,20 @@
     along with Blaze Game Engine 0.03.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Main.h"
+#include "BasicDefinitions.h"
 
-#ifndef GameSound_h
-#define GameSound_h
+#ifndef Matrix_h
+#define Matrix_h
 
-class GameSound
-{
-    public:
-        GameSound();
-        ~GameSound();
-        
-        Movie theSound;
-        
-        bool IsPlaying;
-        
-        void ReadSoundFile(const Str255 filename);
-        void Play();
-        void Repeat();
-        void SetVolume(short volume);
-        void Mute();
-        void Pause();
-        void Resume();
-        void Stop();
-        void GiveTime(long time);
-        
-        void Update();
-		
-		void CleanUpSound();
-};
+typedef GLfloat Matrix[16];
+
+void SetMatrix(Matrix Input, Matrix Output);
+
+void InterchangeRows(Matrix M, int row1, int row2);
+void ScaleRow(Matrix M, int row, GLfloat scale);
+void AddRow(Matrix M, int row1, int row2, GLfloat scale);
+
+void Inverse(Matrix M);
+void Transpose(Matrix M);
 
 #endif

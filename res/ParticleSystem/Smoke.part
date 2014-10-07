@@ -1,7 +1,0 @@
-Life 500
-Mass 1.0
-Size 5.0
-Force 0.0 0.005 0.0
-Explosion
-Direct
-TexName res/ParticleSystem/Smoke.tga

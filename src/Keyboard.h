@@ -1,9 +1,9 @@
 /*
-	GameSound.h
+	Keyboard.h
 	Blaze Game Engine 0.03
 
-	Created by Ned Bingham on 8/8/05.
-	Copyright 2005 Sol Union. All rights reserved.
+	Created by Ned Bingham on 10/6/06.
+	Copyright 2006 Sol Union. All rights reserved.
 
     Blaze Game Engine 0.03 is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -19,34 +19,24 @@
     along with Blaze Game Engine 0.03.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Main.h"
+#ifndef Keyboard_h
+#define Keyboard_h
 
-#ifndef GameSound_h
-#define GameSound_h
-
-class GameSound
+struct Keyboard
 {
-    public:
-        GameSound();
-        ~GameSound();
-        
-        Movie theSound;
-        
-        bool IsPlaying;
-        
-        void ReadSoundFile(const Str255 filename);
-        void Play();
-        void Repeat();
-        void SetVolume(short volume);
-        void Mute();
-        void Pause();
-        void Resume();
-        void Stop();
-        void GiveTime(long time);
-        
-        void Update();
-		
-		void CleanUpSound();
+	Keyboard()
+	{
+		for (int x = 0; x < 256; x++)
+		{
+			KeyState[x] = false;
+		}
+	}
+	
+	bool KeyState[256];
+	
+	bool HandleKeyDown(unsigned char key);				// handles key down events
+	bool HandleKeyUp(unsigned char key);				// handles key up events
+	void	 HandleKeyStillDown();						// handles key held down events
 };
 
 #endif
