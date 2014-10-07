@@ -1,45 +1,26 @@
 /*
-	Vector.h
-	Blaze Game Engine 0.03
-
-	Created by Ned Bingham on 10/7/06.
-	Copyright 2006 Sol Union. All rights reserved.
-
-    Blaze Game Engine 0.03 is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Blaze Game Engine 0.03 is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with Blaze Game Engine 0.03.  If not, see <http://www.gnu.org/licenses/>.
-*/
-
-#include <math.h>
-
-// OpenGL Libraries
-#include <GL/glew.h>
-#include <GL/glut.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/glext.h>
-
-#include "Matrix.h"
+ *  Vector.h
+ *  Blaze Game Engine
+ *
+ *  Created by Ned Bingham on 11/25/06.
+ *  Copyright 2006 Sol Gaming. All rights reserved.
+ *
+ */
 
 #ifndef Vector_h
 #define Vector_h
 
+#include "Matrix.h"
+
+#include <math.h>
+
 struct Vector
 {
-	Vector(GLfloat X, GLfloat Y, GLfloat Z);
+	Vector(double X, double Y, double Z);
 	Vector();
 	~Vector();
 	
-	GLfloat x, y, z;
+	double x, y, z;
 	
 	Vector &operator =(Vector v);
 	
@@ -48,11 +29,13 @@ struct Vector
 	Vector &operator *=(Vector v);
 	Vector &operator /=(Vector v);
 	
-	Vector &operator +=(GLfloat f);
-	Vector &operator -=(GLfloat f);
-	Vector &operator *=(GLfloat f);
-	Vector &operator /=(GLfloat f);
+	Vector &operator +=(double f);
+	Vector &operator -=(double f);
+	Vector &operator *=(double f);
+	Vector &operator /=(double f);
 };
+
+Vector Normalize(Vector v);
 
 inline Vector operator +(Vector v1, Vector v2)
 {
@@ -74,42 +57,42 @@ inline Vector operator /(Vector v1, Vector v2)
 	return Vector(v1.x / v2.x, v1.y / v2.y, v1.z / v2.z);
 }
 
-inline Vector operator +(Vector v, GLfloat f)
+inline Vector operator +(Vector v, double f)
 {
 	return Vector(v.x + f, v.y + f, v.z + f);
 }
 
-inline Vector operator -(Vector v, GLfloat f)
+inline Vector operator -(Vector v, double f)
 {
 	return Vector(v.x - f, v.y - f, v.z - f);
 }
 
-inline Vector operator *(Vector v, GLfloat f)
+inline Vector operator *(Vector v, double f)
 {
 	return Vector(v.x * f, v.y * f, v.z * f);
 }
 
-inline Vector operator /(Vector v, GLfloat f)
+inline Vector operator /(Vector v, double f)
 {
 	return Vector(v.x / f, v.y / f, v.z / f);
 }
 
-inline Vector operator +(GLfloat f, Vector v)
+inline Vector operator +(double f, Vector v)
 {
 	return Vector(f + v.x, f + v.y, f + v.z);
 }
 
-inline Vector operator -(GLfloat f, Vector v)
+inline Vector operator -(double f, Vector v)
 {
 	return Vector(f - v.x, f - v.y, f - v.z);
 }
 
-inline Vector operator *(GLfloat f, Vector v)
+inline Vector operator *(double f, Vector v)
 {
 	return Vector(f * v.x, f * v.y, f * v.z);
 }
 
-inline Vector operator /(GLfloat f, Vector v)
+inline Vector operator /(double f, Vector v)
 {
 	return Vector(f / v.x, f / v.y, f / v.z);
 }
@@ -135,17 +118,17 @@ inline Vector abs(Vector v)
 	return r;
 }
 
-inline GLfloat Magnitude(Vector v)
+inline double Magnitude(Vector v)
 {
 	return sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
 }
 
-inline GLfloat Distance(Vector v1, Vector v2)
+inline double Distance(Vector v1, Vector v2)
 {
 	return Magnitude(v2 - v1);
 }
 
-inline GLfloat Dot(Vector v1, Vector v2)
+inline double Dot(Vector v1, Vector v2)
 {
 	return (v1.x*v2.x + v1.y*v2.y + v1.z*v2.z);
 }
@@ -160,22 +143,9 @@ inline Vector  MidPoint(Vector v1, Vector v2)
 	return (v1+v2)/2;
 }
 
-inline Vector  Normalize(Vector v)
-{
-	GLfloat length = Magnitude(v);
-
-	if (length == 0.0f)
-		length = 1.0f;
-
-	return (v / length);
-}
-
 inline Vector  CalculateNormal(Vector v1, Vector v2, Vector v3)
 {
-	Vector a = v2 - v1;
-	Vector b = v3 - v1;
-	
-	return Normalize(Cross(a, b));
+	return Normalize(Cross(v2 - v1, v3 - v1));
 }
 
 inline Vector operator *(Matrix m, Vector v)
@@ -195,8 +165,8 @@ inline Vector operator /(Vector v, Matrix m)
 
 inline void EulertoMatrix(Vector e, Matrix m)
 {
-	GLfloat c1 = cos(e.x), c2 = cos(e.y), c3 = cos(e.z);
-	GLfloat s1 = sin(e.x), s2 = sin(e.y), s3 = sin(e.z);
+	double c1 = cos(e.x), c2 = cos(e.y), c3 = cos(e.z);
+	double s1 = sin(e.x), s2 = sin(e.y), s3 = sin(e.z);
 	
 	m[0] = c2*c1;
 	m[1] = s1;
@@ -215,5 +185,22 @@ inline void EulertoMatrix(Vector e, Matrix m)
 	m[14] = 0;
 	m[15] = 0;
 }
+
+inline Vector RotateX(Vector v, double a)
+{
+	return Vector(v.x, v.y*cos(a) - v.z*sin(a), v.y*sin(a) + v.z*cos(a));
+}
+
+inline Vector RotateY(Vector v, double a)
+{
+	return Vector(v.x*cos(a) + v.z*sin(a), v.y, -v.x*sin(a) + v.z*cos(a));
+}
+
+inline Vector RotateZ(Vector v, double a)
+{
+	return Vector(v.x*cos(a) - v.y*sin(a), v.x*sin(a) + v.y*cos(a), v.z);
+}
+
+Vector AngleBetween(Vector v1, Vector v2);
 
 #endif

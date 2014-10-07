@@ -1,26 +1,15 @@
 /*
-	Texture.cpp
-	Blaze Game Engine 0.03
-
-	Created by Ned Bingham on 12/18/05.
-	Copyright 2005 Sol Union. All rights reserved.
-
-    Blaze Game Engine 0.03 is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Blaze Game Engine 0.03 is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with Blaze Game Engine 0.03.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ *  GameTexture.cpp
+ *  Spiral
+ *
+ *  Created by Ned Bingham on 12/18/05.
+ *  Copyright 2005 __MyCompanyName__. All rights reserved.
+ *
+ */
 
 #include "Texture.h"
 #include "CoreGraphics.h"
+#include "Input.h"
 
 extern CoreGraphics Renderer;
 
@@ -226,9 +215,9 @@ GLuint Load3DTexture(string *filename, int Depth, bool LOD)
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	glGenTextures(1, &Texture);
 	glBindTexture(GL_TEXTURE_3D, Texture);
-	if (LOD)
+	/*if (LOD)
 	{
-		//gluBuild3DMipmaps(GL_TEXTURE_3D, GL_RGB, Width, Height, Depth, GL_RGB, GL_UNSIGNED_BYTE, Data);
+		gluBuild3DMipmaps(GL_TEXTURE_3D, GL_RGB, Width, Height, Depth, GL_RGB, GL_UNSIGNED_BYTE, Data);
 		glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -236,14 +225,14 @@ GLuint Load3DTexture(string *filename, int Depth, bool LOD)
 		glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
 	}
 	else
-	{
+	{*/
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 		glTexImage3D(GL_TEXTURE_3D, 0, GL_RGB, Width, Height, Depth, 0, GL_RGB, GL_UNSIGNED_BYTE, Data);
-	}
+	//}
 	free(Data);
 
 	return Texture;

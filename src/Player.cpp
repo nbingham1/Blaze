@@ -1,65 +1,98 @@
 /*
-	Player.cpp
-	Blaze Game Engine 0.03
-
-	Created by Ned Bingham on 10/11/06.
-	Copyright 2006 Sol Union. All rights reserved.
-
-    Blaze Game Engine 0.03 is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Blaze Game Engine 0.03 is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with Blaze Game Engine 0.03.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ *  Player.cpp
+ *  Blaze Game Engine
+ *
+ *  Created by Ned Bingham on 1/11/07.
+ *  Copyright 2007 __MyCompanyName__. All rights reserved.
+ *
+ */
 
 #include "Player.h"
+#include <iostream>
 
-void Player::Init()
+void Player::Init(char *mn, int mt)
 {
-	LoadObj(&PlayerModel, "res/Player/Player.obj", .000125, .000125, .000125, 1);
-	GenNormals(&PlayerModel);
-	GenDisplayLists(&PlayerModel);
-	SetCollisionGroundFunction(&PlayerModel, &AnimateObjectGroundCollision);
+	LoadObj(&PlayerModel, mn);
+	Viewpoint.AttachCamera(&PlayerModel, Vector(0.0, -20.0/8.0, -3.0/8.0), true);
+	MovementType = mt;
+	Jump = false;
+	on_ground = false;
+	GridX = -1;
+	GridY = -1;
+	Planet = -1;
+	System = 1;
+	Galaxy = 1;
+	scale = 1.0;
 }
 
-void Player::Prepare(Camera *TheCam)
+void Player::MoveForward(double z)
 {
-	//if (PlayerModel.Physics->Grounded)
-	//{
-	//	PlayerModel.Physics->LinearVelocity.x += MoveX*cos(pi/180 * TheCam->Orientation.y) + MoveZ*cos(pi/180 * (TheCam->Orientation.y-90));
-	//	PlayerModel.Physics->LinearVelocity.z += MoveX*sin(pi/180 * TheCam->Orientation.y) + MoveZ*sin(pi/180 * (TheCam->Orientation.y-90));
-	//}
-	if (!PlayerModel.Physics->Grounded)
-	{
-		PlayerModel.Physics->LinearVelocity += 1*MoveZ*Vector(cos(pi/180 * (TheCam->Orientation.y-90))*cos(pi/180 * TheCam->Orientation.x),
-														   -sin(pi/180 * TheCam->Orientation.x),
-														   sin(pi/180 * (TheCam->Orientation.y-90))*cos(pi/180 * TheCam->Orientation.x));
-	}
+	Move.z = z;
 }
 
-void Player::MoveForward(GLfloat z)
+void Player::MoveSideways(double x)
 {
-	MoveZ = -z*.001;
+	Move.x = x;
 }
 
-void Player::MoveSideways(GLfloat x)
+void Player::MoveVertically(double y)
 {
-	MoveX = -x*.001;
+	if (on_ground)
+		Move.y = 50*y;
 }
 
 void Player::Render()
 {
-	RenderModel(&PlayerModel);
+	if (Galaxy == -1)
+		scale = 1.0*pow(10, -12);
+	else if (System == -1)
+		scale = 1.0*pow(10, -9);
+	else if (Planet == -1)
+		scale = 1.0*pow(10, -6);
+	else if (GridX == -1 || GridY == -1)
+		scale = 1.0*pow(10, -3);
+	else
+		scale = 1.0;
+		
+	glScalef(scale, scale, scale);
+	
+	Vector p = pi/180 * PlayerModel.Physics.Orientation;
+	Vector v = -pi/180 * Viewpoint.Orientation;
+	
+	if (on_ground)
+		MovementType = 2;
+	if (GridX == -1)
+		MovementType = 3;
+	
+	if (MovementType == 2 && on_ground)
+	{
+		if (Move.y > 0)
+		{
+			Move.x *= 500;
+			Move.z *= 500;
+		}
+		
+		PlayerModel.Physics.SumForces.Force += 1000*1.8333*(Move.z*RotateY(RotateZ(RotateZ(RotateY(Vector(0.0, 0.0, -1.0), v.y), v.z), p.z), p.y) + 
+													   Move.x*RotateY(RotateZ(RotateZ(RotateY(Vector(1.0, 0.0, 0.0), v.y), v.z), p.z), p.y) + 
+													   Move.y*RotateY(RotateZ(RotateZ(RotateY(Vector(0.0, 1.0, 0.0), v.y), v.z), p.z), p.y));
+		Move.y = 0;
+	}
+	if (MovementType == 3)
+	{
+		PlayerModel.Physics.SumForces.Force += 10000*Move.z*RotateX(RotateY(RotateZ(RotateZ(RotateY(RotateX(Vector(0.0, 0.0, -1.0), v.x), v.y), v.z), p.z), p.y), p.x) + 
+											   10000*Move.x*RotateX(RotateY(RotateZ(RotateZ(RotateY(RotateX(Vector(1.0, 0.0, 0.0), v.x), v.y), v.z), p.z), p.y), p.x);
+	}
+	
+	Viewpoint.Render();
+	
+	GridX = -1;
+	GridY = -1;
+	Planet = -1;
+	//System = -1;
+	//Galaxy = -1;
 }
 
 void Player::Release()
 {
-	ReleaseModel(&PlayerModel);
+	ReleaseMdl(&PlayerModel);
 }

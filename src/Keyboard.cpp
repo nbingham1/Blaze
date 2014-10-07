@@ -1,23 +1,11 @@
 /*
-	Keyboard.cpp
-	Blaze Game Engine 0.03
-
-	Created by Ned Bingham on 10/6/06.
-	Copyright 2006 Sol Union. All rights reserved.
-
-    Blaze Game Engine 0.03 is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Blaze Game Engine 0.03 is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with Blaze Game Engine 0.03.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ *  Keyboard.cpp
+ *  Blaze Game Engine
+ *
+ *  Created by Ned Bingham on 10/6/06.
+ *  Copyright 2006 Sol Gaming. All rights reserved.
+ *
+ */
 
 #include "Keyboard.h"
 #include "CoreGraphics.h"
@@ -28,50 +16,32 @@ bool Keyboard::HandleKeyDown(unsigned char key)
 {
     if (key == 'w')
     {
-        KeyState[(int)'w'] = true;
+        KeyState['w'] = true;
 		Renderer.ThePlayer.MoveForward(1.0);
-    }
-    
-    if (key == 't')
-    {
-        KeyState[(int)'t'] = true;
-		Renderer.TheCamera.Rotate(1.0, 0.0, 0.0);
     }
     
     if (key == 'a')
     {
-        KeyState[(int)'a'] = true;
+        KeyState['a'] = true;
 		Renderer.ThePlayer.MoveSideways(-1.0);
     }
     
     if (key == 's')
     {
-        KeyState[(int)'s'] = true;
+        KeyState['s'] = true;
 		Renderer.ThePlayer.MoveForward(-1.0);
     }
     
     if (key == 'd')
     {
-        KeyState[(int)'d'] = true;
+        KeyState['d'] = true;
 		Renderer.ThePlayer.MoveSideways(1.0);
     }
     
-    if (key == 'f')
+    if (key == ' ')
     {
-        KeyState[(int)'f'] = true;
-		Renderer.TheCamera.Rotate(0.0, -1.0, 0.0);
-    }
-    
-    if (key == 'g')
-    {
-        KeyState[(int)'g'] = true;
-		Renderer.TheCamera.Rotate(-1.0, 0.0, 0.0);
-    }
-    
-    if (key == 'h')
-    {
-        KeyState[(int)'h'] = true;
-		Renderer.TheCamera.Rotate(0.0, 1.0, 0.0);
+        KeyState[' '] = true;
+        Renderer.ThePlayer.MoveVertically(0.5);
     }
     
     return true;
@@ -79,44 +49,24 @@ bool Keyboard::HandleKeyDown(unsigned char key)
 
 void Keyboard::HandleKeyStillDown()
 {
-    if (KeyState[(int)'w'])
+    if (KeyState['w'])
     {
 		Renderer.ThePlayer.MoveForward(1.0);
     }
     
-    if (KeyState[(int)'t'])
-    {
-		Renderer.TheCamera.Rotate(1.0, 0.0, 0.0);
-    }
-    
-    if (KeyState[(int)'a'])
+    if (KeyState['a'])
     {
 		Renderer.ThePlayer.MoveSideways(-1.0);
     }
     
-    if (KeyState[(int)'s'])
+    if (KeyState['s'])
     {
 		Renderer.ThePlayer.MoveForward(-1.0);
     }
     
-    if (KeyState[(int)'d'])
+    if (KeyState['d'])
     {
 		Renderer.ThePlayer.MoveSideways(1.0);
-    }
-    
-    if (KeyState[(int)'f'])
-    {
-		Renderer.TheCamera.Rotate(0.0, -1.0, 0.0);
-    }
-    
-    if (KeyState[(int)'g'])
-    {
-		Renderer.TheCamera.Rotate(-1.0, 0.0, 0.0);
-    }
-    
-    if (KeyState[(int)'h'])
-    {
-		Renderer.TheCamera.Rotate(0.0, 1.0, 0.0);
     }
 }
 
@@ -124,27 +74,32 @@ bool Keyboard::HandleKeyUp(unsigned char key)
 {
     if (key == 'w')
     {
-        KeyState[(int)'w'] = false;
+        KeyState['w'] = false;
 		Renderer.ThePlayer.MoveForward(0.0);
     }
     
     if (key == 'a')
     {
-        KeyState[(int)'a'] = false;
+        KeyState['a'] = false;
 		Renderer.ThePlayer.MoveSideways(0.0);
     }
     
     if (key == 's')
     {
-        KeyState[(int)'s'] = false;
+        KeyState['s'] = false;
 		Renderer.ThePlayer.MoveForward(0.0);
     }
     
     if (key == 'd')
     {
-        KeyState[(int)'d'] = false;
+        KeyState['d'] = false;
 		Renderer.ThePlayer.MoveSideways(0.0);
     }
+
+    if (key == ' ')
+	{
+		KeyState[' '] = false;
+	}
 
     return true;
 }

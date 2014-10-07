@@ -1,27 +1,16 @@
 /*
-	Vector.cpp
-	Blaze Game Engine 0.03
-
-	Created by Ned Bingham on 10/7/06.
-	Copyright 2006 Sol Union. All rights reserved.
-
-    Blaze Game Engine 0.03 is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Blaze Game Engine 0.03 is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with Blaze Game Engine 0.03.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ *  Vector.cpp
+ *  Blaze Game Engine
+ *
+ *  Created by Ned Bingham on 11/25/06.
+ *  Copyright 2006 Sol Gaming. All rights reserved.
+ *
+ */
 
 #include "Vector.h"
+#include "BasicMath.h"
 
-Vector::Vector(GLfloat X, GLfloat Y, GLfloat Z)
+Vector::Vector(double X, double Y, double Z)
 {
 	x = X;
 	y = Y;
@@ -71,27 +60,58 @@ Vector &Vector::operator /=(Vector v)
 	return *this;
 }
 
-Vector &Vector::operator +=(GLfloat f)
+Vector &Vector::operator +=(double f)
 {
 	*this = *this + f;
 	return *this;
 }
 
-Vector &Vector::operator -=(GLfloat f)
+Vector &Vector::operator -=(double f)
 {
 	*this = *this - f;
 	return *this;
 }
 
-Vector &Vector::operator *=(GLfloat f)
+Vector &Vector::operator *=(double f)
 {
 	*this = *this * f;
 	return *this;
 }
 
-Vector &Vector::operator /=(GLfloat f)
+Vector &Vector::operator /=(double f)
 {
 	*this = *this / f;
 	return *this;
 }
 
+Vector Normalize(Vector v)
+{
+	return (v / max(Magnitude(v), 0.001));
+}
+
+Vector AngleBetween(Vector v1, Vector v2)
+{
+	double a = acos(Dot(v1, v2));
+	Vector n = Normalize(Cross(v1, v2));
+
+	Vector result;
+
+	result.y = atan2(n.y*sin(a)-n.x*n.z*(1.0-cos(a)), 1.0-(n.y*n.y+n.z*n.z)*(1.0-cos(a)));
+	result.z = asin(n.x*n.y*(1.0-cos(a))+n.z*sin(a));
+	result.x = atan2(n.x*sin(a)-n.y*n.z*(1.0-cos(a)), 1.0-(n.x*n.x+n.z*n.z)*(1.0-cos(a)));
+
+	if (n.y == 1.0)
+	{
+		result.y = 2.0*atan2(n.x*sin(a/2.0), cos(a/2.0));
+		result.z = 3.1415926535898;
+		result.x = 0.0;
+	}
+	else if (n.y == -1.0)
+	{
+		result.y = -2.0*atan2(n.x*sin(a/2.0), cos(a/2.0));
+		result.z = -3.1415926535898;
+		result.x = 0;
+	}
+
+	return result;
+}

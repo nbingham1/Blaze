@@ -1,0 +1,10 @@
+newmtl PlanetTexture
+Am 1.0 1.0 1.0
+Di 1.0 1.0 1.0
+Sp 1.0 1.0 1.0
+Em 0.0 0.0 0.0
+Op 1.0
+Re 300.0
+Bn 0
+TextMap2D res/Earth.jpg NLD
+DetailMap2D res/Detail2.jpg LOD 10000

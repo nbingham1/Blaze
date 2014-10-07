@@ -1,35 +1,34 @@
 /*
-	Frustum.h
-	Blaze Game Engine 0.03
-
-	Created by Ned Bingham on 10/8/06.
-	Copyright 2006 Sol Union. All rights reserved.
-
-    Blaze Game Engine 0.03 is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Blaze Game Engine 0.03 is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with Blaze Game Engine 0.03.  If not, see <http://www.gnu.org/licenses/>.
-*/
-#include "BasicDefinitions.h"
-#include "CoreMathematics.h"
+ *  Frustum.h
+ *  Blaze Game Engine
+ *
+ *  Created by Ned Bingham on 11/25/06.
+ *  Copyright 2006 Sol Gaming. All rights reserved.
+ *
+ */
 
 #ifndef Frustum_h
 #define Frustum_h
 
+#include <math.h>
+#include "BasicMath.h"
+#include "Vector.h"
+#include "Plane.h"
+#include "Box.h"
+#include "Sphere.h"
+
 struct Frustum
 {
-	GLfloat Right, Left, Front, Back, Top, Bottom;
+	Vector *Position;
+	Vector *Orientation;
+	double front, back, right, left, top, bottom;
+	Vector Vertices[8];
 	
-	void SetFrustum(GLfloat right, GLfloat left, GLfloat front, GLfloat back, GLfloat top, GLfloat bottom);
-	void RenderFrustum();
+	void Set(double f, double b, double r, double l, double t, double bo);
+	//void AttachFrustumToEntity();
 };
+
+bool IntersectFrustumBox(Frustum f, Box b);
+bool IntersectFrustumSphere(Frustum f, Sphere s);
 
 #endif

@@ -1,27 +1,16 @@
 /*
-	Main.cpp
-	Blaze Game Engine 0.03
-
-	Created by Ned Bingham on 10/2/06.
-	Copyright 2006 Sol Union. All rights reserved.
-
-    Blaze Game Engine 0.03 is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    Blaze Game Engine 0.03 is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with Blaze Game Engine 0.03.  If not, see <http://www.gnu.org/licenses/>.
-*/
+ *  Main.cpp
+ *  Blaze Game Engine
+ *
+ *  Created by Ned Bingham on 10/2/06.
+ *  Copyright 2006 Sol Gaming. All rights reserved.
+ *
+ */
 
 #include "CoreGraphics.h"
 #include "Keyboard.h"
 #include "Mouse.h"
+#include "Input.h"
 
 CoreGraphics		Renderer;		// Handles all of the OpenGL rendering
 Keyboard		KeyboardHandler;// Handles all keyboard input events
@@ -33,7 +22,6 @@ void init()
 {
 	glClearColor(0.0, 0.0, 0.0, 0.0);
 	glViewport(0, 0, 1366, 768);
-	Renderer.SetupPerspective();
 	Renderer.Init();
 	glLoadIdentity();
 	// initialize anything you need to here
@@ -46,7 +34,7 @@ void displayfunc()
 {
 	KeyboardHandler.HandleKeyStillDown();				// Checks for keys that are being held down
 
-	Renderer.DrawFrame();
+	Renderer.RenderFrame();
 
 	glutSwapBuffers();							// Swaps the front and back buffers
 }
@@ -102,13 +90,13 @@ int main(int argc, char **argv)
 
 	if (windowed)
 	{
-		glutInitWindowSize(1366, 768);
+		glutInitWindowSize(1600, 900);
 		glutInitWindowPosition(0, 0);
 		glutCreateWindow("BGE");
 	}
 	else
 	{
-		glutGameModeString("1366x768:32@60");
+		glutGameModeString("1600x900:32@60");
 		glutEnterGameMode();
 	}
 
@@ -145,4 +133,3 @@ int main(int argc, char **argv)
 	if (!windowed)
 		glutLeaveGameMode();
 }
-

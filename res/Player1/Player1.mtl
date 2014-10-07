@@ -1,0 +1,5 @@
+newmtl matone
+Vertex res/Vertex.txt
+Fragment res/Fragment.txt
+TextMap2D res/GrassSample.tga
+

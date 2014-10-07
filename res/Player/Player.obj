@@ -1,7 +1,6 @@
 # This file uses centimeters as units for non-parametric coordinates.
 
 mtllib res/Player/Player.mtl
-phslib res/Player/Player.phs
 g skinCluster1Set tweakSet1
 v 0.117768 0.107988 0.996906
 v 0.303688 0.028051 0.996911
