@@ -1,281 +1,197 @@
-/*
- *  Planet.cpp
- *  Infinity Game Engine
- *
- *  Created by Ned Bingham on 11/24/07.
- *  Copyright 2007 __MyCompanyName__. All rights reserved.
- *
- */
+#include "planet.h"
 
-#include "Planet.h"
-
-void ReferenceInformation::Update(void *planet)
+void planet_node::init(planet *o)
 {
-	// current pos data
-
-	this->planet = planet;
-
-	GLdouble PlayerHeight = (((Planet*)planet)->data.get_height(this));
-
-	Vector player_pos;
-	Vector player_vel;
-
-	if (ReferencePoint->Host)
-	{
-		player_pos = ReferencePoint->Host->Physics.Position;
-		player_vel = player_vel;
-	}
-	else
-	{
-		player_pos = ReferencePoint->Position;
-		player_vel = Vector();
-	}
-
-	distance = Distance(player_pos, ((Planet*)planet)->Physics.Position);
-	vec1 = Normalize(player_pos - ((Planet*)planet)->Physics.Position);
-
-	GLdouble scale;
-	if ((distance-(((Planet*)planet)->data.radius + PlayerHeight)) <= 7.0)
-		scale = 0.2;
-	else
-		scale = ((1.0/(distance - (((Planet*)planet)->data.radius + PlayerHeight))) + absolute((1.0/(distance - (((Planet*)planet)->data.radius)))))/2.0;
-
-	if (ReferencePoint->viewscale < scale)
-		ReferencePoint->viewscale = scale;
-
-	y_angle = asin(vec1.y) + pi/2.0;
-	if (vec1.x/cos(y_angle - pi/2.0) > 1.0 || vec1.x/cos(y_angle - pi/2.0) < -1.0)
-		x_angle = atan(vec1.z/vec1.x);
-	else
-		x_angle = acos(vec1.x/cos(y_angle - pi/2.0));
-
-	if (vec1.z < 0)
-		x_angle = -x_angle + 2.0*pi;
-
-	// next pos data
-
-	vec2 = Normalize((player_pos + player_vel) - ((Planet*)planet)->Physics.Position);
-
-	ny_angle = asin(vec2.y) + pi/2.0;
-	if (vec2.x/cos(ny_angle - pi/2.0) > 1.0 || vec2.x/cos(ny_angle - pi/2.0) < -1.0)
-		nx_angle = atan(vec2.z/vec2.x);
-	else
-		nx_angle = acos(vec2.x/cos(ny_angle - pi/2.0));
-
-	if (vec2.z < 0)
-		nx_angle = -nx_angle + 2.0*pi;
-
-	ndistance = Distance(player_pos + player_vel, ((Planet*)planet)->Physics.Position);
-
-	if (distance < ((Planet*)planet)->data.radius + PlayerHeight || ndistance < ((Planet*)planet)->data.radius + PlayerHeight)
-	{
-		GLdouble angle_x = x_angle;
-		if (vec1.z < 0)
-			angle_x = -(angle_x - 2.0*pi);
-		if (vec1.z > 0)
-			angle_x = -angle_x + 2.0*pi;
-		ReferencePoint->Host->Physics.Orientation = (180.0/pi)*(Vector(0.0, angle_x, 2.0*pi - acos(Dot(Vector(0.0, 1.0, 0.0), vec1))));
-
-		Collide(&ReferencePoint->Host->Physics, &((Planet*)planet)->Physics);
-
-		player_vel -= vec1*Dot(player_vel, vec1);
-		player_pos += vec1*(((Planet*)planet)->data.radius + PlayerHeight - distance);
-
-		distance = Distance(player_pos, ((Planet*)planet)->Physics.Position);
-		vec1 = Normalize(player_pos - ((Planet*)planet)->Physics.Position);
-	}
-
-	visualangle = acos(((((Planet*)planet)->data.radius + PlayerHeight)/max(distance, (((Planet*)planet)->data.radius + PlayerHeight)+1)));
-	if (!(visualangle >= 0.0) && !(visualangle < 0.0))
-		visualangle = 0.000931667;
-
-	visualangle1 = acos(((((Planet*)planet)->data.radius)/distance));
-	if (!(visualangle1 >= 0.0) && !(visualangle1 < 0.0))
-		visualangle1 = 0.000931667;
-}
-
-void planet_node::load(int sd, ReferenceInformation *reference)
-{
-	seed = sd;
-	srand(seed);
-
-	heights = (GLdouble*)malloc(sizeof(GLdouble)*node_size*node_size);
-	if (!heights)
-		cout << __FILE__ << " " << __LINE__ << " heights are unable to be allocated\n";
-
-	x_size = 2.0*pi;
-	y_size = pi;
-	x_angle = 0.0;
-	y_angle = 0.0;
-	parent = NULL;
 	children = NULL;
+	parent = NULL;
 
-	radius = GLdouble(rand()%16000 + 1000)*1000;
+	cull = false;
+	cullliq = false;
+	size = 0.0;
+	splitdepth = 0;
 
-	average = 0.0;
-	minimum = -radius*.000125;
-	maximum = radius*.0003;
-	GLdouble random;
+	orgin = o;
+	verts = NULL;
+	//norms = NULL;
+	data = NULL;
+	ldata = NULL;
 
-	for (int x = 0; x < node_size; x++)
-		for (int y = 0; y < node_size; y++)
+	min = 99999999.0;
+	max = -99999999.0;
+}
+
+void planet_node::generate(vec vec1, vec vec2, vec vec3)
+{
+	v1 = vec1;
+	v2 = vec2;
+	v3 = vec3;
+	mid = norm(v1 + v2 + v3);
+
+	if (parent != NULL)
+		size = parent->size/2.0;
+	else
+		size = m_abs(acos(dot(v1, v3)));
+
+	double length = 0.0;
+	double x_d_vps = 0.0;
+	double y_d_x = 0.0;
+	int count = 0;
+
+	verts = new double[vpn*3];
+	//norms = new double[vpn*3];
+	data = new double[vpn];
+	ldata = new double[vpn];
+
+	for (int x = 0; x < vpn; x++)
+	{
+		data[x] = 0.0;
+		ldata[x] = 0.0;
+
+		//for (int y = 0; y < 3; y++)
+		//	norms[x*3 + y] = 0.0;
+	}
+
+	for (int x = 0; x < vps; x++)
+		for (int y = 0; y < x+1; y++)
 		{
-			random = GLdouble(rand()%16000)*(maximum - minimum)/16000.0 + minimum;
-			heights[x*node_size + y] = random;
-			average += random;
+			x_d_vps = double(x)/double(vps-1);
+			y_d_x = x != 0 ? double(y)/double(x) : 0.0;
+			count = ((x*x + x)/2 + y)*3;
+			verts[count + 0] = v1.x*(1.0 - x_d_vps) + v2.x*x_d_vps*(1.0 - y_d_x) + v3.x*x_d_vps*y_d_x;
+			verts[count + 1] = v1.y*(1.0 - x_d_vps) + v2.y*x_d_vps*(1.0 - y_d_x) + v3.y*x_d_vps*y_d_x;
+			verts[count + 2] = v1.z*(1.0 - x_d_vps) + v2.z*x_d_vps*(1.0 - y_d_x) + v3.z*x_d_vps*y_d_x;
+
+			length = mag(vec(&verts[count], 3));
+			for (int z = 0; z < 3; z++)
+				verts[count + z] /= length;
 		}
-	average /= node_size*node_size;
-
-	for (int x = 0; x < node_size; x++)
-	{
-		heights[(node_size-1)*node_size + x] = heights[x];
-		heights[x*node_size + node_size-1] = heights[node_size-1];
-		heights[x*node_size] = heights[0];
-	}
-
-	percent_loaded = 1.00;
 }
 
-void planet_node::destroy()
+void planet_node::detail()
 {
-	if (heights)
-		free(heights);
+	float h_dist = m_max(m_abs(acos(dot(-orgin->camera.vector, mid))) - size, 0.0);
+	float distfromrad = orgin->camera.distance - orgin->physics.radius;
+	float vis = acos(orgin->physics.radius/orgin->camera.distance);
+	if (m_nan(vis) || vis <= 0.1)
+		vis = 0.1;
 
-	if (children)
+	cull = false;
+	cullliq = false;
+	if (h_dist > vis + size/* || dot(orgin->camera.distance*orgin->camera.vector - mid*orgin->physics.radius, orgin->camera.ref->lookat) > 0.0*/)
 	{
-		for (int x = 0; x < 4; x++)
-			children[x].destroy();
-		free(children);
+		cull = true;
+		cullliq = true;
 	}
+	else if ((distfromrad > 800.0 && max < 0.0) || (distfromrad < -1000.0 && min > 0.0))
+		cull = true;
 
-	material.ReleaseTextures();
-}
-
-void planet_node::split(ReferenceInformation *reference)
-{
-	GLdouble count;
-	if (children != NULL)
-	{
-		for (int x = 0; x < 4; x++)
-			children[x].split(reference);
-	}
+	if (min > 0.0)
+		cullliq = true;
 	else
 	{
-		children = (planet_node*)malloc(sizeof(planet_node)*4);
-		if (!children)
-			cout << "ARRG" << endl;
-		int u_pos, v_pos, u1_pos, v1_pos;
-		Vector n1, n2;
-		for (int x = 0; x < 2; x++)
-			for (int y = 0; y < 2; y++)
+		planet_node *curr = this;
+		while (curr != NULL)
+		{
+			if (!curr->cull)
+				curr->cullliq = false;
+			curr = curr->parent;
+		}
+	}
+
+	if (!cull || !cullliq)
+	{
+		if (children != NULL)
+			for (int x = 0; x < 4; x++)
+				children[x].detail();
+
+		float v_dist = m_max(distfromrad - orgin->camera.ground_height, 0.0);
+
+		float dist = m_sqr(h_dist*orgin->physics.radius) + m_sqr(v_dist);
+		float percent = m_pi*m_sqr(size*orgin->physics.radius)/dist;
+
+		if (percent < 0.64 && children != NULL)
+				merge();
+
+		else if (percent >= 1.0 && children == NULL && orgin->physics.radius*size/vps > 60.0)
+			split();
+	}
+}
+
+void planet_node::split()
+{
+	if (children != NULL)
+		for (int x = 0; x < 4; x++)
+			children[x].split();
+	else
+	{
+		children = new planet_node[4];
+		if (children == NULL)
+		{
+			printf("Error: Failed allocation of children.\n file: %s line: %i", __FILE__, __LINE__);
+			return;
+		}
+
+		vec vec1 = v1,
+			vec2 = norm(v1 + v2),
+			vec3 = norm(v1 + v3),
+			vec4 = v2,
+			vec5 = norm(v2 + v3),
+			vec6 = v3;
+
+		srand(seed);
+		for (int i = 0; i < 4; i++)
+		{
+			children[i].init(orgin);
+			children[i].parent = this;
+			children[i].seed = rand();
+			children[i].splitdepth = splitdepth+1;
+			children[i].min = 999999999.0;
+			children[i].max = -999999999.0;
+		}
+
+		children[0].generate(vec1, vec2, vec3);
+		children[1].generate(vec2, vec4, vec5);
+		children[2].generate(vec5, vec3, vec2);
+		children[3].generate(vec3, vec5, vec6);
+
+		srand(seed);
+
+		double expon[8] = {3.0, 2.0, 1.0, 0.5, 0.25, 0.125, 0.25, 0.5};
+		double mult = 4000.0;
+
+		for (int x = 0; x < vpn; x++)
+		{
+			children[0].data[x] = mult*Brownian(children[0].verts[x*3 + 0], children[0].verts[x*3 + 1], children[0].verts[x*3 + 2], 2.5, expon, 7.0);
+			children[1].data[x] = mult*Brownian(children[1].verts[x*3 + 0], children[1].verts[x*3 + 1], children[1].verts[x*3 + 2], 2.5, expon, 7.0);
+			children[2].data[x] = mult*Brownian(children[2].verts[x*3 + 0], children[2].verts[x*3 + 1], children[2].verts[x*3 + 2], 2.5, expon, 7.0);
+			children[3].data[x] = mult*Brownian(children[3].verts[x*3 + 0], children[3].verts[x*3 + 1], children[3].verts[x*3 + 2], 2.5, expon, 7.0);
+
+			for (int y = 0; y < 4; y++)
 			{
-				children[x*2+y].seed = heights[(x*node_size/2)*node_size + (y*node_size/2)];
-				srand(children[x*2+y].seed);
-				children[x*2+y].x_size = x_size/2.0;
-				children[x*2+y].y_size = y_size/2.0;
-				children[x*2+y].x_angle = x_angle + x*(x_size/2.0);
-				children[x*2+y].y_angle = y_angle + y*(y_size/2.0);
-				children[x*2+y].radius = radius;
-				children[x*2+y].children = NULL;
-				children[x*2+y].parent = this;
-				children[x*2+y].foglimit = foglimit;
-				children[x*2+y].heights = (GLdouble*)malloc(sizeof(GLdouble)*node_size*node_size);
-				if (!children[x*2+y].heights)
-					cout << "ARRG" << endl;
-				children[x*2+y].average = 0.0;
-				children[x*2+y].minimum = minimum;
-				children[x*2+y].maximum = maximum;
-				count = 0.0;
-
-				GLdouble distbet = .5*children[x*2+y].radius*(children[x*2+y].x_size + children[x*2+y].y_size)/GLdouble(node_size);
-				GLdouble rough = clamp((pi - x_size)/pi, 0.0, 1.0);
-				GLdouble heightincrease;
-				int tendancy;
-				GLdouble mult;
-				for (int u = 0; u < node_size; u++)
-				{
-					u_pos = (u + x*node_size - x)/2;
-					u1_pos = (u + 1 + x*node_size - x)/2;
-					for (int v = 0; v < node_size; v++)
-					{
-						v_pos = (v + y*node_size - y)/2;
-						v1_pos = (v + 1 + y*node_size - y)/2;
-						children[x*2+y].heights[u*node_size + v] = (heights[u_pos*node_size + v_pos] +
-																	heights[u1_pos*node_size + v_pos] +
-																	heights[u1_pos*node_size + v1_pos] +
-																	heights[u_pos*node_size + v1_pos])/4.0;
-
-						heightincrease = rough*0.1*absolute(pi - x_size)*((GLdouble(rand()%16000)*distbet/16000.0) - 0.5*distbet);
-
-						mult = 1.0;
-						while (true)
-						{
-							if (children[x*2+y].heights[u*node_size + v] > 0.0 && children[x*2+y].heights[u*node_size + v] + heightincrease*mult > 0.0)
-								break;
-
-							if (children[x*2+y].heights[u*node_size + v] < 0.0 && children[x*2+y].heights[u*node_size + v] + heightincrease*mult < 0.0)
-								break;
-
-							if (children[x*2+y].heights[u*node_size + v] == 0.0)
-								break;
-
-							mult -= .1;
-							if (mult <= -1.0)
-								 break;
-						}
-						heightincrease *= mult;
-
-						/*mult = 1.0;
-						while (true)
-						{
-							if (!(children[x*2+y].heights[u*node_size + v] + heightincrease*mult >= children[x*2+y].maximum || children[x*2+y].heights[u*node_size + v] + heightincrease*mult <= children[x*2+y].minimum))
-								break;
-
-							mult -= .1;
-							if (mult <= -1.0)
-								 break;
-						}
-						heightincrease *= mult;*/
-
-						if ((u_pos != u1_pos || v_pos != v1_pos) && (u > 1 && v > 1 && u < node_size-1 && v < node_size-1)/* && (u != 1 && v != 1 && u != node_size-1 && v != node_size-1)*/)
-								children[x*2+y].heights[u*node_size + v] += heightincrease;
-						if ((u_pos != u1_pos || v_pos != v1_pos) && (u == 0 && x == 1 && v != node_size-1 && v != 0))
-						{
-							children[x*2+y].heights[u*node_size + v] += heightincrease;
-							children[y].heights[(node_size-1)*node_size + v] = children[x*2+y].heights[u*node_size + v];
-						}
-						if ((u_pos != u1_pos || v_pos != v1_pos) && (v == 0 && y == 1 && u != node_size-1 && u != 0))
-						{
-							children[x*2+y].heights[u*node_size + v] += heightincrease;
-							children[x*2].heights[u*node_size + (node_size-1)] = children[x*2+y].heights[u*node_size + v];
-						}
-
-						children[x*2+y].average += children[x*2+y].heights[u*node_size + v];
-						count+=1.0;
-					}
-				}
-				children[x*2+y].average /= count;
-				children[x*2+y].maximum = minimum;
-				children[x*2+y].minimum = maximum;
-				for (int u = 0; u < node_size; u++)
-					for (int v = 0; v < node_size; v++)
-					{
-						if (children[x*2+y].heights[u*node_size + v] > children[x*2+y].maximum && children[x*2+y].heights[u*node_size + v] <= maximum)
-							children[x*2+y].maximum = children[x*2+y].heights[u*node_size + v];
-						if (children[x*2+y].heights[u*node_size + v] < children[x*2+y].minimum && children[x*2+y].heights[u*node_size + v] >= minimum)
-							children[x*2+y].minimum = children[x*2+y].heights[u*node_size + v];
-					}
-
-				children[x*2+y].material.Init();
-				children[x*2+y].material.VertShad = material.VertShad;
-				children[x*2+y].material.FragShad = material.FragShad;
-				children[x*2+y].material.ShadProg = material.ShadProg;
+				children[y].max = children[y].data[x] > children[y].max ? children[y].data[x] : children[y].max;
+				children[y].min = children[y].data[x] < children[y].min ? children[y].data[x] : children[y].min;
 			}
-		for (int x = 0; x < 2; x++)
-			for (int y = 0; y < 2; y++)
-				children[x*2+y].CreateTextureMap(x, y, reference);
-		free(heights);
-		heights = NULL;
+		}
+		/*if (norms != NULL)
+		{
+			delete [] norms;
+			norms = NULL;
+		}*/
+		if (verts != NULL && parent != NULL)
+		{
+			delete [] verts;
+			verts = NULL;
+ 		}
+ 		if (data != NULL)
+ 		{
+ 			delete [] data;
+ 			data = NULL;
+ 		}
+ 		if (ldata != NULL)
+ 		{
+ 			delete [] ldata;
+ 			ldata = NULL;
+ 		}
 	}
 }
 
@@ -287,529 +203,461 @@ void planet_node::merge()
 			if (children[x].children != NULL)
 				children[x].merge();
 
-		heights = (GLdouble*)malloc(sizeof(GLdouble)*node_size*node_size);
-		if (!heights)
-			cout << "ARRG" << endl;
+		verts = new double[vpn*3];
+		//norms = new double[vpn*3];
+		data = new double[vpn];
+		ldata = new double[vpn];
 
-		for (int u = 0; u < node_size; u++)
-			for (int v = 0; v < node_size; v++)
-				heights[u*node_size + v] = children[(u/(node_size/2))*2+(v/(node_size/2))].heights[(2*(u - (node_size/2)*(u/(node_size/2))) + u/(node_size/2))*node_size + (2*(v - (node_size/2)*(v/(node_size/2))) + v/(node_size/2))];
+		for (int x = 0; x < vpn; x++)
+		{
+			data[x] = 0.0;
+			ldata[x] = 0.0;
+
+			//for (int y = 0; y < 3; y++)
+			//	norms[x*3 + y] = 0.0;
+		}
+
+		int u, v, c;
+		for (int x = 0; x < vps; x+=2)
+			for (int y = 0; y < x+1; y+=2)
+			{
+				c = (x*x + x)/2;
+				u = x/2;
+				v = y/2;
+				data[((u*u + u)/2 + v)] = children[0].data[c + y];
+				for (int z = 0; z < 3; z++)
+					verts[((u*u + u)/2 + v)*3 + z] = children[0].verts[(c + y)*3 + z];
+				//for (int z = 0; z < 3; z++)
+				//	norms[((u*u + u)/2 + v)*3 + z] = children[0].norms[(c + y)*3 + z];
+
+				u = x/2 + vps/2;
+				v = y/2;
+				data[((u*u + u)/2 + v)] = children[1].data[c + y];
+				for (int z = 0; z < 3; z++)
+					verts[((u*u + u)/2 + v)*3 + z] = children[1].verts[(c + y)*3 + z];
+				//for (int z = 0; z < 3; z++)
+				//	norms[((u*u + u)/2 + v)*3 + z] = children[1].norms[(c + y)*3 + z];
+
+				u = (vps-1) - x/2;
+				v = vps/2 - y/2;
+				data[((u*u + u)/2 + v)] = children[2].data[c + y];
+				for (int z = 0; z < 3; z++)
+					verts[((u*u + u)/2 + v)*3 + z] = children[2].verts[(c + y)*3 + z];
+				//for (int z = 0; z < 3; z++)
+				//	norms[((u*u + u)/2 + v)*3 + z] = children[2].norms[(c + y)*3 + z];
+
+				u = x/2 + vps/2;
+				v = y/2 + vps/2;
+				data[((u*u + u)/2 + v)] = children[3].data[c + y];
+				for (int z = 0; z < 3; z++)
+					verts[((u*u + u)/2 + v)*3 + z] = children[3].verts[(c + y)*3 + z];
+				//for (int z = 0; z < 3; z++)
+				//	norms[((u*u + u)/2 + v)*3 + z] = children[3].norms[(c + y)*3 + z];
+			}
 
 		for (int x = 0; x < 4; x++)
-			children[x].destroy();
+			children[x].release();
 
-		free(children);
+		delete children;
 		children = NULL;
 	}
 }
 
-void planet_node::determine_lod(ReferenceInformation *reference)
+void planet_node::release()
 {
-	if (!children || !children->children)
-	{
-		GLdouble cx = x_angle, cy = y_angle;
-
-		if (x_angle + x_size < reference->x_angle && reference->x_angle - (x_angle + x_size) > pi)
-			cx += pi/2;
-		else if (x_angle > reference->x_angle && x_angle - reference->x_angle > pi)
-			cx -= pi/2;
-
-		GLdouble x_dist = min(absolute(cx - reference->x_angle), absolute(cx + x_size - reference->x_angle));
-		GLdouble y_dist = min(absolute(cy - reference->y_angle), absolute(cy + y_size - reference->y_angle));
-		GLdouble h_dist = radius*sqrt(x_dist*x_dist + y_dist*y_dist);
-		GLdouble v_dist = reference->distance - (radius + average);
-		v_dist = v_dist < 0.0 ? 0.0 : v_dist;
-		GLdouble dist = h_dist*h_dist + v_dist*v_dist;
-
-		GLdouble percent = (x_size*radius*x_size*radius)/dist;
-		if (percent >= 1.5 && children == NULL && radius*x_size > 1000.0 && radius*y_size > 1000.0)
-			split(reference);
-		if (percent <= 0.8 && x_size < pi/4.0 && children)
-			merge();
-	}
-	if (children)
+	if (children != NULL)
 	{
 		for (int x = 0; x < 4; x++)
-			children[x].determine_lod(reference);
+			children[x].release();
+		delete [] children;
 	}
+
+	children = NULL;
+	parent = NULL;
+	orgin = NULL;
+	if (verts != NULL)
+		delete [] verts;
+	//if (norms != NULL)
+	//	delete [] norms;
+	if (data != NULL)
+		delete [] data;
+	if (ldata != NULL)
+		delete [] ldata;
+
+	verts = NULL;
+	//norms = NULL;
+	data = NULL;
+	ldata = NULL;
 }
 
-void planet_node::renderheights(ReferenceInformation *reference)
+void planet_node::render()
 {
-	if (children)
-		for (int x = 0; x < 4; x++)
-			children[x].renderheights(reference);
-	else
+	if (!cull)
 	{
-		GLdouble x_temp, y_temp;
-		Vector v;
-
-		GLdouble vert[3*node_size*node_size];
-		GLdouble text[2*node_size*node_size];
-		unsigned int indices[node_size*node_size*6];
-		for (int x = 0; x < node_size; x++)
+		if (children != NULL)
+			for (int x = 0; x < 4; x++)
+				children[x].render();
+		else
 		{
-			x_temp = x_size*(GLdouble(x)/GLdouble(node_size-1)) + x_angle;
-			for (int y = 0; y < node_size; y++)
+			double v[vpn*3];
+			int count = 0;
+			for (int x = 0; x < vpn; x++)
 			{
-				y_temp = y_size*(GLdouble(y)/GLdouble(node_size-1)) + y_angle - pi/2.0;
-
-				v.x = cos(x_temp) * cos(y_temp);
-				v.y = sin(y_temp);
-				v.z = sin(x_temp) * cos(y_temp);
-
-				vert[3*(x*node_size + y) + 0] = v.x*(radius + heights[x*node_size + y]) - reference->distance*reference->vec1.x;
-				vert[3*(x*node_size + y) + 1] = v.y*(radius + heights[x*node_size + y]) - reference->distance*reference->vec1.y;
-				vert[3*(x*node_size + y) + 2] = v.z*(radius + heights[x*node_size + y]) - reference->distance*reference->vec1.z;
-
-				text[2*(x*node_size + y) + 1] = GLdouble(x)/GLdouble(node_size-1);
-				text[2*(x*node_size + y) + 0] = GLdouble(y)/GLdouble(node_size-1);
+				v[x*3 + 0] = verts[x*3 + 0]*(orgin->physics.radius + data[x]) + orgin->camera.vector.x*orgin->camera.distance;
+				v[x*3 + 1] = verts[x*3 + 1]*(orgin->physics.radius + data[x]) + orgin->camera.vector.y*orgin->camera.distance;
+				v[x*3 + 2] = verts[x*3 + 2]*(orgin->physics.radius + data[x]) + orgin->camera.vector.z*orgin->camera.distance;
 			}
-		}
 
-		int index = 0;
-		for (int x = 1; x < node_size; x++)
-		{
-			for (int y = 0; y < node_size; y++)
+			glEnableClientState(GL_VERTEX_ARRAY);
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			glVertexPointer(3, GL_DOUBLE, 0, v);
+			glTexCoordPointer(2, GL_DOUBLE, 0, orgin->texts);
+
+			count = 0;
+			for (int x = 1; x < vps; x++)
 			{
-				indices[index++] = x*node_size+y;
-				indices[index++] = (x-1)*node_size+y;
+				glDrawElements(GL_TRIANGLE_STRIP, x*2+1, GL_UNSIGNED_INT, &orgin->indices[count]);
+				count += x*2 + 1;
 			}
-		}
 
-		material.Use();
-		material.ImportNumber(foglimit, "limit");
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glVertexPointer(3, GL_DOUBLE, 0, vert);
-		glTexCoordPointer(2, GL_DOUBLE, 0, text);
-		for (int x = 0; x < node_size-1; x++)
-			glDrawElements(GL_TRIANGLE_STRIP, node_size*2, GL_UNSIGNED_INT, &indices[x*node_size*2]);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glDisableClientState(GL_VERTEX_ARRAY);
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+			glDisableClientState(GL_VERTEX_ARRAY);
+		}
 	}
 }
 
-void planet_node::renderwater(ReferenceInformation *reference)
+void planet_node::render_liquid()
 {
-	if (children)
-		for (int x = 0; x < 4; x++)
-			children[x].renderwater(reference);
-	else
+	if (!cullliq)
 	{
-		GLdouble x_temp, y_temp;
-		Vector v;
-
-		GLdouble vert[3*node_size*node_size];
-		GLdouble text[2*node_size*node_size];
-		unsigned int indices[node_size*node_size*6];
-		for (int x = 0; x < node_size; x++)
+		if (children != NULL)
+			for (int x = 0; x < 4; x++)
+				children[x].render_liquid();
+		else
 		{
-			x_temp = x_size*(GLdouble(x)/GLdouble(node_size-1)) + x_angle;
-			for (int y = 0; y < node_size; y++)
+			double v[vpn*3];
+			int count = 0;
+
+			for (int x = 0; x < vpn; x++)
 			{
-				y_temp = y_size*(GLdouble(y)/GLdouble(node_size-1)) + y_angle - pi/2.0;
-
-				v.x = cos(x_temp) * cos(y_temp);
-				v.y = sin(y_temp);
-				v.z = sin(x_temp) * cos(y_temp);
-
-				vert[3*(x*node_size + y) + 0] = v.x*(radius) - reference->distance*reference->vec1.x;
-				vert[3*(x*node_size + y) + 1] = v.y*(radius) - reference->distance*reference->vec1.y;
-				vert[3*(x*node_size + y) + 2] = v.z*(radius) - reference->distance*reference->vec1.z;
-
-				text[2*(x*node_size + y) + 0] = y_size*radius*.25*GLdouble(y)/GLdouble(node_size-1);
-				text[2*(x*node_size + y) + 1] = x_size*radius*.25*GLdouble(x)/GLdouble(node_size-1);
+				v[x*3 + 0] = verts[x*3 + 0]*(orgin->physics.radius + ldata[x]) + orgin->camera.vector.x*orgin->camera.distance;
+				v[x*3 + 1] = verts[x*3 + 1]*(orgin->physics.radius + ldata[x]) + orgin->camera.vector.y*orgin->camera.distance;
+				v[x*3 + 2] = verts[x*3 + 2]*(orgin->physics.radius + ldata[x]) + orgin->camera.vector.z*orgin->camera.distance;
 			}
-		}
 
-		int index = 0;
-		for (int x = 1; x < node_size; x++)
-		{
-			for (int y = 0; y < node_size; y++)
+			glEnableClientState(GL_VERTEX_ARRAY);
+			glVertexPointer(3, GL_DOUBLE, 0, v);
+
+			count = 0;
+			for (int x = 1; x < vps; x++)
 			{
-				indices[index++] = x*node_size+y;
-				indices[index++] = (x-1)*node_size+y;
+				glDrawElements(GL_TRIANGLE_STRIP, x*2+1, GL_UNSIGNED_INT, &orgin->indices[count]);
+				count += x*2 + 1;
 			}
-		}
 
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glVertexPointer(3, GL_DOUBLE, 0, vert);
-		glTexCoordPointer(2, GL_DOUBLE, 0, text);
-		for (int x = 0; x < node_size-1; x++)
-			glDrawElements(GL_TRIANGLE_STRIP, node_size*2, GL_UNSIGNED_INT, &indices[x*node_size*2]);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glDisableClientState(GL_VERTEX_ARRAY);
+			glDisableClientState(GL_VERTEX_ARRAY);
+		}
 	}
 }
 
-void planet_node::rendersky(ReferenceInformation *reference, GLdouble scale, GLdouble angle)
+void planet_node::getheight(vec vc, double *h)
 {
-	GLdouble x_temp, y_temp;
-	Vector v;
-
-	int size = 20;
-
-	GLdouble vert[3*size*size];
-	GLdouble text[2*size*size];
-	unsigned int indices[size*size*6];
-	for (int x = 0; x < size; x++)
+	double t, u, v;
+	int a, a1;
+	if (intraytri(vec(), -vc, v1*orgin->physics.radius, v2*orgin->physics.radius, v3*orgin->physics.radius, &t, &u, &v))
 	{
-		x_temp = 2*pi*(GLdouble(x)/GLdouble(size-1));
-		for (int y = 0; y < size; y++)
+		if (children != NULL)
+			for (int x = 0; x < 4; x++)
+				children[x].getheight(vc, h);
+		else
 		{
-			y_temp = pi*(GLdouble(y)/GLdouble(size-1)) - pi/2.0;
+			vec q, r;
+			double ql, rl;
+			q = cross(v2, v3 - v2);
+			ql = dot(q, v2 - v1);
+			r = cross(v2, v2 - v1);
+			rl = dot(r, v3 - v2);
+			double dx = (vps-1)*(1.0 - dot(v2 + vc, q)/ql);
+			double dy = (vps-1)*dot(-vc - v2, r)/rl;
 
-			v.x = cos(x_temp) * cos(y_temp);
-			v.y = sin(y_temp);
-			v.z = sin(x_temp) * cos(y_temp);
+			int x = int(dx);
+			int y = int(dy);
 
-			vert[3*(x*size + y) + 0] = scale*v.x*(radius*1.03) - reference->distance*reference->vec1.x;
-			vert[3*(x*size + y) + 1] = scale*v.y*(radius*1.03) - reference->distance*reference->vec1.y;
-			vert[3*(x*size + y) + 2] = scale*v.z*(radius*1.03) - reference->distance*reference->vec1.z;
+			a = (x*x + x)/2;
+			a1 = ((x+1)*(x+1) + (x+1))/2;
 
-			text[2*(x*size + y) + 1] = GLdouble(y)/GLdouble(size-1);
-			text[2*(x*size + y) + 0] = (GLdouble(x)/GLdouble(size-1) + angle) - GLdouble(int(angle));
-		}
-	}
-
-	int index = 0;
-	for (int x = 1; x < size; x++)
-	{
-		for (int y = 0; y < size; y++)
-		{
-			indices[index++] = x*size+y;
-			indices[index++] = (x-1)*size+y;
-		}
-	}
-
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glVertexPointer(3, GL_DOUBLE, 0, vert);
-	glTexCoordPointer(2, GL_DOUBLE, 0, text);
-	for (int x = 0; x < size-1; x++)
-		glDrawElements(GL_TRIANGLE_STRIP, size*2, GL_UNSIGNED_INT, &indices[x*size*2]);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisableClientState(GL_VERTEX_ARRAY);
-}
-
-GLdouble planet_node::get_height(ReferenceInformation *reference)
-{
-	if (children)
-	{
-		for (int x = 0; x < 4; x++)
-			if (reference->x_angle >= children[x].x_angle && reference->x_angle < children[x].x_angle + children[x].x_size && reference->y_angle >= children[x].y_angle && reference->y_angle < children[x].y_angle + children[x].y_size)
-			{
-				return children[x].get_height(reference);
-				break;
-			}
-	}
-	else
-	{
-		GLdouble dx = GLdouble(node_size-1)*(reference->x_angle-x_angle)/x_size;
-		GLdouble dy = GLdouble(node_size-1)*(reference->y_angle-y_angle)/y_size;
-
-		int x = int(dx);
-		int y = int(dy);
-
-		GLdouble h00 = heights[x*node_size + y];
-		GLdouble h01 = heights[(x+1)*node_size + y];
-		GLdouble h10 = heights[x*node_size + (y+1)];
-		GLdouble h11 = heights[(x+1)*node_size + (y+1)];
-
-		GLdouble tx = dx - GLdouble(x);
-		GLdouble ty = dy - GLdouble(y);
-
-		GLdouble txty = tx * ty;
-
-		return h00 * (1.0 - ty - tx + txty)
-						+ h01 * (tx - txty)
-						+ h11 * txty
-						+ h10 * (ty - txty);
-	}
-}
-
-GLdouble planet_node::get_minimum(GLdouble curr)
-{
-	GLdouble c = curr;
-	GLdouble y = 0;
-	if (children)
-	{
-		for (int x = 0; x < 4; x++)
-		{
-			y = children[x].get_minimum(c);
-			c = y < c ? y : c;
-		}
-	}
-
-	return c;
-}
-
-GLdouble planet_node::get_maximum(GLdouble curr)
-{
-	GLdouble c = curr;
-	GLdouble y = 0;
-	if (children)
-	{
-		for (int x = 0; x < 4; x++)
-		{
-			y = children[x].get_maximum(c);
-			c = y > c ? y : c;
-		}
-	}
-
-	return c;
-}
-
-void planet_node::CreateTextureMap(int a, int b, ReferenceInformation *reference)
-{
-	unsigned char colors[3*(tex_size*tex_size)];
-	GLdouble height, height2;
-	GLdouble red, green, blue;
-	int z, w;
-	GLdouble lightpercent;
-	GLdouble slope = 0.0;
-	GLdouble mult = 1000.0/node_tex_radio;
-
-	GLdouble sand = 0.0, snow = 10000.0, divisor = 1000.0;
-	GLdouble sand_snow_slope = (snow - sand)/divisor;
-
-	for (int x = 0; x < tex_size; x++)
-		for (int y = 0; y < tex_size; y++)
-		{
-			GLdouble dx = node_tex_radio*GLdouble(x);
-			GLdouble dy = node_tex_radio*GLdouble(y);
-
-			z = int(dx);
-			w = int(dy);
-
-
-			GLdouble h00 = heights[z*node_size + w];
-			GLdouble h01 = heights[(z+1)*node_size + w];
-			GLdouble h10 = heights[z*node_size + (w+1)];
-			GLdouble h11 = heights[(z+1)*node_size + (w+1)];
-
-			GLdouble tx = dx - GLdouble(z);
-			GLdouble ty = dy - GLdouble(w);
-
-			GLdouble txty = tx * ty;
-
-			height = h00 * (1.0 - ty - tx + txty)
-				   + h01 * (tx - txty)
-				   + h11 * txty
-				   + h10 * (ty - txty);
-
-			if (dx-mult < 0.0 || dy-mult < 0.0)
-			{
-				ReferenceInformation r;
-
-				r.x_angle = modulate(x_angle + x_size*(dx-mult)/GLdouble(node_size-1), 2.0*pi);
-				r.y_angle = modulate(y_angle + y_size*(dy-mult)/GLdouble(node_size-1), pi);
-
-				height2 = (((Planet*)reference->planet)->data.get_height(&r));
-			}
+			double h00 = data[(a + y)];
+			double h01 = data[(a1 + y)];
+			double h11 = data[(a1 + (y+1))];
+			double h10;
+			if (y+1 > x)
+				h10 = h00 + h11 - h01;
 			else
-			{
-				GLdouble dx1 = dx-mult;
-				GLdouble dy1 = dy-mult;
+				h10 = data[((x*x + x)/2 + (y+1))];
 
-				z = int(dx1);
-				w = int(dy1);
+			double tx = dx - double(x);
+			double ty = dy - double(y);
 
+			double txty = tx * ty;
 
-				h00 = heights[z*node_size + w];
-				h01 = heights[(z+1)*node_size + w];
-				h10 = heights[z*node_size + (w+1)];
-				h11 = heights[(z+1)*node_size + (w+1)];
-
-				tx = dx1 - GLdouble(z);
-				ty = dy1 - GLdouble(w);
-
-				txty = tx * ty;
-
-				height2 = h00 * (1.0 - ty - tx + txty)
-					   + h01 * (tx - txty)
-					   + h11 * txty
-					   + h10 * (ty - txty);
-			}
-
-			slope = (height - height2)/(2.24*mult*y_size/GLdouble(node_size-1));//sqrt(node_tex_radio*node_tex_radio*x_size*x_size/GLdouble((node_size-1)*(node_size-1)) + node_tex_radio*node_tex_radio*y_size*y_size/GLdouble((node_size-1)*(node_size-1)));
-			if (!(slope > 0.0) && !(slope <= 0.0))
-				slope = 0.0;
-
-			if (height <= 0.0)
-			{
-				red = 208.0;
-				green = 175.0;
-				blue = 111.0;
-			}
-			else if (height <= sand_snow_slope)
-			{
-				red = (0.0 - 208.0)/(sand_snow_slope - 0.0)*height + 208.0;
-				green = (70.0 - 175.0)/(sand_snow_slope - 0.0)*height + 175.0;
-				blue = (0.0 - 111.0)/(sand_snow_slope - 0.0)*height + 111.0;
-			}
-			else if (height <= snow)
-			{
-				red = (255.0 - 0.0)/(snow - sand_snow_slope)*(height - sand_snow_slope) + 0.0;
-				green = (255.0 - 70.0)/(snow - sand_snow_slope)*(height - sand_snow_slope) + 70.0;
-				blue = (255.0 - 0.0)/(snow - sand_snow_slope)*(height - sand_snow_slope) + 0.0;
-			}
-			else
-			{
-				red = 255.0;
-				green = 255.0;
-				blue = 255.0;
-			}
-
-			lightpercent = 1.0;
-			if (x > 0 && x < tex_size-1 && y > 0 && y < tex_size-1)
-				lightpercent = (GLdouble(rand()%24 + 38)/50.0)*(1.0 - (slope*.4/2000000.0));
-			else
-				lightpercent = (1.0 - (slope*.4/2000000.0));
-			colors[3*(x*tex_size + y) + 0] = (unsigned char)int(clamp(red*lightpercent, 0.0, 255.0));
-			colors[3*(x*tex_size + y) + 1] = (unsigned char)int(clamp(green*lightpercent, 0.0, 255.0));
-			colors[3*(x*tex_size + y) + 2] = (unsigned char)int(clamp(blue*lightpercent, 0.0, 255.0));
+			*h =  h00 * (1.0 - ty - tx + txty)
+				+ h01 * (tx - txty)
+				+ h11 * txty
+				+ h10 * (ty - txty) + 60.0;
 		}
-
-	GLuint map;
-	glGenTextures(1, &map);
-	glBindTexture(GL_TEXTURE_2D, map);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, tex_size, tex_size, 0, GL_RGB, GL_UNSIGNED_BYTE, (unsigned char*)colors);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
-	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
-
-	material.AddTexture(map);
+	}
 }
 
-void Planet::Load(string Name, Camera *referencepoint)
+void planet::init(char *n, camerahdl *cam)
 {
-	this->Name = Name;
-	int seed = 0;
-	for (int x = 0; x < Name.length(); x++)
-		seed += int(Name[x]);
-	this->referencepoint.ReferencePoint = referencepoint;
-	this->referencepoint.planet = this;
-	data.load(seed, &this->referencepoint);
-	radius = data.radius;
-
-	Water.Init();
-	Water.Load("res/WaterPlanet.vx", "res/WaterPlanet.ft");
-	Water.AddTexture("res/waterish", "tga", 1);
-
-	Sky.Init();
-	Sky.Load("res/SkyPlanet.vx", "res/SkyPlanet.ft");
-	Sky.AddTexture("res/clouds", "tga", 1);
-
-	Shell.Init();
-	Shell.Load("res/ShellPlanet.vx", "res/ShellPlanet.ft");
-
-	data.material.Init();
-	data.material.Load("res/Planet.vx", "res/Planet.ft");
-	data.CreateTextureMap(0, 0, &this->referencepoint);
-
-	Physics.Mass = 5515*(4/3)*pi*pow(radius, 3);
-	Physics.Inertia = (2.0/5.0)*Physics.Mass*radius*radius;
+	camera.ref = cam;
+	next = NULL;
+	prev = NULL;
+	strcpy(name, n);
+	for (unsigned int x = 0; x < strlen(n); x++)
+		seed += int(n[x]);
 
 	srand(seed);
-	AtmosphereColor = Vector(GLdouble(rand()%100)/100.0, GLdouble(rand()%100)/100.0, GLdouble(rand()%100)/100.0);
-	OceanColor = Vector(GLdouble(rand()%100)/100.0, GLdouble(rand()%100)/100.0, GLdouble(rand()%100)/100.0);
-	AtmosphereDensity = GLfloat(rand()%1000)/10000000.0 + .000004;
-	AtmosphereScale = GLdouble(rand()%1000)/10000.0 + 1.008;
+	int c1 = 1, c2 = 0, index = 0;
 
-	data.foglimit = AtmosphereScale;
-
-	glEnable(GL_FOG);
-	GLfloat fogColor[] = {GLfloat(AtmosphereColor.x), GLfloat(AtmosphereColor.y), GLfloat(AtmosphereColor.z), 1.0};
-	glFogi(GL_FOG_COORDINATE_SOURCE, GL_FRAGMENT_DEPTH);
-	glFogi(GL_FOG_MODE, GL_EXP);
-	glFogfv(GL_FOG_COLOR, fogColor);
-	glHint(GL_FOG_HINT, GL_NICEST);
-	glFogf(GL_FOG_DENSITY, GLfloat(AtmosphereDensity));
-
-	sky_angle = 0.0;
-
-	data.split(&this->referencepoint);
-	data.split(&this->referencepoint);
-	data.split(&this->referencepoint);
-
-	Physics.Position.z = 146000000000.0;
-}
-
-void Planet::Prepare()
-{
-	referencepoint.Update(this);
-	data.determine_lod(&referencepoint);
-}
-
-void Planet::Render()
-{
-	GLdouble SkyScale = 1.0006;
-	sky_angle += 0.0000025;
-
-	Physics.Orientation += Vector(0.0, 0.1, 0.0);
-
-	GLdouble r2 = data.radius*data.radius;
-	GLdouble r12 = data.radius*AtmosphereScale*data.radius*AtmosphereScale;
-	GLdouble d2 = referencepoint.distance*referencepoint.distance;
-
-	GLdouble end = (referencepoint.distance < AtmosphereScale*data.radius ? -20.0*(AtmosphereScale*data.radius - referencepoint.distance) : sqrt(d2 - r12));
-	GLdouble divisor = referencepoint.distance < data.radius ? sqrt(r12 - r2) - end : sqrt(d2 - r2) + sqrt(r12 - r2) - end;
-
-	data.renderheights(&referencepoint);
-
-	if (referencepoint.distance < data.radius)
+	for (int x = 0; x < vps-1; x++)
 	{
-		glCullFace(GL_FRONT);
-		Shell.Use();
-		Shell.ImportNumber(referencepoint.ReferencePoint->viewscale, "scale");
-		Shell.ImportNumber(end, "end");
-		Shell.ImportNumber(divisor, "divisor");
-		data.rendersky(&referencepoint, AtmosphereScale, 0.0);
-		glCullFace(GL_BACK);
-
-		glDisable(GL_CULL_FACE);
-		Sky.Use();
-		Sky.ImportNumber(AtmosphereScale, "limit");
-		Sky.ImportNumber(referencepoint.ReferencePoint->viewscale, "scale");
-		data.rendersky(&referencepoint, SkyScale, sky_angle);
-		glEnable(GL_CULL_FACE);
+		for (int y = 0; y < x+1; y++)
+		{
+			indices[index++] = c1++;
+			indices[index++] = c2++;
+		}
+		indices[index++] = c1++;
 	}
+
+	int count = 0;
+
+	for (int x = 0; x < vps; x++)
+		for (int y = 0; y < x+1; y++)
+		{
+			count = ((x*x + x)/2 + y)*2;
+			texts[count + 0] = double(y)/double(vps-1);
+			texts[count + 1] = double(x)/double(vps-1);
+		}
+
+	for (int x = 0; x < 20; x++)
+	{
+		data[x].init(this);
+		data[x].seed = rand();
+	}
+
+	physics.init(cam->framerate);
+	physics.radius = float(rand()%9000000 + 1000000);
+	atmos_radius = physics.radius*1.025;
+
+	vec    v0(1.0, 0.0, 0.0),
+		   v1(0.447213595500,  0.894427191000, 0.0),
+		   v2(0.447213595500,  0.276393202252, 0.850650808354),
+		   v3(0.447213595500, -0.723606797748, 0.525731112119),
+		   v4(0.447213595500, -0.723606797748, -0.525731112119),
+		   v5(0.447213595500,  0.276393202252, -0.850650808354),
+		   v6(-0.447213595500, -0.894427191000, 0.0),
+		   v7(-0.447213595500, -0.276393202252, 0.850650808354),
+		   v8(-0.447213595500,  0.723606797748, 0.525731112119),
+		   v9(-0.447213595500,  0.723606797748, -0.525731112119),
+		   v10(-0.447213595500, -0.276393202252, -0.850650808354),
+		   v11(-1.0, 0.0, 0.0);
+
+	data[0].generate(v2, v1, v0);
+	data[1].generate(v3, v2, v0);
+	data[2].generate(v4, v3, v0);
+	data[3].generate(v5, v4, v0);
+	data[4].generate(v1, v5, v0);
+	data[5].generate(v2, v8, v1);
+	data[6].generate(v3, v7, v2);
+	data[7].generate(v4, v6, v3);
+	data[8].generate(v5, v10, v4);
+	data[9].generate(v1, v9, v5);
+	data[10].generate(v8, v9, v1);
+	data[11].generate(v7, v8, v2);
+	data[12].generate(v6, v7, v3);
+	data[13].generate(v10, v6, v4);
+	data[14].generate(v9, v10, v5);
+	data[15].generate(v10, v9, v11);
+	data[16].generate(v9, v8, v11);
+	data[17].generate(v8, v7, v11);
+	data[18].generate(v7, v6, v11);
+	data[19].generate(v6, v10, v11);
+
+	for (int x = 0; x < 20; x++)
+	{
+		data[x].min = 0.0;
+		data[x].max = 0.0;
+	}
+
+	ground_mat.init("res/planet_ground.vx", "res/planet_ground.ft");
+	liquid_mat.init("res/planet_liquid.vx", "res/planet_liquid.ft");
+	atmos_mat.init("res/planet_atmos.vx", "res/planet_atmos.ft");
+
+	// Ground Shader Textures
+	unsigned char *texdata = new unsigned char[32*32*32*4];
+
+	noise3tex(texdata, 32);
+	ground_mat.addtex(texdata, 32, 32, 32, true, GL_RGBA, GL_REPEAT);
+	delete [] texdata;
+
+	int width, height;
+
+	texdata = rgba_tga("res/terrain00.tga", &width, &height);
+	ground_mat.addtex(texdata, width, height, 1, true, GL_RGBA, GL_REPEAT);
+	delete [] texdata;
+
+	texdata = rgba_tga("res/terrain01.tga", &width, &height);
+	ground_mat.addtex(texdata, width, height, 1, true, GL_RGBA, GL_REPEAT);
+	delete [] texdata;
+
+	texdata = rgba_tga("res/terrain02.tga", &width, &height);
+	ground_mat.addtex(texdata, width, height, 1, true, GL_RGBA, GL_REPEAT);
+	delete [] texdata;
+
+	texdata = rgba_tga("res/terrain03.tga", &width, &height);
+	ground_mat.addtex(texdata, width, height, 1, true, GL_RGBA, GL_REPEAT);
+	delete [] texdata;
+	// End Ground Shader Textures
+
+
+	atm_optdepthsize = 1024;
+	atm_optdepth = new unsigned char[atm_optdepthsize*3];
+	atmos_mat.blank(atm_optdepthsize, 1, 1, GL_RGB, GL_CLAMP_TO_EDGE);
+
+	texdata = rgba_tga("res/skycol.tga", "res/skycola.tga", &width, &height);
+	atmos_mat.addtex(texdata, width, height, 1, false, GL_RGBA, GL_CLAMP_TO_EDGE);
+	liquid_mat.addtex(texdata, width, height, 1, false, GL_RGBA, GL_CLAMP_TO_EDGE);
+	ground_mat.addtex(texdata, width, height, 1, false, GL_RGBA, GL_CLAMP_TO_EDGE);
+	delete [] texdata;
+
+	unsigned char *front, *back, *right, *left, *top, *bottom;
+	front = rgba_tga("res/front.tga", "res/front.tga", &width, &height);
+	back = rgba_tga("res/back.tga", "res/back.tga", &width, &height);
+	right = rgba_tga("res/right.tga", "res/right.tga", &width, &height);
+	left = rgba_tga("res/left.tga", "res/left.tga", &width, &height);
+	top = rgba_tga("res/bottom.tga", "res/bottom.tga", &width, &height);
+	bottom = rgba_tga("res/top.tga", "res/top.tga", &width, &height);
+
+	atmos_mat.addcubemap(front, back, right, left, top, bottom, width, height);
+	liquid_mat.addcubemap(front, back, right, left, top, bottom, width, height);
+
+	delete [] front;
+	delete [] back;
+	delete [] right;
+	delete [] left;
+	delete [] top;
+	delete [] bottom;
+}
+
+void planet::release()
+{
+	for (int x = 0; x < 20; x++)
+		data[x].release();
+
+	ground_mat.release();
+	liquid_mat.release();
+	atmos_mat.release();
+
+	if (atm_optdepth != NULL)
+		delete [] atm_optdepth;
+}
+
+void planet::prepare()
+{
+	physics.update();
+	camera.update(&physics);
+
+	for (int x = 0; x < 20; x++)
+	{
+		data[x].detail();
+		data[x].getheight(camera.vector, &camera.ground_height);
+	}
+
+	vec p = vec(0.0, -camera.distance, 0.0);
+	vec v;
+	double u, u0, u1, o, e, e0;
+	double scale = double(atm_optdepthsize)/double(camera.ref->size);
+	int x1;
+	double x2;
+
+	double a, b, c = camera.distance*camera.distance - atmos_radius*atmos_radius;
+	double c2 = camera.distance*camera.distance - physics.radius*physics.radius;
+	bool s = false;
+	for (int x = 0; x < atm_optdepthsize; x++)
+	{
+		x1 = m_min(x/int(scale), camera.ref->size - 2);
+		x2 = double(x - x1*int(scale))/scale;
+		v = vec(&camera.ref->sphereverts[x1*3], 3)*(1.0 - x2) + vec(&camera.ref->sphereverts[(x1+1)*3], 3)*x2;
+
+		a = dot(v, v);
+		b = dot(v, p);
+		u = sqrt(b*b - a*c);
+		e = sqrt(b*b - a*c2);
+		u0 = b - u;
+		u0 = u0 < 0.0 ? 0.0 : u0;
+		u1 = b + u;
+		u1 = u1 < 0.0 ? 0.0 : u1;
+		if (m_nan(u0))
+			o = 0.0;
+		else
+			o = (u1 - u0)/a;
+
+		atm_optdepth[x*3 + 0] = (unsigned char)(pow(m_e, -o*0.000028)*255.0);
+		if (s)
+			atm_optdepth[x*3 + 1] = 0;
+		else
+			atm_optdepth[x*3 + 1] = 255;
+		atm_optdepth[x*3 + 2] = 0;
+		s = false;
+	}
+
+	glBindTexture(GL_TEXTURE_1D, atmos_mat.first->texture);
+	glTexSubImage1D(GL_TEXTURE_1D, 0, 0, atm_optdepthsize, GL_RGB, GL_UNSIGNED_BYTE, atm_optdepth);
+}
+
+void planet::render()
+{
+	vec pos = camera.vector*camera.distance;
+
+	vec sun = vec(0.0, 1.0, 0.0);
+
+	double ri = physics.radius*1.000001;
+	double ro = ri - physics.radius + atmos_radius;
+
+	vec q = -camera.vector*(camera.distance + ri - physics.radius);
+
+	double a = 1.0/(ri*ri - ro*ro);
+	double b = -a*ro*ro;
+
+	atmos_mat.bind();
+	glUniform3fARB(glGetUniformLocationARB(atmos_mat.program, "pltdir"), -camera.vector.x, -camera.vector.y, -camera.vector.z);
+	glUniform1fARB(glGetUniformLocationARB(atmos_mat.program, "pltdist"), camera.distance);
+	glUniform3fARB(glGetUniformLocationARB(atmos_mat.program, "sundir"), sun.x, sun.y, sun.z);
+	glUniform1fARB(glGetUniformLocationARB(atmos_mat.program, "radius"), physics.radius);
+	glUniformMatrix4fv(glGetUniformLocationARB(atmos_mat.program, "transform"), 1, GL_FALSE, camera.spheremat);
+	camera.render();
+
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+	ground_mat.bind();
+	glUniform3fARB(glGetUniformLocationARB(ground_mat.program, "camera"), pos.x, pos.y, pos.z);
+	glUniform3fARB(glGetUniformLocationARB(ground_mat.program, "sundir"), sun.x, sun.y, sun.z);
+	glUniform1fARB(glGetUniformLocationARB(ground_mat.program, "radius"), physics.radius);
+	glUniform1fARB(glGetUniformLocationARB(ground_mat.program, "a"), a);
+	glUniform1fARB(glGetUniformLocationARB(ground_mat.program, "b"), b);
+	glUniform3fARB(glGetUniformLocationARB(ground_mat.program, "q"), q.x, q.y, q.z);
+	for (int x = 0; x < 20; x++)
+		data[x].render();
 
 	glDisable(GL_CULL_FACE);
-	Water.Use();
-	Water.ImportNumber(AtmosphereScale, "limit");
-	Water.ImportVector(OceanColor, "color");
-	data.renderwater(&referencepoint);
+	liquid_mat.bind();
+	glUniform3fARB(glGetUniformLocationARB(liquid_mat.program, "camera"), pos.x, pos.y, pos.z);
+	glUniform3fARB(glGetUniformLocationARB(liquid_mat.program, "sundir"), sun.x, sun.y, sun.z);
+	glUniform1fARB(glGetUniformLocationARB(liquid_mat.program, "radius"), physics.radius);
+	for (int x = 0; x < 20; x++)
+		data[x].render_liquid();
 	glEnable(GL_CULL_FACE);
 
-	if (referencepoint.distance >= data.radius)
-	{
-		glCullFace(GL_FRONT);
-		Shell.Use();
-		Shell.ImportNumber(referencepoint.ReferencePoint->viewscale, "scale");
-		Shell.ImportNumber(divisor, "divisor");
-		Shell.ImportNumber(end, "end");
-		data.rendersky(&referencepoint, AtmosphereScale, 0.0);
-		glCullFace(GL_BACK);
-
-		glDisable(GL_CULL_FACE);
-		Sky.Use();
-		Sky.ImportNumber(AtmosphereScale, "limit");
-		Sky.ImportNumber(referencepoint.ReferencePoint->viewscale, "scale");
-		data.rendersky(&referencepoint, SkyScale, sky_angle);
-		glEnable(GL_CULL_FACE);
-	}
-}
-
-void Planet::Release()
-{
-	data.destroy();
-	data.material.Release();
-	Water.Release();
-	Sky.Release();
-	Shell.Release();
+	ground_mat.bind();
 }

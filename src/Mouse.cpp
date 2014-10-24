@@ -1,15 +1,7 @@
 #include "mouse.h"
-#include <stdlib.h>
-#include <stdio.h>
 
 mousehdl::mousehdl()
 {
-	warp = false;
-	h = 0;
-	v = 0;
-	swidth = 0;
-	sheight = 0;
-	speed_mult = 0;
 	speed_mult = 1.0;
 }
 
@@ -24,46 +16,50 @@ void mousehdl::init(float speed, int height, int width)
 	swidth = width;
 
 	setmouseloc(swidth/2, sheight/2);
+
 	warp = false;
 }
 
 void mousehdl::setmouseloc(int x, int y)
 {
-	h = x;
-	v = y;
 	glutWarpPointer(x, y);
 	warp = true;
 }
 
-void mousehdl::setmouseloc(Vector v)
+void mousehdl::setmouseloc(vec v)
 {
-	h = (int)v.x;
-	this->v = (int)v.y;
-	glutWarpPointer((int)v.x, (int)v.y);
+	glutWarpPointer(v.x, v.y);
 	warp = true;
 }
 
-Vector mousehdl::getdelta(int x, int y)
+vec mousehdl::getdelta(int x, int y)
 {
-	Vector mov(speed_mult*GLdouble(y - v)/GLdouble(sheight), speed_mult*GLdouble(x - h)/GLdouble(swidth), 0.0);
+	vec mov(speed_mult*float(y - v)/float(sheight), speed_mult*float(x - h)/float(swidth), 0.0);
 
 	v = y;
 	h = x;
+
 	if (!warp)
 		return mov;
 	else
 	{
 		warp = false;
-		return Vector();
+		return vec();
 	}
 }
 
-Vector mousehdl::getdelta(Vector v)
+vec mousehdl::getdelta(vec v)
 {
-	Vector mov(speed_mult*GLdouble(v.y - this->v)/GLdouble(sheight), speed_mult*GLdouble(v.x - h)/GLdouble(swidth), 0.0);
+	vec mov(speed_mult*float(v.y - this->v)/float(sheight), speed_mult*float(v.x - h)/float(swidth), 0.0);
 
 	this->v = v.y;
 	h = v.x;
 
-	return mov;
+	if (!warp)
+		return mov;
+	else
+	{
+		warp = false;
+		return vec();
+	}
 }

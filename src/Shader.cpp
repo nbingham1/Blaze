@@ -1,25 +1,16 @@
-#include "Shader.h"
-#include <stdio.h>
+#include "standard.h"
+#include "shader.h"
 
-static long GetFileLength( FILE *pFile )
+GLhandleARB LoadGLSLShader(GLenum ShadeType, const char *SourceFile, char *ErrorLog, int *ErrorLength)
 {
-	long nSaved = ftell( pFile ), nSize;
-	fseek( pFile, 0, SEEK_END );
-	nSize = ftell( pFile );
-	fseek( pFile, nSaved, SEEK_SET );
-	return nSize;
-}
-
-GLhandleARB LoadGLSLShader(GLhandleARB ShadeType, const char *SourceFile, char *ErrorLog, int *ErrorLength)
-{
-	GLenum Handle = 0;
+	GLhandleARB Handle = 0;
 
 	FILE *InFile = fopen(SourceFile, "rt");
 	if (InFile == NULL)
 		return false;
 
-	GLint Length = (GLint)GetFileLength(InFile);
-	GLcharARB *Shader = new char[Length+1];
+	GLint Length = (GLint)fsize(InFile);
+	GLcharARB *Shader = new char[Length + 1];
 
 	if (Length == 0 || Shader == NULL)
 		return NULL;
@@ -28,9 +19,13 @@ GLhandleARB LoadGLSLShader(GLhandleARB ShadeType, const char *SourceFile, char *
 	Shader[Length] = '\0';
 	fclose(InFile);
 	Handle = glCreateShaderObjectARB(ShadeType);
+
+	printf("Handle: %d\n", Handle);
+
 	glShaderSourceARB(Handle, 1, (const GLcharARB**)&Shader, &Length);
 	glCompileShaderARB(Handle);
 	delete [] Shader;
+
 	if (ErrorLog && ErrorLength)
 	{
 		GLint TotalLength = 0, nCharsWritten = 0;
@@ -45,7 +40,7 @@ GLhandleARB LoadGLSLShader(GLhandleARB ShadeType, const char *SourceFile, char *
 	return Handle;
 }
 
-GLhandleARB LoadGLSLShaderSource(GLhandleARB ShadeType, GLcharARB *Source, char *ErrorLog, int *ErrorLength)
+GLhandleARB LoadGLSLShaderSource(GLenum ShadeType, GLcharARB *Source, char *ErrorLog, int *ErrorLength)
 {
 	GLhandleARB Handle = 0;
 

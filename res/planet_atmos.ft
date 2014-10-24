@@ -1,0 +1,24 @@
+varying vec3 deltaSD;
+varying float OpticDepth;
+varying vec3  vertexdir;
+
+uniform sampler1D tex_0;
+uniform sampler2D tex_1;
+uniform samplerCube tex_2;
+
+void main()
+{		
+	vec4 texval = texture1D(tex_0, OpticDepth);
+	float u = dot(deltaSD, deltaSD);
+	float v = texval.r;
+	float m = texval.g;
+	
+	if (m == 0.0)
+		u = max(u, 0.05);
+	
+	vec4 atmosC = texture2D(tex_1, vec2(u*(v*0.40 + 0.5), v));
+	vec4 starC = textureCube(tex_2, vertexdir);
+	vec4 color = atmosC + ((1.0 - atmosC.a) * starC.a * starC)*m;
+	
+	gl_FragColor = color;
+}

@@ -1,9 +1,0 @@
-uniform sampler2D tex_0;
-varying vec2 tex;
-uniform float limit;
-
-void main()
-{
-	vec4 col = texture2D(tex_0, tex);
-	gl_FragColor = vec4(mix(gl_Fog.color.rgb, col.rgb, clamp(exp(-gl_Fog.density*gl_FogFragCoord), 1.565 - limit, 1.0)), 1.0);
-}

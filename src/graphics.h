@@ -7,6 +7,6 @@
 #include <GL/glu.h>
 #include <GL/glext.h>
 
-#include "Shader.h"
+#include "shader.h"
 
 #endif

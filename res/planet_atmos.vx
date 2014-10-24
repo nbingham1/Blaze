@@ -1,0 +1,18 @@
+uniform vec3 pltdir;
+uniform float pltdist;
+uniform vec3 sundir;
+uniform float radius;
+uniform mat4 transform;
+
+varying vec3 deltaSD;
+varying float OpticDepth;
+varying vec3  vertexdir;
+
+void main()
+{
+	deltaSD = (sundir - normalize((transform*gl_Vertex).xyz));
+	OpticDepth = gl_MultiTexCoord0.s;
+	vertexdir = normalize((transform*gl_Vertex).xyz);
+	
+	gl_Position = ftransform();
+}

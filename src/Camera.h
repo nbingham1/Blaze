@@ -1,49 +1,63 @@
-/*
- *  Camera.h
- *  Blaze Game Engine
- *
- *  Created by Ned Bingham on 12/29/06.
- *  Copyright 2006 __MyCompanyName__. All rights reserved.
- *
- */
+#include "vector.h"
+#include "physics.h"
 
-#include "CoreMathematics.h"
-#include "Model.h"
+#ifndef camera_h
+#define camera_h
 
-#ifndef Camera_h
-#define Camera_h
+struct camerahdl;
+struct cameraref;
 
-struct Camera
+struct camerahdl
 {
-	Camera()
-	{
-		viewscale = 1.0;
-		movementtype = 3;
-		move_mult = pow(2, 0);
-	}
+	vec position;
+	vec orientation;
+	vec lookat;
+	double scale;
+	double oldscale;
 
-	Model *Host;
-	Vector DistanceFromHost;
-	GLdouble CameraDistance;
-	bool	Control;
-	GLdouble viewscale;
-	int movementtype;
-	GLdouble move_mult;
+	double speed;
+	unsigned int person;
 
-	Vector Position;
-	Vector Orientation;
+	double *framerate;
 
-	void SetScale(GLdouble s);
-	void SetMoveType(int m);
+	physicshdl *object;
 
-	void Move(Vector v);
+	float *texcoord;
+	float *sphereverts;
+	unsigned int *indices;
+	int size;
+	int xsize;
 
-	void Rotate(GLdouble x, GLdouble y, GLdouble z);
-	void Rotate(Vector v);
-	void Translate(GLdouble x, GLdouble y, GLdouble z);
-	void AttachCamera(Model *HostAdress, Vector Dist, bool control);
-	void DetachCamera();
-	void Render();
+	void init(double *rateptr);
+	void release();
+
+	void move(vec v);
+	void forward(double mag);
+	void backward(double mag);
+	void right(double mag);
+	void left(double mag);
+	void up(double mag);
+	void down(double mag);
+
+	void rotate(vec v);
+
+	void setproj();
+};
+
+struct cameraref
+{
+	camerahdl *ref;
+	vec    vector,   nvector;
+	vec    orient;
+	double distance, ndistance;
+	double visangle, nvisangle;
+	double radius;
+	double ground_height;
+
+	GLfloat spheremat[16];
+
+	void update(physicshdl *obj);
+	void render();
 };
 
 #endif

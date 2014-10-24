@@ -1,9 +1,24 @@
+#ifndef shader_h
+#define shader_h
+
 #include "graphics.h"
 
-#ifndef Shader_h
-#define Shader_h
+struct rgba
+{
+	unsigned char r;
+	unsigned char g;
+	unsigned char b;
+	unsigned char a;
+};
 
-GLhandleARB LoadGLSLShader(GLhandleARB ShadeType, const char *SourceFile, char *ErrorLog, int *ErrorLength);
-GLhandleARB LoadGLSLShaderSource(GLhandleARB ShadeType, char *Source, char *ErrorLog, int *ErrorLength);
+struct rgb
+{
+	unsigned char r;
+	unsigned char g;
+	unsigned char b;
+};
+
+GLhandleARB LoadGLSLShader(GLenum ShadeType, const char *SourceFile, char *ErrorLog, int *ErrorLength);
+GLhandleARB LoadGLSLShaderSource(GLenum ShadeType, char *Source, char *ErrorLog, int *ErrorLength);
 
 #endif

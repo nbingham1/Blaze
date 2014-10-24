@@ -1,104 +1,87 @@
-/*
- *  Planet.h
- *  Infinity Game Engine
- *
- *  Created by Ned Bingham on 11/24/07.
- *  Copyright 2007 __MyCompanyName__. All rights reserved.
- *
- */
-
+#include "vector.h"
+#include "mathdef.h"
+#include "standard.h"
 #include "graphics.h"
-#include "OffscreenRenderer.h"
-#include "CoreMathematics.h"
-#include "CorePhysics.h"
-#include "Shader.h"
-#include "Material.h"
-#include "Model.h"
-#include "Camera.h"
+#include "physics.h"
+#include "material.h"
+#include "camera.h"
+#include "shader.h"
+#include "object.h"
 
-#ifndef Planet_h
-#define Planet_h
+#ifndef planet_h
+#define planet_h
 
-#define node_size 32
-#define tex_size 64
-#define node_tex_radio GLdouble(node_size-1)/GLdouble(tex_size)
+const int vps = 7;
+const int vpn = ((vps*vps + vps)/2);
 
-struct ReferenceInformation
-{
-	Camera *ReferencePoint;
-	Vector vec1, vec2;
-	GLdouble x_angle, y_angle,
-			 nx_angle, ny_angle;
-	GLdouble distance;
-	GLdouble ndistance;
-	GLdouble visualangle, visualangle1;
-	void *planet;
-
-	void Update(void *planet);
-};
+struct planet;
+struct planet_node;
 
 struct planet_node
 {
 	int seed;
-	GLdouble *heights; // meters
-	Material material;
-	GLfloat percent_loaded;
-	GLdouble foglimit;
 
-	GLdouble x_size, x_angle, // rads
-			 y_size, y_angle; // rads
+	double *verts;
+	double *data;
+	double *ldata;
 
-	GLdouble radius, //  meters
-			 average, // meters
-			 minimum, // meters
-			 maximum; // meters
-
-	planet_node *parent;
 	planet_node *children;
+	planet_node *parent;
+	planet      *orgin;
 
-	void load(int sd, ReferenceInformation *reference);
-	void destroy();
+	bool cull;
+	bool cullliq;
 
-	void split(ReferenceInformation *reference);
+	vec v1, v2, v3;
+	vec mid;
+
+	double size;
+	double min, max;
+
+	int splitdepth;
+
+	void init(planet *o);
+	void generate(vec vec1, vec vec2, vec vec3);
+	void detail();
+	void split();
 	void merge();
+	void release();
 
-	void determine_lod(ReferenceInformation *reference);
-	void renderheights(ReferenceInformation *reference);
-	void renderwater(ReferenceInformation *reference);
-	void rendersky(ReferenceInformation *reference, GLdouble scale, GLdouble angle);
-	GLdouble get_height(ReferenceInformation *reference);
-	GLdouble get_minimum(GLdouble curr);
-	GLdouble get_maximum(GLdouble curr);
-	void CreateTextureMap(int a, int b, ReferenceInformation *reference);
+	void render();
+	void render_liquid();
+
+	void getheight(vec vc, double *h);
 };
 
-struct Planet
+struct planet
 {
-	string Name;
-	planet_node data;
-	PhsHandle Physics;
-	Material Water;
- 	Material Sky;
-	Material Shell;
+	char name[256];
 
-	GLdouble sky_angle;
+	int seed;
 
-	GLdouble AtmosphereScale;
-	GLfloat AtmosphereDensity;
-	Vector AtmosphereColor;
+	double atmos_radius;
 
-	Vector OceanColor;
+	planet_node data[20];
 
-	GLdouble maximum;
-	GLdouble radius;
-	GLdouble minimum;
+	double texts[vpn*2];
+	unsigned int indices[vps*vps - 1];
 
-	ReferenceInformation referencepoint;
+	unsigned char *atm_optdepth;
+	int atm_optdepthsize;
 
-	void Load(string Name, Camera *reference);
-	void Prepare();
-	void Render();
-	void Release();
+	physicshdl  physics;
+	materialhdl ground_mat;
+	materialhdl liquid_mat;
+	materialhdl atmos_mat;
+	cameraref   camera;
+
+	planet *next, *prev;
+
+	void init(char *n, camerahdl *cam);
+	void release();
+
+	void prepare();
+	void render();
 };
 
 #endif

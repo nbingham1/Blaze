@@ -1,0 +1,37 @@
+varying vec3 MCposition;
+varying float height;
+varying float cheight;
+varying float dist;
+varying float fogint;
+varying vec3 deltaSD;
+varying float depth;
+varying vec3 q;
+varying vec3 tex_coord;
+
+uniform float radius;
+uniform vec3 camera;
+uniform vec3 sundir;
+
+uniform float a;
+uniform float b;
+
+void main()
+{
+	MCposition = gl_Vertex.xyz - camera;
+	height = length(MCposition) - radius;
+	cheight = length(camera) - radius;
+	dist = length(gl_Vertex.xyz);
+	
+	MCposition = MCposition/radius;
+	
+	tex_coord = gl_MultiTexCoord0.xyz;
+	
+	float c = 1.0;
+	float d = 0.0;
+	fogint = clamp((a*dot(gl_Vertex.xyz - (q - camera), gl_Vertex.xyz - (q - camera))) + b/* - (c*exp(dot(gl_Vertex.xyz, gl_Vertex.xyz)) + d)*/, 0.0, 1.0);
+	
+	deltaSD = (sundir - normalize(gl_Vertex.xyz));
+	depth = (height)/(radius*.009);
+	
+	gl_Position = ftransform();
+}

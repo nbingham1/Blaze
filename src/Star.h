@@ -1,37 +1,36 @@
-/*
- *  Star.h
- *  Infinity Game Engine
- *
- *  Created by Ned Bingham on 2/17/08.
- *  Copyright 2008 __MyCompanyName__. All rights reserved.
- *
- */
+#include "vector.h"
+#include "mathdef.h"
+#include "standard.h"
+#include "graphics.h"
+#include "physics.h"
+#include "material.h"
+#include "camera.h"
+#include "shader.h"
 
-#ifndef Star_h
-#define Star_h
+#include "planet.h"
 
-#include "BasicAstronomy.h"
+#ifndef star_h
+#define star_h
 
-struct Star
+struct star
 {
-	string Name;
+	char name[256];
+	int num_planets;
+	int seed;
 
-	Material Coloring;
-	PhsHandle Physics; // Relative to the center of the Solar System
-	GLdouble Radius;
-	GLdouble LightRadius;
+	planet *first, *last;
 
-	// temperary variables (optimization)
-	GLdouble RadiusSquared;
-	GLdouble LightRadiusSquared;
-	GLdouble BackProjectionDistance;
+	physicshdl physics;
+	materialhdl material;
+	cameraref   camera;
 
-	camera_reference reference;
+	void init(char *n, camerahdl *cam);
+	void release();
 
-	void Load(string name, Camera *r);
-	void Prepare();
-	void Render();
-	void Release();
+	void addplanet(char *name);
+
+	void prepare();
+	void render();
 };
 
 #endif

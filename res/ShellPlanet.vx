@@ -1,8 +1,0 @@
-uniform float scale;
-
-void main()
-{
-	gl_FogFragCoord = length(gl_Vertex);
-	
-	gl_Position = ftransform();
-}

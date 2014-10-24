@@ -1,5 +1,5 @@
 #include "graphics.h"
-#include "Vector.h"
+#include "vector.h"
 
 #ifndef mouse_h
 #define mouse_h
@@ -21,10 +21,10 @@ struct mousehdl
 	void init(float speed, int height, int width);
 
 	void setmouseloc(int x, int y);
-	void setmouseloc(Vector v);
+	void setmouseloc(vec v);
 
-	Vector getdelta(int x, int y);
-	Vector getdelta(Vector v);
+	vec getdelta(int x, int y);
+	vec getdelta(vec v);
 
 };
 

@@ -1,47 +1,51 @@
-/*
- *  Material.h
- *  Blaze Game Engine
- *
- *  Created by Ned Bingham on 12/2/06.
- *  Copyright 2006 Sol Gaming. All rights reserved.
- *
- */
-
-#ifndef Material_h
-#define Material_h
-
-#include "Texture.h"
-#include "Shader.h"
+#include "vector.h"
+#include "mathdef.h"
+#include "standard.h"
 #include "graphics.h"
-#include "File.h"
+#include "physics.h"
+#include "camera.h"
+#include "shader.h"
 
-struct Material
+#ifndef material_h
+#define material_h
+
+struct texturehdl
 {
-	char Name[32];
+	GLuint texture;
+	int width;
+	int height;
+	int depth;
 
-	Texture *textures;
-	Texture *curr;
-
-	GLhandleARB VertShad;
-	GLhandleARB FragShad;
-	GLhandleARB ShadProg;
-	char Vert[255];
-	char Frag[255];
-
-
-	Material *Next;
-
-	void Init();
-	void AddTexture(char *name, char *type, int depth);
-	void AddTexture(GLuint tex);
-	void Load(char *vert, char *frag);
-	void Load();
-	void Use();
-	void Release();
-	void ReleaseTextures();
-
-	void ImportNumber(GLdouble n, char *name);
-	void ImportVector(Vector v, char *name);
+	texturehdl *next, *prev;
 };
+
+struct materialhdl
+{
+	texturehdl *first, *last;
+
+	GLhandleARB vertex;
+	GLhandleARB fragment;
+	GLhandleARB program;
+
+	char vertex_name[256];
+	char fragment_name[256];
+
+	void init();
+	void init(char *vert, char *frag);
+	void release();
+	void addtex(unsigned char *data, int width, int height, int depth, bool lod, GLenum format, GLenum texrepeat);
+	void addcubemap(unsigned char *front, unsigned char *back, unsigned char *right, unsigned char *left, unsigned char *top, unsigned char *bottom, int width, int height);
+
+	void blank(int width, int height, int depth, GLenum format, GLenum texrepeat);
+
+	void srend(texturehdl *n);
+	void erend(texturehdl *n, GLenum format);
+
+	void bind();
+};
+
+unsigned char *rgb_tga(char *filename, int *w, int *h);
+unsigned char *rgba_tga(char *rgb, char *a, int *w, int *h);
+unsigned char *rgba_tga(char *rgb, int *w, int *h);
 
 #endif

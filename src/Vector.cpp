@@ -1,139 +1,266 @@
-/*
- *  Vector.cpp
- *  Blaze Game Engine
- *
- *  Created by Ned Bingham on 11/25/06.
- *  Copyright 2006 Sol Gaming. All rights reserved.
- *
- */
+#include "vector.h"
+#include "mathdef.h"
+#include "graphics.h"
+#include "standard.h"
 
-#include "Vector.h"
-#include "BasicMath.h"
-
-Vector::Vector(GLdouble X, GLdouble Y, GLdouble Z)
+vec::vec()
 {
-	x = X;
-	y = Y;
-	z = Z;
+	this->x = 0.0;
+	this->y = 0.0;
+	this->z = 0.0;
+	this->w = 0.0;
 }
 
-Vector::Vector(GLdouble *arr)
+vec::vec(double x)
 {
-	x = arr[0];
-	y = arr[1];
-	z = arr[2];
+	this->x = x;
+	this->y = 0.0;
+	this->z = 0.0;
+	this->w = 0.0;
 }
 
-Vector::Vector(GLfloat X, GLfloat Y, GLfloat Z)
+vec::vec(double x, double y)
 {
-	x = GLdouble(X);
-	y = GLdouble(Y);
-	z = GLdouble(Z);
+	this->x = x;
+	this->y = y;
+	this->z = 0.0;
+	this->w = 0.0;
 }
 
-Vector::Vector(GLfloat *arr)
+vec::vec(double x, double y, double z)
 {
-	x = GLdouble(arr[0]);
-	y = GLdouble(arr[1]);
-	z = GLdouble(arr[2]);
+	this->x = x;
+	this->y = y;
+	this->z = z;
+	this->w = 0.0;
 }
 
-
-Vector::Vector()
+vec::vec(double x, double y, double z, double w)
 {
-	x = 0.0;
-	y = 0.0;
-	z = 0.0;
+	this->x = x;
+	this->y = y;
+	this->z = z;
+	this->w = w;
 }
 
-Vector::~Vector()
+vec::vec(double *xyzw, int num)
 {
+	this->x = num > 0 ? xyzw[0] : 0.0;
+	this->y = num > 1 ? xyzw[1] : 0.0;
+	this->z = num > 2 ? xyzw[2] : 0.0;
+	this->w = num > 3 ? xyzw[3] : 0.0;
 }
 
-Vector &Vector::operator =(Vector v)
+vec::vec(float *xyzw, int num)
+{
+	this->x = num > 0 ? xyzw[0] : 0.0;
+	this->y = num > 1 ? xyzw[1] : 0.0;
+	this->z = num > 2 ? xyzw[2] : 0.0;
+	this->w = num > 3 ? xyzw[3] : 0.0;
+}
+
+vec &vec::operator=(vec v)
 {
 	this->x = v.x;
 	this->y = v.y;
 	this->z = v.z;
+	this->w = v.w;
 	return *this;
 }
 
-Vector &Vector::operator +=(Vector v)
+vec &vec::operator+=(vec v)
 {
 	*this = *this + v;
 	return *this;
 }
 
-Vector &Vector::operator -=(Vector v)
+vec &vec::operator-=(vec v)
 {
 	*this = *this - v;
 	return *this;
 }
 
-Vector &Vector::operator *=(Vector v)
+vec &vec::operator*=(vec v)
 {
 	*this = *this * v;
 	return *this;
 }
 
-Vector &Vector::operator /=(Vector v)
+vec &vec::operator/=(vec v)
 {
 	*this = *this / v;
 	return *this;
 }
 
-Vector &Vector::operator +=(GLdouble f)
+vec &vec::operator+=(double f)
 {
 	*this = *this + f;
 	return *this;
 }
 
-Vector &Vector::operator -=(GLdouble f)
+vec &vec::operator-=(double f)
 {
 	*this = *this - f;
 	return *this;
 }
 
-Vector &Vector::operator *=(GLdouble f)
+vec &vec::operator*=(double f)
 {
 	*this = *this * f;
 	return *this;
 }
 
-Vector &Vector::operator /=(GLdouble f)
+vec &vec::operator/=(double f)
 {
 	*this = *this / f;
 	return *this;
 }
 
-Vector Normalize(Vector v)
+float vec::operator[](int index)
 {
-	return (v / max(Magnitude(v), 0.001));
+	switch (index)
+	{
+		case 0:
+			return x;
+			break;
+		case 1:
+			return y;
+			break;
+		case 2:
+			return z;
+			break;
+		case 3:
+			return w;
+			break;
+		default:
+			printf("error: vec index out of bounds");
+			return 0;
+			break;
+	}
 }
 
-Vector AngleBetween(Vector v1, Vector v2)
+vec operator-(vec v)
 {
-	GLdouble a = acos(Dot(v1, v2));
-	Vector n = Normalize(Cross(v1, v2));
-	
-	Vector result;
-	
-	result.y = atan2(n.y*sin(a)-n.x*n.z*(1.0-cos(a)), 1.0-(n.y*n.y+n.z*n.z)*(1.0-cos(a)));
-	result.z = asin(n.x*n.y*(1.0-cos(a))+n.z*sin(a));
-	result.x = atan2(n.x*sin(a)-n.y*n.z*(1.0-cos(a)), 1.0-(n.x*n.x+n.z*n.z)*(1.0-cos(a)));
-	
-	if (n.y == 1.0)
-	{
-		result.y = 2.0*atan2(n.x*sin(a/2.0), cos(a/2.0));
-		result.z = 3.1415926535898;
-		result.x = 0.0;
-	}
-	else if (n.y == -1.0)
-	{
-		result.y = -2.0*atan2(n.x*sin(a/2.0), cos(a/2.0));
-		result.z = -3.1415926535898;
-		result.x = 0;
-	}
-		
-	return result;
+	return vec(-v.x, -v.y, -v.z, -v.w);
+}
+
+vec operator+(vec v1, vec v2)
+{
+	return vec(v1.x + v2.x, v1.y + v2.y, v1.z + v2.z, v1.w + v2.w);
+}
+
+vec operator-(vec v1, vec v2)
+{
+	return vec(v1.x - v2.x, v1.y - v2.y, v1.z - v2.z, v1.w - v2.w);
+}
+
+vec operator*(vec v1, vec v2)
+{
+	return vec(v1.x * v2.x, v1.y * v2.y, v1.z * v2.z, v1.w * v2.w);
+}
+
+vec operator/(vec v1, vec v2)
+{
+	return vec(v1.x / v2.x, v1.y / v2.y, v1.z / v2.z, v1.w / v2.w);
+}
+
+vec operator+(double f, vec v)
+{
+	return vec(f + v.x, f + v.y, f + v.z, f + v.w);
+}
+
+vec operator-(double f, vec v)
+{
+	return vec(f - v.x, f - v.y, f - v.z, f - v.w);
+}
+
+vec operator*(double f, vec v)
+{
+	return vec(f * v.x, f * v.y, f * v.z, f * v.w);
+}
+
+vec operator/(double f, vec v)
+{
+	return vec(f / v.x, f / v.y, f / v.z, f / v.w);
+}
+
+vec operator+(vec v, double f)
+{
+	return vec(v.x + f, v.y + f, v.z + f, v.w + f);
+}
+
+vec operator-(vec v, double f)
+{
+	return vec(v.x - f, v.y - f, v.z - f, v.w - f);
+}
+
+vec operator*(vec v, double f)
+{
+	return vec(v.x * f, v.y * f, v.z * f, v.w * f);
+}
+
+vec operator/(vec v, double f)
+{
+	return vec(v.x / f, v.y / f, v.z / f, v.w / f);
+}
+
+bool operator==(vec v1, vec v2)
+{
+	if (v1.x == v2.x && v1.y == v2.y && v1.z == v2.z && v1.w == v2.w)
+		return true;
+
+	return false;
+}
+
+vec abs(vec v)
+{
+	return vec(m_abs(v.x), m_abs(v.y), m_abs(v.z), m_abs(v.w));
+}
+
+vec norm(vec v)
+{
+	return v/mag(v);
+}
+
+vec cross(vec v1, vec v2)
+{
+	return vec(v1.y*v2.z - v1.z*v2.y, v1.z*v2.x - v1.x*v2.z, v1.x*v2.y - v1.y*v2.x);
+}
+
+vec cross(vec v1, vec v2, vec v3)
+{
+	return vec( v1.y*(v2.z*v3.w - v3.z*v2.w) - v1.z*(v2.y*v3.w - v3.y*v2.w) + v1.w*(v2.y*v3.z - v3.y*v2.z),
+			   -v1.x*(v2.z*v3.w - v3.z*v2.w) + v1.z*(v2.x*v3.w - v3.x*v2.w) - v1.w*(v2.x*v3.z - v3.x*v2.z),
+			    v1.x*(v2.y*v3.w - v3.y*v2.w) - v1.y*(v2.x*v3.w - v3.x*v2.w) + v1.w*(v2.x*v3.y - v3.x*v2.y),
+			   -v1.x*(v2.y*v3.z - v3.y*v2.z) + v1.y*(v2.x*v3.z - v3.x*v2.z) - v1.z*(v2.x*v3.y - v3.x*v2.y));
+}
+
+vec rotx(vec v, double a)
+{
+	return vec(v.x, v.y*cos(a) - v.z*sin(a), v.y*sin(a) + v.z*cos(a));
+}
+
+vec roty(vec v, double a)
+{
+	return vec(v.x*cos(a) + v.z*sin(a), v.y, -v.x*sin(a) + v.z*cos(a));
+}
+
+vec rotz(vec v, double a)
+{
+	return vec(v.x*cos(a) - v.y*sin(a), v.x*sin(a) + v.y*cos(a), v.z);
+}
+
+double mag(vec v)
+{
+	return sqrt(m_sqr(v.x) + m_sqr(v.y) + m_sqr(v.z) + m_sqr(v.w));
+}
+
+double dot(vec v1, vec v2)
+{
+	return (v1.x*v2.x + v1.y*v2.y + v1.z*v2.z + v1.w*v2.w);
+}
+
+double dist(vec v1, vec v2)
+{
+	return mag(v2 - v1);
 }

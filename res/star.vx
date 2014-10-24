@@ -1,0 +1,7 @@
+varying vec3 MCposition;
+
+void main()
+{
+	MCposition = gl_Vertex.xyz;
+	gl_Position = ftransform();
+}
