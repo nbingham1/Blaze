@@ -19,7 +19,7 @@
 struct Plane
 {
 	Vector Normal;
-	double Distance;
+	GLdouble Distance;
 };
 
 int ClassifyVertexToPlane(Plane p, Vector v);

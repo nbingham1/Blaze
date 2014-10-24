@@ -1,11 +1,9 @@
-varying float mult;
-
-uniform sampler2D texture;
-varying vec2 texcoord;
+uniform sampler2D tex_0;
+varying vec2 tex;
+uniform float limit;
 
 void main()
 {
-	vec3 color;
-	color = vec3((87.0-208.0)*mult + 208.0, (146.0-175.0)*mult + 175.0, (37.0-111.0)*mult + 111.0)/256.0;
-	gl_FragColor = 1.5*vec4(color, 1.0)*(texture2D(texture, texcoord)*.7 + .15*texture2D(texture, texcoord/100.0) + .15*texture2D(texture, texcoord/1000.0));
+	vec4 col = texture2D(tex_0, tex);
+	gl_FragColor = col;//vec4(mix(gl_Fog.color.rgb, col.rgb, clamp(exp(-gl_Fog.density*gl_FogFragCoord), 1.565 - limit, 1.0)), 1.0);
 }

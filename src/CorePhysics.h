@@ -1,37 +1,29 @@
 /*
  *  CorePhysics.h
- *  Blaze Game Engine
+ *  Infinity Game Engine
  *
- *  Created by Ned Bingham on 12/7/06.
- *  Copyright 2006 Sol Gaming. All rights reserved.
+ *  Created by Ned Bingham on 11/7/07.
+ *  Copyright 2007 __MyCompanyName__. All rights reserved.
  *
  */
 
 #ifndef CorePhysics_h
 #define CorePhysics_h
 
-#include "BasicPhysics.h"
-#include "ModelPhysics.h"
-#include <time.h>
+#include "PhysicsHandler.h"
 
 struct CorePhysics
 {
-	CorePhysics()
-	{
-		PhysicsHandlers = NULL;
-		start_time = time(0);
-		num_frames = 0;
-	}
-	
-	ModelPhysics *PhysicsHandlers;
-	int num_frames;
+	PhsHandle *Handlers;
+	PhsHandle *curr;
+	int num_frame;
 	int start_time;
 	
-	void AddObjectPhysics(ModelPhysics *phs);
-	void ApplyGravity();
-	void UpdatePhysicsHandlers();
-	void UpdatePhysicsHandlersAccAndVel();
-	void ReleasePhysics();
+	void Init();
+	void AddPhsHandle(PhsHandle *phs);
+	void ApplyGlobals();
+	void Update();
+	void Release();
 };
 
 #endif

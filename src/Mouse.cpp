@@ -44,7 +44,7 @@ bool Mouse::HandleMouseUp(int button, int x, int y)
 
 bool Mouse::HandleMouseMoved(int x, int y)
 {
-	Renderer.ThePlayer.Viewpoint.Rotate(double(y - current_mouse_y)/5, double(x - current_mouse_x)/5, 0.0);
+	Renderer.view.Rotate(double(y - current_mouse_y)/5, double(x - current_mouse_x)/5, 0.0);
 
 	current_mouse_x = x;
 	current_mouse_y = y;

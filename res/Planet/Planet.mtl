@@ -6,7 +6,7 @@ Em 0.0 0.0 0.0
 Op 1.0
 Re 50.0
 Bn 0
-TextMap2D res/Earth.tga NLD
+TextMap2D Earth.tga NLD
 newmtl AtmosphereTexture
 Am 1.0 1.0 1.0
 Di 1.0 1.0 1.0
@@ -15,7 +15,7 @@ Em 0.0 0.0 0.0
 Op 1.0
 Re 50.0
 Bn 0
-TextMap2D res/clouds.tga NLD
+TextMap2D clouds.tga NLD
 newmtl GroundTexture
 Am 1.0 1.0 1.0
 Di 1.0 1.0 1.0
@@ -24,4 +24,4 @@ Em 0.0 0.0 0.0
 Op 1.0
 Re 0.0
 Bn 0
-TextMap3D 4 res/terrain_small .tga LOD
+TextMap3D 4 terrain_small .tga LOD

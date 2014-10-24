@@ -24,6 +24,21 @@ Vector::Vector(GLdouble *arr)
 	z = arr[2];
 }
 
+Vector::Vector(GLfloat X, GLfloat Y, GLfloat Z)
+{
+	x = GLdouble(X);
+	y = GLdouble(Y);
+	z = GLdouble(Z);
+}
+
+Vector::Vector(GLfloat *arr)
+{
+	x = GLdouble(arr[0]);
+	y = GLdouble(arr[1]);
+	z = GLdouble(arr[2]);
+}
+
+
 Vector::Vector()
 {
 	x = 0.0;
@@ -93,7 +108,7 @@ Vector &Vector::operator /=(GLdouble f)
 
 Vector Normalize(Vector v)
 {
-	return (v / GLdouble(max(double(Magnitude(v)), 0.001)));
+	return (v / max(Magnitude(v), 0.001));
 }
 
 Vector AngleBetween(Vector v1, Vector v2)

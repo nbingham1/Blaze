@@ -19,6 +19,8 @@ struct Vector
 {
 	Vector(GLdouble X, GLdouble Y, GLdouble Z);
 	Vector(GLdouble *arr);
+	Vector(GLfloat X, GLfloat Y, GLfloat Z);
+	Vector(GLfloat *arr);
 	Vector();
 	~Vector();
 	
@@ -35,6 +37,11 @@ struct Vector
 	Vector &operator -=(GLdouble f);
 	Vector &operator *=(GLdouble f);
 	Vector &operator /=(GLdouble f);
+	
+	Vector &operator +=(GLfloat f1);
+	Vector &operator -=(GLfloat f1);
+	Vector &operator *=(GLfloat f1);
+	Vector &operator /=(GLfloat f1);
 };
 
 Vector Normalize(Vector v);
@@ -99,6 +106,54 @@ inline Vector operator /(GLdouble f, Vector v)
 	return Vector(f / v.x, f / v.y, f / v.z);
 }
 
+inline Vector operator +(Vector v, GLfloat f1)
+{
+	GLdouble f = GLdouble(f1);
+	return Vector(v.x + f, v.y + f, v.z + f);
+}
+
+inline Vector operator -(Vector v, GLfloat f1)
+{
+	GLdouble f = GLdouble(f1);
+	return Vector(v.x - f, v.y - f, v.z - f);
+}
+
+inline Vector operator *(Vector v, GLfloat f1)
+{
+	GLdouble f = GLdouble(f1);
+	return Vector(v.x * f, v.y * f, v.z * f);
+}
+
+inline Vector operator /(Vector v, GLfloat f1)
+{
+	GLdouble f = GLdouble(f1);
+	return Vector(v.x / f, v.y / f, v.z / f);
+}
+
+inline Vector operator +(GLfloat f1, Vector v)
+{
+	GLdouble f = GLdouble(f1);
+	return Vector(f + v.x, f + v.y, f + v.z);
+}
+
+inline Vector operator -(GLfloat f1, Vector v)
+{
+	GLdouble f = GLdouble(f1);
+	return Vector(f - v.x, f - v.y, f - v.z);
+}
+
+inline Vector operator *(GLfloat f1, Vector v)
+{
+	GLdouble f = GLdouble(f1);
+	return Vector(f * v.x, f * v.y, f * v.z);
+}
+
+inline Vector operator /(GLfloat f1, Vector v)
+{
+	GLdouble f = GLdouble(f1);
+	return Vector(f / v.x, f / v.y, f / v.z);
+}
+
 inline bool operator ==(Vector v1, Vector v2)
 {
 	if ((v1.x <= v2.x+0.01 && v1.x >= v2.x-0.01) && (v1.y <= v2.y+0.01 && v1.y >= v2.y-0.01) && (v1.z <= v2.z+0.01 && v1.z >= v2.z-0.01))
@@ -142,7 +197,7 @@ inline Vector  Cross(Vector v1, Vector v2)
 
 inline Vector  MidPoint(Vector v1, Vector v2)
 {
-	return (v1+v2)/2;
+	return (v1+v2)/2.0;
 }
 
 inline Vector  CalculateNormal(Vector v1, Vector v2, Vector v3)

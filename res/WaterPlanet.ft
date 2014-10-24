@@ -1,13 +1,10 @@
-varying vec3 norm;
-
-varying vec3 Specular;
-varying float Diffuse;
-
 uniform sampler2D texture;
 varying vec2 texcoord;
+uniform vec3 color;
 
+uniform float limit;
 
 void main()
 {
-	gl_FragColor = vec4(vec3(0.0, 0.3, 0.5)*texture2D(texture, texcoord).rgb, 0.8);
+	gl_FragColor = mix(vec4(gl_Fog.color.rgb, 1.0), vec4(color*texture2D(texture, texcoord).rgb, 0.8), clamp(exp(-gl_Fog.density*gl_FogFragCoord), 1.465 - limit, 1.0));
 }

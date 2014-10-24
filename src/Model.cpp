@@ -111,9 +111,16 @@ void Model::AddFace(ModelFace *Face)
 	}
 }
 
-void Model::Move(double x, double y, double z)
+void Model::Move(GLdouble x, GLdouble y, GLdouble z)
 {
 	Physics.Position += Vector(x, y, z);
+}
+
+void Model::Render()
+{
+	Physics.Enable();
+	RenderMdl(this);
+	Physics.Disable();
 }
 
 void LoadObj(Model *mdl, char *filename)
@@ -139,7 +146,11 @@ void LoadObj(Model *mdl, char *filename)
 	mdl->NumMats = 0;
 	mdl->Edges = NULL;
 	mdl->Faces = NULL;
-	mdl->Materials = NULL;	
+	mdl->Materials = NULL;
+	
+	string path;
+	int it;
+	for (it = strlen(filename); it >= 0 && filename[it-1] != '/'; it--);
 	
 	while (!feof(File.file))
 	{
@@ -207,8 +218,6 @@ void LoadObj(Model *mdl, char *filename)
 		else if (sscanf(oneline, "f %d/%d/%d %d/%d/%d %d/%d/%d %d/%d/%d", &v1, &n1, &t1, &v2, &n2, &t2, &v3, &n3, &t3, &v4, &n4, &t4) == 12)
 		{
 			ModelFace *Face1 = (ModelFace*)malloc(sizeof(ModelFace));
-			if (!Face1)
-					cout << "ARRG" << endl;
 			Face1->Next = NULL;
 			
 			Face1->v1 = (v1 < 0) ? (mdl->NumVerts + v1) : (v1 - 1);
@@ -228,8 +237,6 @@ void LoadObj(Model *mdl, char *filename)
 			mdl->AddFace(Face1);
 			
 			ModelFace *Face2 = (ModelFace*)malloc(sizeof(ModelFace));
-			if (!Face2)
-					cout << "ARRG" << endl;
 			Face2->Next = NULL;
 			
 			Face2->v1 = (v3 < 0) ? (mdl->NumVerts + v3) : (v3 - 1);
@@ -249,40 +256,30 @@ void LoadObj(Model *mdl, char *filename)
 			mdl->AddFace(Face2);
 			
 			ModelEdge *Edge1 = (ModelEdge*)malloc(sizeof(ModelEdge));
-			if (!Edge1)
-					cout << "ARRG" << endl;
 			Edge1->v1 = (v1 < 0) ? (mdl->NumVerts + v1) : (v1 - 1);
 			Edge1->v2 = (v2 < 0) ? (mdl->NumVerts + v2) : (v2 - 1);
 			Edge1->Next = NULL;
 			mdl->AddEdge(Edge1);
 			
 			ModelEdge *Edge2 = (ModelEdge*)malloc(sizeof(ModelEdge));
-			if (!Edge2)
-					cout << "ARRG" << endl;
 			Edge2->v1 = (v2 < 0) ? (mdl->NumVerts + v2) : (v2 - 1);
 			Edge2->v2 = (v3 < 0) ? (mdl->NumVerts + v3) : (v3 - 1);
 			Edge2->Next = NULL;
 			mdl->AddEdge(Edge2);
 			
 			ModelEdge *Edge3 = (ModelEdge*)malloc(sizeof(ModelEdge));
-			if (!Edge3)
-					cout << "ARRG" << endl;
 			Edge3->v1 = (v3 < 0) ? (mdl->NumVerts + v3) : (v3 - 1);
 			Edge3->v2 = (v4 < 0) ? (mdl->NumVerts + v4) : (v4 - 1);
 			Edge3->Next = NULL;
 			mdl->AddEdge(Edge3);
 			
 			ModelEdge *Edge4 = (ModelEdge*)malloc(sizeof(ModelEdge));
-			if (!Edge3)
-					cout << "ARRG" << endl;
 			Edge4->v1 = (v4 < 0) ? (mdl->NumVerts + v4) : (v4 - 1);
 			Edge4->v2 = (v1 < 0) ? (mdl->NumVerts + v1) : (v1 - 1);
 			Edge4->Next = NULL;
 			mdl->AddEdge(Edge4);
 			
 			ModelEdge *Edge5 = (ModelEdge*)malloc(sizeof(ModelEdge));
-			if (!Edge5)
-					cout << "ARRG" << endl;
 			Edge5->v1 = (v1 < 0) ? (mdl->NumVerts + v1) : (v1 - 1);
 			Edge5->v2 = (v3 < 0) ? (mdl->NumVerts + v3) : (v3 - 1);
 			Edge5->Next = NULL;
@@ -292,8 +289,6 @@ void LoadObj(Model *mdl, char *filename)
 		else if (sscanf(oneline, "f %d//%d %d//%d %d//%d %d//%d", &v1, &n1, &v2, &n2, &v3, &n3, &v4, &n4) == 8)
 		{
 			ModelFace *Face1 = (ModelFace*)malloc(sizeof(ModelFace));
-			if (!Face1)
-					cout << "ARRG" << endl;
 			Face1->Next = NULL;
 			
 			Face1->v1 = (v1 < 0) ? (mdl->NumVerts + v1) : (v1 - 1);
@@ -313,8 +308,6 @@ void LoadObj(Model *mdl, char *filename)
 			mdl->AddFace(Face1);
 			
 			ModelFace *Face2 = (ModelFace*)malloc(sizeof(ModelFace));
-			if (!Face2)
-					cout << "ARRG" << endl;
 			Face2->Next = NULL;
 			
 			Face2->v1 = (v3 < 0) ? (mdl->NumVerts + v3) : (v3 - 1);
@@ -334,40 +327,30 @@ void LoadObj(Model *mdl, char *filename)
 			mdl->AddFace(Face2);
 			
 			ModelEdge *Edge1 = (ModelEdge*)malloc(sizeof(ModelEdge));
-			if (!Edge1)
-					cout << "ARRG" << endl;
 			Edge1->v1 = (v1 < 0) ? (mdl->NumVerts + v1) : (v1 - 1);
 			Edge1->v2 = (v2 < 0) ? (mdl->NumVerts + v2) : (v2 - 1);
 			Edge1->Next = NULL;
 			mdl->AddEdge(Edge1);
 			
 			ModelEdge *Edge2 = (ModelEdge*)malloc(sizeof(ModelEdge));
-			if (!Edge2)
-					cout << "ARRG" << endl;
 			Edge2->v1 = (v2 < 0) ? (mdl->NumVerts + v2) : (v2 - 1);
 			Edge2->v2 = (v3 < 0) ? (mdl->NumVerts + v3) : (v3 - 1);
 			Edge2->Next = NULL;
 			mdl->AddEdge(Edge2);
 			
 			ModelEdge *Edge3 = (ModelEdge*)malloc(sizeof(ModelEdge));
-			if (!Edge3)
-					cout << "ARRG" << endl;
 			Edge3->v1 = (v3 < 0) ? (mdl->NumVerts + v3) : (v3 - 1);
 			Edge3->v2 = (v4 < 0) ? (mdl->NumVerts + v4) : (v4 - 1);
 			Edge3->Next = NULL;
 			mdl->AddEdge(Edge3);
 			
 			ModelEdge *Edge4 = (ModelEdge*)malloc(sizeof(ModelEdge));
-			if (!Edge4)
-					cout << "ARRG" << endl;
 			Edge4->v1 = (v4 < 0) ? (mdl->NumVerts + v4) : (v4 - 1);
 			Edge4->v2 = (v1 < 0) ? (mdl->NumVerts + v1) : (v1 - 1);
 			Edge4->Next = NULL;
 			mdl->AddEdge(Edge4);
 			
 			ModelEdge *Edge5 = (ModelEdge*)malloc(sizeof(ModelEdge));
-			if (!Edge5)
-					cout << "ARRG" << endl;
 			Edge5->v1 = (v1 < 0) ? (mdl->NumVerts + v1) : (v1 - 1);
 			Edge5->v2 = (v3 < 0) ? (mdl->NumVerts + v3) : (v3 - 1);
 			Edge5->Next = NULL;
@@ -695,7 +678,6 @@ void LoadMaterials(Model *mdl, char *filename)
 {
 	CoreFile File;
 	char oneline[255];
-	GLdouble v1, v2, v3;
 	
 	File.Open(filename);
 	
@@ -710,7 +692,7 @@ void LoadMaterials(Model *mdl, char *filename)
 			mdl->NumMats++;
 			Material *material = (Material*)malloc(sizeof(Material));
 			sscanf(oneline, "newmtl %s", material->Name);
-			material->Initialize();
+			material->Init();
 			if (mdl->NumMats-1 == 0)
 			{
 				mdl->Materials = material;
@@ -722,71 +704,44 @@ void LoadMaterials(Model *mdl, char *filename)
 				Current = Current->Next;
 			}
 		}
-		
-		if (strncmp(oneline, "Am", 2) == 0)
+		if (strncmp(oneline, "Vertex", 6) == 0)
 		{
-			sscanf(oneline, "Am %f %f %f", &v1, &v2, &v3);
-			Current->Ambient.x = v1;
-			Current->Ambient.y = v2;
-			Current->Ambient.z = v3;
+			sscanf(oneline, "Vertex %s", Current->Vert);
+			for (int x = 0; x < int(strlen(Current->Vert)); x++)
+				if (Current->Vert[x] == '_')
+					Current->Vert[x] = ' ';
 		}
 		
-		if (strncmp(oneline, "Di", 2) == 0)
+		if (strncmp(oneline, "Fragment", 8) == 0)
 		{
-			sscanf(oneline, "Di %f %f %f", &v1, &v2, &v3);
-			Current->Diffuse.x = v1;
-			Current->Diffuse.y = v2;
-			Current->Diffuse.z = v3;
+			sscanf(oneline, "Fragment %s", Current->Frag);
+			for (int x = 0; x < int(strlen(Current->Frag)); x++)
+				if (Current->Frag[x] == '_')
+					Current->Frag[x] = ' ';
 		}
-		
-		if (strncmp(oneline, "Sp", 2) == 0)
-		{
-			sscanf(oneline, "Sp %f %f %f", &v1, &v2, &v3);
-			Current->Specular.x = v1;
-			Current->Specular.y = v2;
-			Current->Specular.z = v3;
-		}
-		
-		if (strncmp(oneline, "Em", 2) == 0)
-		{
-			sscanf(oneline, "Em %f %f %f", &v1, &v2, &v3);
-			Current->Emission.x = v1;
-			Current->Emission.y = v2;
-			Current->Emission.z = v3;
-		}
-		
-		if (strncmp(oneline, "Op", 2) == 0)
-		{
-			sscanf(oneline, "Op %f", &v1);
-			Current->Opacity = v1;
-		}
-		
-		if (strncmp(oneline, "Re", 2) == 0)
-		{
-			sscanf(oneline, "Re %f", &v1);
-			Current->Shininess = v1;
-		}
-		
+				
 		if (strncmp(oneline, "TextMap2D", 9) == 0)
 		{
-			char LOD[5];
-			sscanf(oneline, "TextMap2D %s %s", Current->TextName, LOD);
-			if (strncmp(LOD, "LOD", 3) == 0)
-				Current->TextMap = Load2DTexture(string(Current->TextName), true);
+			if (Current->textures == NULL)
+			{
+				 Current->textures = (Texture*)malloc(sizeof(Texture));
+				 Current->curr = Current->textures;
+				 Current->textures->Next = NULL;
+			}
 			else
-				Current->TextMap = Load2DTexture(string(Current->TextName), false);
-		}
+			{
+				 Current->curr->Next = (Texture*)malloc(sizeof(Texture));
+				 Current->curr = Current->curr->Next;
+				 Current->curr->Next = NULL;
+			}
 			
-		if (strncmp(oneline, "DetailMap2D", 11) == 0)
-		{
-			char LOD[5];
-			sscanf(oneline, "DetailMap2D %s %s", Current->DetailName, LOD);
-			if (strncmp(LOD, "LOD", 3) == 0)
-				Current->DetailMap = Load2DTexture(string(Current->DetailName), true);
-			else
-				Current->DetailMap = Load2DTexture(string(Current->DetailName), false);
+			if (sscanf(oneline, "TextMap2D %s %s", Current->curr->Name, Current->curr->Filetype) == 2)
+				Current->curr->LoadTexture(Current->curr->Name, Current->curr->Filetype, 1);
+			else if (sscanf(oneline, "TextMap2D %s", Current->curr->Name) == 1)
+				Current->curr->Load2DTexture(Current->curr->Name);
 		}
 	}
+	Current->Load();
 	File.Close();
 }
 
@@ -837,8 +792,9 @@ void LoadPhysics(Model *mdl, char *filename)
 	File.Close();
 	
 	mdl->Physics.Volume = (mdl->Max.x-mdl->Min.x)*(mdl->Max.y-mdl->Min.y)*(mdl->Max.z-mdl->Min.z);
+	mdl->Physics.Radius = pow(mdl->Physics.Volume*3.0/(4.0*pi), 1.0/3.0);
 	mdl->Physics.Density = mdl->Physics.Mass/mdl->Physics.Volume;
-	mdl->Physics.RotationalInertia = CalculateRotationalInertia(mdl->Physics.Mass, (Vector*)mdl->Verts, mdl->NumVerts);
+	mdl->Physics.Inertia = Inertia(mdl->Physics.Mass, (Vector*)mdl->Verts, mdl->NumVerts);
 }
 
 void GenerateNormals(Model *mdl)
@@ -890,7 +846,8 @@ void RenderMdl(Model *mdl)
 {
 	ModelFace *Current = mdl->Faces;
 	
-	mdl->Materials->Enable();
+	if (mdl->Materials != NULL)
+		mdl->Materials->Use();
 	glBegin(GL_TRIANGLES);
 	while (Current != NULL)
 	{
@@ -918,7 +875,6 @@ void RenderMdl(Model *mdl)
 		Current = Current->Next;
 	}
 	glEnd();
-	mdl->Materials->Disable();
 }
 
 void ReleaseMdl(Model *mdl)

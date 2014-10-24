@@ -17,15 +17,26 @@ struct Camera
 {
 	Camera()
 	{
+		viewscale = 1.0;
+		movementtype = 3;
+		move_mult = pow(2, 0);
 	}
 	
 	Model *Host;
 	Vector DistanceFromHost;
 	GLdouble CameraDistance;	
 	bool	Control;
+	GLdouble viewscale;
+	int movementtype;
+	GLdouble move_mult;
 	
 	Vector Position;
 	Vector Orientation;
+	
+	void SetScale(GLdouble s);
+	void SetMoveType(int m);
+	
+	void Move(Vector v);
 	
 	void Rotate(GLdouble x, GLdouble y, GLdouble z);
 	void Rotate(Vector v);

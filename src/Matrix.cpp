@@ -17,7 +17,7 @@ void SetMatrix(Matrix Input, Matrix Output)
 
 void InterchangeRows(Matrix M, int row1, int row2)
 {
-	double temp[4];
+	GLdouble temp[4];
 	for (int x = 0; x < 4; x++)
 		temp[x] = M[(x*4) + row1];
 	for (int x = 0; x < 4; x++)
@@ -26,13 +26,13 @@ void InterchangeRows(Matrix M, int row1, int row2)
 		M[(x*4) + row2] = temp[x];
 }
 
-void ScaleRow(Matrix M, int row, double scale)
+void ScaleRow(Matrix M, int row, GLdouble scale)
 {
 	for (int x = 0; x < 4; x++)
 		M[(x*4) + row] *= scale;
 }
 
-void AddRow(Matrix M, int row1, int row2, double scale)
+void AddRow(Matrix M, int row1, int row2, GLdouble scale)
 {
 	for (int x = 0; x < 4; x++)
 		M[(x*4) + row1] += M[(x*4) + row2]*scale;

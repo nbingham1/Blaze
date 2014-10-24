@@ -1,72 +1,90 @@
 /*
  *  Planet.h
- *  Blaze Game Engine
+ *  Infinity Game Engine
  *
- *  Created by Ned Bingham on 7/31/07.
- *  Copyright 2007 __MyCompanyName__. All rights reserved.
+ *  Created by Ned Bingham on 2/17/08.
+ *  Copyright 2008 __MyCompanyName__. All rights reserved.
  *
  */
 
 #ifndef Planet_h
 #define Planet_h
 
-#include "OpenGLIncludes.h"
-#include "CoreMathematics.h"
-#include "CorePhysics.h"
-#include "Shader.h"
-#include "Player.h"
-#include "Collision.h"
+#include "BasicAstronomy.h"
+#include "Material.h"
 
-const int node_size = 16;
+// Verts per node
+#define vpn 32
+// Pixels per node
+#define ppn 128
+// vpn/ppn
+#define ppn_into_vpn GLdouble(vpn-1)/GLdouble(ppn)
 
-struct planet_node
+enum terra_type
 {
-	int seed;
+	height,
+	three_shift
+};
+
+struct QuadTreeNode
+{
+	GLdouble *verts;
+	terra_type *type;
 	
-	GLdouble *heights;
-		
-	GLdouble percent_loaded;
+	GLdouble *liquid_verts;
 	
-	GLdouble x_size, x_angle;
-	GLdouble y_size, y_angle;
-	GLdouble radius;
+	Material mat;
 	
-	GLdouble average;
+	GLdouble x_size, longitude, // rads
+			 y_size, latitude; // rads
+	
+	QuadTreeNode *data_start;
+	GLdouble *planet_minimum;
+	GLdouble *planet_maximum;
+	
+	Vector half_vec;
+	
 	GLdouble minimum;
 	GLdouble maximum;
+	GLdouble average;
 	
-	planet_node *parent;
-	planet_node *children;
-		
-	void load(int s);
-	void destroy();
+	bool rend;
 	
-	void split();
-	void merge();
+	GLdouble radius; //  meters
 	
-	void render(bool r, Player *p_player, Vector *player_vec, GLdouble ax, GLdouble ay, GLdouble nax, GLdouble nay, GLdouble dist);
-	void renderwater(bool r, Player *p_player, Vector *player_vec, GLdouble ax, GLdouble ay, GLdouble nax, GLdouble nay, GLdouble dist);
+	QuadTreeNode *children;
+	QuadTreeNode *parent;
+	
+	void Load(int seed, GLdouble rad, terra_type *t);
+	
+	void LODCheck(camera_reference *info);
+	void Split();
+	void Merge();
+	void MakeTexture();
+	
+	void Render(GLdouble *texts, unsigned int *indices, camera_reference *info);
+	void Release();
+	
+	GLdouble GetGroundHeight(GLdouble longitude, GLdouble latitude);
 };
 
 struct Planet
 {
-	string		name;
-	planet_node data;
-	ModelPhysics Physics;
+	string Name;
 	
-	Player *player_pointer;
+	QuadTreeNode *vert_data;
+	terra_type type;
 	
-	GLhandleARB VertShad;
-	GLhandleARB FragShad;
-	GLhandleARB ShadProg;
-	GLuint tex;
+	PhsHandle Physics; // Relative to the center of the Solar System
+	GLdouble Radius; // meters
 	
-	GLhandleARB WaterVertShad;
-	GLhandleARB WaterFragShad;
-	GLhandleARB WaterShadProg;
-	GLuint watertex;
+	GLdouble *node_texts;
+	unsigned int *node_indices;
 	
-	void Load(string Name, Player *p_player);
+	camera_reference player_info;
+	
+	void Load(string name, Camera *view);
+	void Prepare();
 	void Render();
 	void Release();
 };

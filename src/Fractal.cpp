@@ -9,9 +9,9 @@
 
 #include "Fractal.h"
 
-void FilterHeightBand(float *Band, int Stride, int Count, float Filter)
+void FilterHeightBand(GLdouble *Band, int Stride, int Count, GLdouble Filter)
 {
-	float v = Band[0];
+	GLdouble v = Band[0];
 	int j = Stride;
 	int i;
 	
@@ -23,7 +23,7 @@ void FilterHeightBand(float *Band, int Stride, int Count, float Filter)
 	}
 }
 
-void FilterHeightField(float *Heights, int Size, float Filter)
+void FilterHeightField(GLdouble *Heights, int Size, GLdouble Filter)
 {
 	int i;
 	
@@ -40,10 +40,10 @@ void FilterHeightField(float *Heights, int Size, float Filter)
 		FilterHeightBand(&Heights[Size*(Size-1) + i], -Size, Size, Filter);
 }
 
-void NormalizeHeightField(float *Heights, int Size)
+void NormalizeHeightField(GLdouble *Heights, int Size)
 {
-	float Max = 0, Min = 0;
-	float Height;
+	GLdouble Max = 0, Min = 0;
+	GLdouble Height;
 	
 	for (int x = 0; x < Size*Size; x++)
 	{
@@ -59,11 +59,11 @@ void NormalizeHeightField(float *Heights, int Size)
 		Heights[x] = 256*Heights[x]/Height;
 }
 
-float *GenerateFaultHeights(int RandomSeed, int Size, int Iterations, int MinHeight, int MaxHeight, float Filter)
+GLdouble *GenerateFaultHeights(int RandomSeed, int Size, int Iterations, int MinHeight, int MaxHeight, GLdouble Filter)
 {
-	float *Heights = NULL;
+	GLdouble *Heights = NULL;
 	int CurrentIter;
-	float Height;
+	GLdouble Height;
 	int RandX1, RandZ1;
 	int RandX2, RandZ2;
 	int DirX1, DirZ1;
@@ -73,14 +73,14 @@ float *GenerateFaultHeights(int RandomSeed, int Size, int Iterations, int MinHei
 	
 	srand(RandomSeed);
 		
-	Heights = new float[Size*Size];
+	Heights = new GLdouble[Size*Size];
 	
 	for (i = 0; i < Size*Size; i++)
 		Heights[i] = 0;
 	
 	for (CurrentIter = 0; CurrentIter < Iterations; CurrentIter++)
 	{
-		Height = (float)MaxHeight - (float(MaxHeight - MinHeight)*float(CurrentIter))/float(Iterations);
+		Height = (GLdouble)MaxHeight - (GLdouble(MaxHeight - MinHeight)*GLdouble(CurrentIter))/GLdouble(Iterations);
 		RandX1 = rand() % Size;
 		RandZ1 = rand() % Size;
 		
@@ -113,15 +113,15 @@ float *GenerateFaultHeights(int RandomSeed, int Size, int Iterations, int MinHei
 	return Heights;
 }
 
-float *GenerateRandomHeights(int RandomSeed, int Size, int MaxHeightChange, float Filter, float StartHeight)
+GLdouble *GenerateRandomHeights(int RandomSeed, int Size, int MaxHeightChange, GLdouble Filter, GLdouble StartHeight)
 {
-	float *Heights = new float[Size*Size];
+	GLdouble *Heights = new GLdouble[Size*Size];
 	
 	for (int i = 0; i < Size*Size; i++)
 		Heights[i] = StartHeight;
 	
 	srand(RandomSeed);
-	float newchange;
+	GLdouble newchange;
 	for (int x = 1; x < Size-1; x++)
 	{
 		for (int y = 1; y < Size-1; y++)
@@ -134,6 +134,6 @@ float *GenerateRandomHeights(int RandomSeed, int Size, int MaxHeightChange, floa
 	}
 	
 	FilterHeightField(Heights, Size, Filter);
-			
+	
 	return Heights;
 }

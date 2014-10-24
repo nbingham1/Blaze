@@ -1,84 +1,78 @@
 /*
  *  CorePhysics.cpp
- *  Blaze Game Engine
+ *  Infinity Game Engine
  *
- *  Created by Ned Bingham on 12/7/06.
- *  Copyright 2006 Sol Gaming. All rights reserved.
+ *  Created by Ned Bingham on 11/7/07.
+ *  Copyright 2007 __MyCompanyName__. All rights reserved.
  *
  */
 
 #include "CorePhysics.h"
 
-void CorePhysics::AddObjectPhysics(ModelPhysics *phs)
+void CorePhysics::Init()
 {
-	if (PhysicsHandlers == NULL)
-		PhysicsHandlers = phs;
+	Handlers = NULL;
+	start_time = time(0);
+	num_frame = 60;
+}
+
+void CorePhysics::AddPhsHandle(PhsHandle *phs)
+{
+	if (Handlers == NULL)
+	{
+		Handlers = phs;
+		curr = Handlers;
+		curr->Next = NULL;
+	}
 	else
 	{
-		ModelPhysics *Current = PhysicsHandlers;
-		while (Current->Next != NULL)
-			Current = Current->Next;
-		Current->Next = phs;
+		curr->Next = phs;
+		curr = curr->Next;
+		curr->Next = NULL;
 	}
 }
 
-void CorePhysics::ApplyGravity()
+void CorePhysics::ApplyGlobals()
 {
-	GLdouble GravitationalPull;
+	num_frame++;
+	GLfloat spf = GLfloat(time(0) - start_time)/GLfloat(num_frame);
 	
-	num_frames++;
-	GLdouble secperframe = (GLdouble(time(0)-start_time)/GLdouble(num_frames));
-		
-	ModelPhysics *iter1, *iter2;
-	iter1 = PhysicsHandlers;
-	while (iter1 != NULL)
+	//cout << 1.0/spf << endl;
+	
+	PhsHandle *c1 = Handlers, *c2 = Handlers;
+	while (c1 != NULL)
 	{
-		iter2 = iter1->Next;
-		while (iter2 != NULL)
+		c2 = c1->Next;
+		while (c2 != NULL)
 		{
-			if (iter1 != iter2 && iter1->gravity && iter2->gravity)
-			{
-				GravitationalPull = CalculateGravitationalPull(iter1->Mass, iter2->Mass, iter1->Position, iter2->Position);
-				iter1->Gravity = GravitationalPull*Normalize(iter2->Position-iter1->Position)*secperframe*secperframe;
-				iter1->SumForces.Force += iter1->Gravity;
-				iter2->Gravity = GravitationalPull*Normalize(iter1->Position-iter2->Position)*secperframe*secperframe;
-				iter2->SumForces.Force += iter2->Gravity;
-			}
-			iter2 = iter2->Next;
+			Gravity(c1, c2, spf);
+			
+			//if (Distance(c1->Position, c2->Position) < c1->Radius + c2->Radius && (Dot(c2->LinearVelocity, c1->Position-c2->Position) >= 0 || Dot(c1->LinearVelocity, c2->Position-c1->Position) >= 0))
+			//	Collide(c1, c2);
+			c2 = c2->Next;
 		}
-		iter1 = iter1->Next;
-	}
-	
-	iter1 = PhysicsHandlers;
-	while (iter1 != NULL)
-	{
-		iter1->gravity = true;
-		iter1 = iter1->Next;
+		c1 = c1->Next;
 	}
 }
 
-void CorePhysics::UpdatePhysicsHandlers()
+void CorePhysics::Update()
 {
-	ModelPhysics *iter1;
-	iter1 = PhysicsHandlers;
-	while (iter1 != NULL)
+	PhsHandle *c = Handlers;
+	while (c != NULL)
 	{
-		iter1->Update();
-		iter1 = iter1->Next;
+		c->Update();
+		c = c->Next;
 	}
 }
 
-void CorePhysics::UpdatePhysicsHandlersAccAndVel()
+void CorePhysics::Release()
 {
-	ModelPhysics *iter1;
-	iter1 = PhysicsHandlers;
-	while (iter1 != NULL)
+	PhsHandle *prev;
+	curr =  Handlers;
+	while (curr != NULL)
 	{
-		iter1->UpdateAccAndVel();
-		iter1 = iter1->Next;
+		prev = curr;
+		curr = curr->Next;
+		prev->Next = NULL;
 	}
-}
-
-void CorePhysics::ReleasePhysics()
-{
 }

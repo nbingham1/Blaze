@@ -20,7 +20,7 @@ Switch
   {
    appearance Appearance
    {
-    material res/GrassSample.jpg
+    material GrassSample.jpg
     {
      diffuseColor	0.000000 0.000000 0.000000
      specularColor	0.000000 0.000000 0.000000

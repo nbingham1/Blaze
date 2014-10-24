@@ -1,5 +1,5 @@
 newmtl matone
-Vertex res/Vertex.txt
-Fragment res/Fragment.txt
-TextMap2D res/GrassSample.tga
+Vertex Vertex.txt
+Fragment Fragment.txt
+TextMap2D GrassSample.tga
 

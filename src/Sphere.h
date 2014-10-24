@@ -18,7 +18,7 @@
 struct Sphere
 {
 	Vector *Position;
-	double Radius;
+	GLdouble Radius;
 	//void AttachSphereToEntity();
 };
 

@@ -15,7 +15,7 @@ CoreGraphics		Renderer;		// Handles all of the OpenGL rendering
 Keyboard		KeyboardHandler;// Handles all keyboard input events
 Mouse			MouseHandler;	// Handles all mouse input events
 
-bool windowed = false;
+bool windowed = true;
 
 void init()
 {
@@ -89,7 +89,7 @@ int main(int argc, char **argv)
 
 	if (windowed)
 	{
-		glutInitWindowSize(1400, 900);
+		glutInitWindowSize(1600, 900);
 		glutInitWindowPosition(0, 0);
 		glutCreateWindow("BGE");
 	}

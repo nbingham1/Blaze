@@ -7,6 +7,7 @@
  *
  */
  
+#include "CorePhysics.h"
 #include "CoreMathematics.h"
 #include "OpenGLIncludes.h"
 
@@ -14,14 +15,17 @@
 #define CoreGraphics_h
 
 #include "Camera.h"
-#include "Player.h"
+#include "Star.h"
 #include "Planet.h"
 
 struct CoreGraphics
 {
 	CorePhysics Physics;
-	Player ThePlayer;
-	Planet n;
+	Camera view;
+	Model viewmod;
+	
+	Star s;
+	Planet p;
 	
 	void Init();
 	void RenderFrame();

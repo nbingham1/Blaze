@@ -10,17 +10,18 @@
 #ifndef Fractal_h
 #define Fractal_h
 
+#include "OpenGLIncludes.h"
 #include <math.h>
 #include <time.h>
 #include <stdlib.h>
 
 using namespace std;
 
-void FilterHeightBand(float *Band, int Stride, int Count, float Filter);
-void FilterHeightField(float *Heights, int Size, float Filter);
-void NormalizeHeightField(float *Heights, int Size);
+void FilterHeightBand(GLdouble *Band, int Stride, int Count, GLdouble Filter);
+void FilterHeightField(GLdouble *Heights, int Size, GLdouble Filter);
+void NormalizeHeightField(GLdouble *Heights, int Size);
 
-float *GenerateFaultHeights(int RandomSeed, int Size, int Iterations, int MinHeight, int MaxHeight, float Filter);
-float *GenerateRandomHeights(int RandomSeed, int Size, int MaxHeightChange, float Filter, float StartHeight);
+GLdouble *GenerateFaultHeights(int RandomSeed, int Size, int Iterations, int MinHeight, int MaxHeight, GLdouble Filter);
+GLdouble *GenerateRandomHeights(int RandomSeed, int Size, int MaxHeightChange, GLdouble Filter, GLdouble StartHeight);
 
 #endif

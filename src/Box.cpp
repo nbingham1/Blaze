@@ -35,11 +35,11 @@ bool IntersectBoxBox(Box b1, Box b2)
 		Box2[x] = Rot2*b2.Vertices[x] + (*b2.Position);
 	}
 	
-	if (!Intersect(Box1, 8, Box2, 8, Vector(1, 0, 0)))
+	if (!Intersect(Box1, 8, Box2, 8, Vector(1.0, 0.0, 0.0)))
 		return false;
-	if (!Intersect(Box1, 8, Box2, 8, Vector(0, 1, 0)))
+	if (!Intersect(Box1, 8, Box2, 8, Vector(0.0, 1.0, 0.0)))
 		return false;
-	if (!Intersect(Box1, 8, Box2, 8, Vector(0, 0, 1)))
+	if (!Intersect(Box1, 8, Box2, 8, Vector(0.0, 0.0, 1.0)))
 		return false;
 		
 	Vector boxedge1[] = {Box1[1] - Box1[0], Box1[2] - Box1[1], Box1[4] - Box1[0]};

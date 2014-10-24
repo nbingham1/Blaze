@@ -1,0 +1,9 @@
+uniform float end;
+uniform float divisor;
+
+void main()
+{
+	float f = gl_FogFragCoord;
+	vec4 color = vec4(gl_Fog.color.rgb, gl_Fog.color.a*clamp((gl_FogFragCoord - end)/divisor, 0.0, 0.9)*clamp((gl_FogFragCoord - end)/divisor, 0.0, 0.9));
+	gl_FragColor = vec4(color.rgb*(color.rgb + 1.0), color.a);
+}

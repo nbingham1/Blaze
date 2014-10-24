@@ -9,26 +9,26 @@
 
 #include "BasicMath.h"
 
-double GetMin(Vector *Points, int Num, Vector Axis)
+GLdouble GetMin(Vector *Points, int Num, Vector Axis)
 {
-	double min = 9E99;
+	GLdouble min = 9E99;
 	
 	for (int ctr = 0; ctr < Num; ctr++)
     {
-		double dotprod = Dot(Points[ctr], Axis);
+		GLdouble dotprod = Dot(Points[ctr], Axis);
 		if (dotprod < min)
 			min = dotprod;
     }
 	return min;
 }
 
-double GetMax(Vector *Points, int Num, Vector Axis)
+GLdouble GetMax(Vector *Points, int Num, Vector Axis)
 {
-	double max = -9E99;
+	GLdouble max = -9E99;
 	
 	for (int ctr = 0; ctr < Num; ctr++)
     {
-		double dotprod = Dot(Points[ctr], Axis);
+		GLdouble dotprod = Dot(Points[ctr], Axis);
 		if (dotprod > max)
 			max = dotprod;
     }
@@ -46,6 +46,16 @@ GLdouble modulate(GLdouble f, GLdouble m)
 	return h < 0.0 ? h+m : h;
 }
 
+GLdouble clamp(GLdouble f, GLdouble a, GLdouble b)
+{
+	GLdouble d = f;
+	if (d < a)
+		d = a;
+	if (d > b)
+		d = b;
+	return d;
+}
+
 bool Intersect(Vector *p1, int n1, Vector *p2, int n2, Vector Axis)
 {
 	if (GetMin(p1, n1, Axis) > GetMax(p2, n2, Axis))
@@ -61,11 +71,11 @@ bool IntersectBoxTri(Vector BoxPoints[16], Vector v1, Vector v2, Vector v3)
 	Vector v[3] = {v1, v2, v3};
 	Vector Normal = CalculateNormal(v1, v2, v3);
 	// test the x, y, and z axes
-	if (!Intersect(BoxPoints, 16, v, 3, Vector(1, 0, 0)))
+	if (!Intersect(BoxPoints, 16, v, 3, Vector(1.0, 0.0, 0.0)))
 		return false;
-	if (!Intersect(BoxPoints, 16, v, 3, Vector(0, 1, 0)))
+	if (!Intersect(BoxPoints, 16, v, 3, Vector(0.0, 1.0, 0.0)))
 		return false;
-	if (!Intersect(BoxPoints, 16, v, 3, Vector(0, 0, 1)))
+	if (!Intersect(BoxPoints, 16, v, 3, Vector(0.0, 0.0, 1.0)))
 		return false;
 	if (!Intersect(BoxPoints, 16, v, 3, Normal))
 		return false;

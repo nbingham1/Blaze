@@ -11,37 +11,37 @@
 #define Material_h
 
 #include "Texture.h"
+#include "Shader.h"
 #include "OpenGLIncludes.h"
+#include "File.h"
 
 struct Material
 {
 	char Name[32];
 	
-	char TextName[255];
-	char DetailName[255];
+	Texture *textures;
+	Texture *curr;
 	
-	Vector Ambient;
-	Vector Diffuse;
-	Vector Specular;
-	Vector Emission;
+	GLhandleARB VertShad;
+	GLhandleARB FragShad;
+	GLhandleARB ShadProg;
+	char Vert[255];
+	char Frag[255];
 	
-	GLdouble Shininess;
-	GLdouble Opacity;
 	
-	GLuint TextMap;
-	GLuint DetailMap;
-	
-	int TextDimension;
-	int DetailDimension;
-	int DetailScale;
-		
 	Material *Next;
 	
-	void Initialize();
-	void Enable(GLdouble *texts);
-	void Enable();
-	void Disable();
+	void Init();
+	void AddTexture(char *name, char *type, int depth);
+	void AddTexture(GLuint tex);
+	void Load(char *vert, char *frag);
+	void Load();
+	void Use();
 	void Release();
+	void ReleaseTextures();
+	
+	void ImportNumber(GLdouble n, char *name);
+	void ImportVector(Vector v, char *name);
 };
 
 #endif

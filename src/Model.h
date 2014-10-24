@@ -11,10 +11,9 @@
 #define Model_h
 
 #include "OpenGLIncludes.h"
-#include "CoreAnimation.h"
 #include "CoreMathematics.h"
-#include "Material.h"
 #include "CorePhysics.h"
+#include "Material.h"
 #include "File.h"
 
 struct ModelFace
@@ -30,7 +29,7 @@ struct ModelFace
 struct ModelEdge
 {
 	int v1, v2;
-	double RestDistance;
+	GLdouble RestDistance;
 	
 	ModelEdge *Next;
 };
@@ -58,8 +57,8 @@ struct Model
 	
 	Material   *Materials;
 	
-	ModelPhysics Physics;
-	
+	PhsHandle Physics;
+		
 	int NumVerts;
 	int NumNorms;
 	int NumTexts;
@@ -73,7 +72,9 @@ struct Model
 	void AddEdge(ModelEdge *Edge);
 	void AddFace(ModelFace *Face);
 	
-	void Move(double x, double y, double z);
+	void Move(GLdouble x, GLdouble y, GLdouble z);
+	
+	void Render();
 };
 
 void LoadObj(Model *mdl, char *filename);

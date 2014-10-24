@@ -11,7 +11,7 @@
 
 bool IntersectSphereSphere(Sphere s1, Sphere s2)
 {
-	double distance = Distance(*s1.Position, *s2.Position);
+	GLdouble distance = Distance(*s1.Position, *s2.Position);
 	
 	if (distance <= s1.Radius + s2.Radius)
 		return true;

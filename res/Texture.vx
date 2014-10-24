@@ -1,0 +1,10 @@
+varying vec2 tex;
+varying float dist;
+
+void main()
+{
+	dist = length(gl_Vertex);
+	
+	tex = gl_MultiTexCoord0.st;
+	gl_Position = ftransform();
+}

@@ -9,7 +9,7 @@
 
 #include "Frustum.h"
 
-void Frustum::Set(double f, double b, double r, double l, double t, double bo)
+void Frustum::Set(GLdouble f, GLdouble b, GLdouble r, GLdouble l, GLdouble t, GLdouble bo)
 {
 	front = f;
 	back = b;
@@ -43,11 +43,11 @@ bool IntersectFrustumBox(Frustum f, Box b)
 		Box2[x] = Rot2*b.Vertices[x] + (*b.Position);
 	}
 	
-	if (!Intersect(Box1, 8, Box2, 8, Vector(1, 0, 0)))
+	if (!Intersect(Box1, 8, Box2, 8, Vector(1.0, 0.0, 0.0)))
 		return false;
-	if (!Intersect(Box1, 8, Box2, 8, Vector(0, 1, 0)))
+	if (!Intersect(Box1, 8, Box2, 8, Vector(0.0, 1.0, 0.0)))
 		return false;
-	if (!Intersect(Box1, 8, Box2, 8, Vector(0, 0, 1)))
+	if (!Intersect(Box1, 8, Box2, 8, Vector(0.0, 0.0, 1.0)))
 		return false;
 		
 	Vector boxedge1[] = {Box1[1] - Box1[0], Box1[2] - Box1[1], Box1[4] - Box1[0]};

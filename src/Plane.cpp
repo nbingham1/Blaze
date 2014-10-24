@@ -11,7 +11,7 @@
 
 int ClassifyVertexToPlane(Plane p, Vector v)
 {
-	double distance = Dot(v, p.Normal) + p.Distance;
+	GLdouble distance = Dot(v, p.Normal) + p.Distance;
 	
 	if (distance > 0.000001)
 		return 0;
@@ -45,8 +45,8 @@ int ClassifyBoxToPlane(Plane p, Box b)
 
 int ClassifySphereToPlane(Plane p, Sphere s)
 {
-	double distance = Dot(*s.Position, p.Normal) + p.Distance;
-	double abs_distance = distance;
+	GLdouble distance = Dot(*s.Position, p.Normal) + p.Distance;
+	GLdouble abs_distance = distance;
 	if (abs_distance < 0)
 		abs_distance *= -1;
 	
@@ -79,7 +79,7 @@ bool RayPlaneIntersection(Vector r1, Vector r2, Plane p, Vector *i)
 {
 	Vector    u, v, n;
     Vector    dir, w0, w;
-    double     r, a, b;
+    GLdouble     r, a, b;
 
     dir = r2 - r1;
     w0 = r1 - Vector(0.0, p.Distance, 0.0);

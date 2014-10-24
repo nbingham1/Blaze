@@ -18,8 +18,8 @@ typedef GLdouble Matrix[16];
 void SetMatrix(Matrix Input, Matrix Output);
 
 void InterchangeRows(Matrix M, int row1, int row2);
-void ScaleRow(Matrix M, int row, double scale);
-void AddRow(Matrix M, int row1, int row2, double scale);
+void ScaleRow(Matrix M, int row, GLdouble scale);
+void AddRow(Matrix M, int row1, int row2, GLdouble scale);
 
 void Inverse(Matrix M);
 void Transpose(Matrix M);

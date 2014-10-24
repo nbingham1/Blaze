@@ -21,7 +21,7 @@ struct Box
 	Vector Vertices[8];
 	
 	void SetBox(Vector Min, Vector Max);
-	void SetBox(double x_size, double y_size, double z_size);
+	void SetBox(GLdouble x_size, GLdouble y_size, GLdouble z_size);
 	//void AttachBoxToEntity();
 };
 

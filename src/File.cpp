@@ -16,7 +16,7 @@ void CoreFile::Open(const char *filename)
 	{
 		printf("error, file not found!\n");
 		printf(filename);
-		return;
+		exit(1);
 	}
 }
 

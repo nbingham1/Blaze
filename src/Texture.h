@@ -29,8 +29,30 @@ struct rgb_t
 };
 
 void GetDimensions(const char *filename, long *Width, long *Height);
-void LoadTexture(const char *filename, long *Width, long *Height, rgba_t *T, int start);
-GLuint Load2DTexture(string filename, bool LOD);
-GLuint Load3DTexture(string *filename, int Depth, bool LOD);
+void LoadTextData(const char *filename, long *Width, long *Height, rgba_t *T, int start);
+
+struct Texture
+{
+	char Name[255];
+	char Filetype[4];
+	int Depth;
+	bool LOD;
+	GLuint Map;
+	
+	void SetInfo(char *name, char *type, int depth);
+	
+	void Load2DTexture(char *filename);
+	void Load2DTexture();
+	
+	void Load3DTexture(char *name, char *type, int depth);
+	void Load3DTexture();
+	
+	void LoadTexture(char *filename, char *type, int depth);
+	void LoadTexture();
+	
+	void Release();
+	
+	Texture *Next;
+};
 
 #endif
