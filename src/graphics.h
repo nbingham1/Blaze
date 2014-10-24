@@ -8,5 +8,6 @@
 #include <GL/glext.h>
 
 #include "shader.h"
+#include "color.h"
 
 #endif

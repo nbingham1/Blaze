@@ -6,6 +6,10 @@ keyboardhdl::keyboardhdl()
 		keystates[x] = false;
 }
 
+keyboardhdl::~keyboardhdl()
+{
+}
+
 void keyboardhdl::keydown(unsigned char key)
 {
 	keystates[key] = true;

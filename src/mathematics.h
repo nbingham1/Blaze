@@ -1,8 +1,10 @@
-#ifndef mathdef_h
-#define mathdef_h
+#ifndef mathematics_h
+#define mathematics_h
 
-#include <math.h>
+#include "math.h"
+
 #include "vector.h"
+#include "complex.h"
 
 #define m_pi 3.14159265358979323
 #define m_e 2.718281828

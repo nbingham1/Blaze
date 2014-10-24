@@ -1,9 +1,9 @@
 #include "vector.h"
-#include "mathdef.h"
+#include "mathematics.h"
 #include "standard.h"
 #include "graphics.h"
 #include "physics.h"
-#include "material.h"
+//#include "material.h"
 #include "camera.h"
 #include "shader.h"
 
@@ -13,7 +13,7 @@
 struct objecthdl
 {
 	physicshdl physics;
-	materialhdl material;
+//	materialhdl material;
 
 	objecthdl *next, *prev;
 

@@ -1,7 +1,7 @@
 #include "camera.h"
 #include "standard.h"
 #include "graphics.h"
-#include "mathdef.h"
+#include "mathematics.h"
 
 void camerahdl::init(double *rateptr)
 {

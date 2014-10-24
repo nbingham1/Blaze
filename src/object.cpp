@@ -3,7 +3,7 @@
 void objecthdl::init()
 {
 	//physics.init();
-	material.init();
+	//material.init();
 
 	next = NULL;
 	prev = NULL;

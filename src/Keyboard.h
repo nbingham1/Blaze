@@ -4,6 +4,7 @@
 struct keyboardhdl
 {
 	keyboardhdl();
+	~keyboardhdl();
 	
 	bool keystates[256];
 	

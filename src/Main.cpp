@@ -154,7 +154,8 @@ int main(int argc, char **argv)
 
 	glutSetCursor(GLUT_CURSOR_NONE);
 
-	printf("%d", glutGet(GLUT_WINDOW_DEPTH_SIZE));
+	printf("\n");
+
 	init();
 	glutMainLoop();
 	if (!renderer.display.windowed)

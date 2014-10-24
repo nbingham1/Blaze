@@ -1,5 +1,5 @@
 #include "vector.h"
-#include "mathdef.h"
+#include "mathematics.h"
 #include "graphics.h"
 #include "standard.h"
 
@@ -133,7 +133,7 @@ float vec::operator[](int index)
 			return w;
 			break;
 		default:
-			printf("error: vec index out of bounds");
+			printf("Error: Out of bounds");
 			return 0;
 			break;
 	}

@@ -5,17 +5,17 @@
 
 struct rgba
 {
-	unsigned char r;
-	unsigned char g;
-	unsigned char b;
-	unsigned char a;
+	float r;
+	float g;
+	float b;
+	float a;
 };
 
 struct rgb
 {
-	unsigned char r;
-	unsigned char g;
-	unsigned char b;
+	float r;
+	float g;
+	float b;
 };
 
 GLhandleARB LoadGLSLShader(GLenum ShadeType, const char *SourceFile, char *ErrorLog, int *ErrorLength);

@@ -1,4 +1,4 @@
-#include "mathdef.h"
+#include "mathematics.h"
 
 #include <stdlib.h>
 #include <stdio.h>
@@ -341,4 +341,3 @@ int intraytri(vec orig, vec dir, vec vert0, vec vert1, vec vert2, double *t, dou
 	}
 	return 1;
 }
-

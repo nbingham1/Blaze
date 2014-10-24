@@ -91,7 +91,6 @@ double displayhdl::getfps()
 
 void displayhdl::render()
 {
-	glUseProgram(0);
 	char str[256];
 	framenum++;
 	if (show_framerate)
