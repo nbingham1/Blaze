@@ -1,9 +1,0 @@
-uniform sampler2D tex_0;
-varying vec2 tex_coord;
-varying float logz;
-
-void main()
-{
-	gl_FragColor = texture2D(tex_0, tex_coord);
-	gl_FragDepth = logz;
-}

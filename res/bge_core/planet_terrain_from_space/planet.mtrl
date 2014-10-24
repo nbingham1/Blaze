@@ -1,3 +1,0 @@
-vertex: planet_terrain_from_space.vx
-fragment: planet_terrain_from_space.ft
-texture_array: res/sand.tga res/dirt.tga res/grass.tga res/rock.tga res/snow.tga

@@ -1,0 +1,55 @@
+varying vec2 texture_coordinate;
+
+varying vec4 diffuse;
+varying vec4 global_ambient;
+varying vec4 ambient;
+varying vec3 light_direction;
+varying vec3 half_vector;
+varying float distance;
+
+varying vec3 sphere_normal;
+varying float camera_distance;
+
+varying float texture_interpolator;
+
+uniform vec4 position;
+
+// geomorphing
+uniform float interpolator;
+attribute vec3 LowDetailVertex;
+
+// crack fixing
+uniform vec3 neighbors;
+
+void main()
+{
+	texture_interpolator = interpolator;
+	float crack = 1.0 - (gl_MultiTexCoord0.z > 0.0 ? clamp(neighbors[int(gl_MultiTexCoord0.z - 1.0)], 0.0, 1.0) : 0.0);
+	vec4 lowdetailvertex = vec4(LowDetailVertex, 1.0) + position;
+	vec4 highdetailvertex = gl_Vertex + position;
+	camera_distance = length(highdetailvertex.xyz);
+	
+	float i = (gl_MultiTexCoord0.z == 0.0 ? interpolator : 1.0)*crack;
+
+	vec4 vertex = lowdetailvertex*(1.0 - i) + highdetailvertex*i;
+
+	vec4 eye_coord_position;
+	vec3 aux;
+	
+	sphere_normal = normalize(gl_Normal);	
+	
+	eye_coord_position = gl_ModelViewMatrix*vertex;
+	aux = vec3(gl_LightSource[0].position - eye_coord_position);
+	distance = length(aux);
+	light_direction = (gl_ModelViewMatrix*vec4(1.0, 0.0, 0.0, 1.0)).xyz;//aux/distance;
+	
+	half_vector = normalize(gl_LightSource[0].halfVector.xyz);
+	
+	diffuse = gl_FrontMaterial.diffuse * gl_LightSource[0].diffuse;
+	
+	ambient = gl_FrontMaterial.ambient * gl_LightSource[0].ambient;
+	global_ambient = gl_LightModel.ambient * gl_FrontMaterial.ambient;
+
+	texture_coordinate = gl_MultiTexCoord0.xy;
+	gl_Position = gl_ModelViewProjectionMatrix*vertex;
+}

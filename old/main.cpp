@@ -22,15 +22,16 @@
  */
 
 #include "core.h"
-#include <time.h>
+#include "common.h"
 
 canvashdl core;
 keyboardhdl *keys;
 mousehdl *mouse;
-/*objecthdl obj;
-camerahdl cam;*/
+objecthdl obj;
+camerahdl cam;
+userhdl user;
 
-bool windowed = false;
+bool windowed = true;
 int mouse_x = -1;
 int mouse_dx = -1;
 int mouse_y = -1;
@@ -40,21 +41,20 @@ void init()
 {
 	srand(time(0));
 	core.initialize();
-	/*cam.init(0.0, 1.0, 1.0, 0.0, vec4f(1.0, 1.0, 1.0, 1.0), vec4f(), vec4f(), 0.0);
+	cam.init(0.0, 1.0, 1.0, 0.0, vec4f(1.0, 1.0, 1.0, 1.0), vec4f(), vec4f(), 0.0);
 	cam.frustum = frustum4f(-.16, .16, -.1, .1, .2, 1.0E10);
 	user.cam = &cam;
 
 	core.add_child(&cam);
-	core.add_user(&user);*/
-	mouse = core.devices.new_mouse();
-	keys = core.devices.new_keyboard();
+	core.add_user(&user);
+	//mouse = core.devices.new_mouse();
+	//keys = core.devices.new_keyboard();
 
-	mouse->hide();
+	//user.map_analog(&mouse->pointer[0], &vertical);
+	//user.map_analog(&mouse->pointer[1], &horizontal);
+	//user.map_digital(&(((button8hdl*)&keys->keystates)[12]), NULL, &left, NULL, NULL,      &right, &up,  NULL, NULL);
+	//user.map_digital(&(((button8hdl*)&keys->keystates)[14]), NULL, &down, NULL, &backward, NULL,   NULL, NULL, &forward);
 
-	core.player.map_analog(&mouse->pointer[0], &lookv);
-	core.player.map_analog(&mouse->pointer[1], &lookh);
-	core.player.map_digital(&(((button8hdl*)&keys->keystates)[12]), NULL, &left, NULL, NULL,      &right, &up,  NULL, NULL);
-	core.player.map_digital(&(((button8hdl*)&keys->keystates)[14]), NULL, &down, NULL, &backward, NULL,   NULL, NULL, &forward);
 }
 
 void displayfunc()
@@ -70,7 +70,7 @@ void reshape(int w, int h)
 void pmotionfunc(int x, int y)
 {
 	int dx = mouse_x != -1 ? x - mouse_x : 0;
-	int dy = mouse_y != -1 ? y - mouse_y : 0;
+	int dy = mouse_x != -1 ? x - mouse_x : 0;
 	mouse_x = x;
 	mouse_y = y;
 	int d2x = mouse_dx != -1 ? dx - mouse_dx : 0;
@@ -78,22 +78,26 @@ void pmotionfunc(int x, int y)
 	mouse_dx = dx;
 	mouse_dy = dy;
 
+
 	mousehdl *currm = NULL;
-	for (list_node<controllerhdl> *i = core.devices.begin(); i != core.devices.end(); i = i->next)
+	controllerhdl *curr = core.devices.controller_s;
+	while (curr != NULL)
 	{
-		if (i->type == CNTRL_MOUSE)
+		if (curr->type == CNTRL_MOUSE && curr->device == NULL)
 		{
-			currm = (mousehdl*)i;
+			currm = (mousehdl*)curr;
 			currm->pointer[0] = vec3f((float)mouse_y, (float)mouse_dy, (float)d2y);
 			currm->pointer[1] = vec3f((float)mouse_x, (float)mouse_dx, (float)d2x);
 		}
+
+		curr = curr->next;
 	}
 }
 
 void mousefunc(int button, int state, int x, int y)
 {
 	int dx = mouse_x != -1 ? x - mouse_x : 0;
-	int dy = mouse_y != -1 ? y - mouse_y : 0;
+	int dy = mouse_x != -1 ? x - mouse_x : 0;
 	mouse_x = x;
 	mouse_y = y;
 	int d2x = mouse_dx != -1 ? dx - mouse_dx : 0;
@@ -102,11 +106,12 @@ void mousefunc(int button, int state, int x, int y)
 	mouse_dy = dy;
 
 	mousehdl *currm = NULL;
-	for (list_node<controllerhdl> *i = core.devices.begin(); i != core.devices.end(); i = i->next)
+	controllerhdl *curr = core.devices.controller_s;
+	while (curr != NULL)
 	{
-		if (i->type == CNTRL_MOUSE)
+		if (curr->type == CNTRL_MOUSE && curr->device == NULL)
 		{
-			currm = (mousehdl*)i;
+			currm = (mousehdl*)curr;
 			currm->pointer[0] = vec3f((float)mouse_y, (float)mouse_dy, (float)d2y);
 			currm->pointer[1] = vec3f((float)mouse_x, (float)mouse_dx, (float)d2x);
 
@@ -115,13 +120,15 @@ void mousefunc(int button, int state, int x, int y)
 			else if (state == GLUT_UP)
 				currm->release(button - GLUT_LEFT_BUTTON);
 		}
+
+		curr = curr->next;
 	}
 }
 
 void motionfunc(int x, int y)
 {
 	int dx = mouse_x != -1 ? x - mouse_x : 0;
-	int dy = mouse_y != -1 ? y - mouse_y : 0;
+	int dy = mouse_x != -1 ? x - mouse_x : 0;
 	mouse_x = x;
 	mouse_y = y;
 	int d2x = mouse_dx != -1 ? dx - mouse_dx : 0;
@@ -130,43 +137,49 @@ void motionfunc(int x, int y)
 	mouse_dy = dy;
 
 	mousehdl *currm = NULL;
-	for (list_node<controllerhdl> *i = core.devices.begin(); i != core.devices.end(); i = i->next)
+	controllerhdl *curr = core.devices.controller_s;
+	while (curr != NULL)
 	{
-		if (i->type == CNTRL_MOUSE)
+		if (curr->type == CNTRL_MOUSE && curr->device == NULL)
 		{
-			currm = (mousehdl*)i;
+			currm = (mousehdl*)curr;
 			currm->pointer[0] = vec3f((float)mouse_y, (float)mouse_dy, (float)d2y);
 			currm->pointer[1] = vec3f((float)mouse_x, (float)mouse_dx, (float)d2x);
 		}
+
+		curr = curr->next;
 	}
 }
 
 void keydownfunc(unsigned char key, int x, int y)
 {
-	if (key == 27)
-		exit(0);
-
 	keyboardhdl *currm = NULL;
-	for (list_node<controllerhdl> *i = core.devices.begin(); i != core.devices.end(); i = i->next)
+	controllerhdl *curr = core.devices.controller_s;
+	while (curr != NULL)
 	{
-		if (i->type == CNTRL_KEYBOARD)
+		if (curr->type == CNTRL_KEYBOARD && curr->device == NULL)
 		{
-			currm = (keyboardhdl*)i;
+			currm = (keyboardhdl*)curr;
 			currm->press(key);
 		}
+
+		curr = curr->next;
 	}
 }
 
 void keyupfunc(unsigned char key, int x, int y)
 {
 	keyboardhdl *currm = NULL;
-	for (list_node<controllerhdl> *i = core.devices.begin(); i != core.devices.end(); i = i->next)
+	controllerhdl *curr = core.devices.controller_s;
+	while (curr != NULL)
 	{
-		if (i->type == CNTRL_KEYBOARD)
+		if (curr->type == CNTRL_KEYBOARD && curr->device == NULL)
 		{
-			currm = (keyboardhdl*)i;
+			currm = (keyboardhdl*)curr;
 			currm->release(key);
 		}
+
+		curr = curr->next;
 	}
 }
 
@@ -175,38 +188,22 @@ void release()
 	core.release();
 }
 
-struct test_node : ilist_node<test_node>
-{
-	test_node() {}
-	test_node(int x)
-	{
-		i = x;
-	}
-	~test_node(){}
-	int i;
-};
-
-struct test_list : ilist<test_node>
-{
-
-};
-
 int main(int argc, char **argv)
 {
-	/*glutInit(&argc, argv);
+	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
 
 	atexit(release);
 
 	if (windowed)
 	{
-		glutInitWindowSize(1600, 900);
+		glutInitWindowSize(1400, 900);
 		glutInitWindowPosition(0, 0);
 		glutCreateWindow("BGE");
 	}
 	else
 	{
-		glutGameModeString("1600x900:32@60");
+		glutGameModeString("1440x900:32@60");
 		glutEnterGameMode();
 	}
 
@@ -233,13 +230,5 @@ int main(int argc, char **argv)
 	init();
 	glutMainLoop();
 	if (!windowed)
-		glutLeaveGameMode();*/
-
-	test_list x;
-	x.push_back(test_node(10));
-	x.push_back(test_node(7));
-	x.push_back(test_node(2));
-
-	for (test_node *n = x.begin(); n != x.end(); n = n->next)
-		cout << n->i << endl;
+		glutLeaveGameMode();
 }
