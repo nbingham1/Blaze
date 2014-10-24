@@ -8,11 +8,9 @@
  */
 
 #include "Texture.h"
+#include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
-
-using namespace std;
 
 void GetDimensions(const char *filename, long *Width, long *Height)
 {
@@ -31,6 +29,7 @@ void GetDimensions(const char *filename, long *Width, long *Height)
 	//should be image type 2 (color) or type 10 (rle compressed color)
 	if (header[2] != 2 && header[2] != 10)
 	{
+		printf("should be image type 2 (color) or type 10 (rle compressed color)\n");
 		fclose(file);
 		exit(0);
 	}
@@ -149,7 +148,7 @@ void LoadTextData(const char *filename, long *Width, long *Height, rgba_t *T, in
 
 	//Because TGA file store their colors in BGRA format we need to swap the red and blue color components
 	unsigned char temp;
-	while (ctpixel < imageSize)
+	while (ctpixel < imageSize/m_bpp)
 	{
 		temp = T[start + ctpixel].r;
 		T[start + ctpixel].r = T[start + ctpixel].b;
@@ -157,10 +156,11 @@ void LoadTextData(const char *filename, long *Width, long *Height, rgba_t *T, in
 		ctpixel++;
 	}
 
+	printf("open1\n");
+
 	//close file
 	fclose(file);
 }
-
 
 void Texture::SetInfo(char *name, char *type, int depth)
 {
@@ -172,15 +172,15 @@ void Texture::SetInfo(char *name, char *type, int depth)
 void Texture::Load2DTexture(char *filename)
 {
 	Depth = 1;
-	
-	long Width, Height;
+
+	long Width = 1, Height = 1;
 
 	GetDimensions(filename, &Width, &Height);
 	rgba_t source[Width*Height];
-	
+
 	LoadTextData(filename, &Width, &Height, source, 0);
-	
-	GLfloat anistropy;
+
+	//GLfloat anistropy;
 	//glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &anistropy);
 
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
@@ -208,13 +208,13 @@ void Texture::Load2DTexture(char *filename)
 
 void Texture::Load2DTexture()
 {
-	long Width, Height;
+	long Width = 0, Height = 0;
 
 	GetDimensions((string(Name) + "." + string(Filetype)).c_str(), &Width, &Height);
-	rgba_t source[Width*Height];
-	
+	rgba_t *source = new rgba_t[Width*Height];
+
 	LoadTextData((string(Name) + "." + string(Filetype)).c_str(), &Width, &Height, source, 0);
-	
+
 	GLfloat anistrophy;
 	glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &anistrophy);
 
@@ -239,6 +239,8 @@ void Texture::Load2DTexture()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	}
+
+	delete [] source;
 }
 
 void Texture::Load3DTexture(char *name, char *type, int depth)
@@ -246,28 +248,27 @@ void Texture::Load3DTexture(char *name, char *type, int depth)
 	strcpy(Name, name);
 	strcpy(Filetype, type);
 	Depth = depth;
-	
+
 	long Width, Height;
-	
+
 	GetDimensions((string(name) + "0." + string(type)).c_str(), &Width, &Height);
 	rgba_t source[Width*Height*depth];
-	
+
 	char num[5];
-	
+
 	for (int x = 0; x < depth; x++)
 	{
 		sprintf(num, "%d", x);
 		LoadTextData((string(name) + string(num) + "." + string(type)).c_str(), &Width, &Height, source, Height*Width*x);
 	}
-		
+
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	glGenTextures(1, &Map);
 	glBindTexture(GL_TEXTURE_3D, Map);
-	if (LOD)
+	/*if (LOD)
 	{
-		glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, Width, Height, Depth, 0, GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char*)source);
-		glGenerateMipmap(GL_TEXTURE_3D);
+		gluBuild3DMipmaps(GL_TEXTURE_3D, GL_RGBA, Width, Height, Depth, GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char*)source);
 		glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -275,39 +276,38 @@ void Texture::Load3DTexture(char *name, char *type, int depth)
 		glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
 	}
 	else
-	{
+	{*/
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, Width, Height, Depth, 0, GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char*)source);	
-	}	
+		glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, Width, Height, Depth, 0, GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char*)source);
+	//}
 }
 
 void Texture::Load3DTexture()
 {
 	long Width, Height;
-	
+
 	GetDimensions((string(Name) + "0." + string(Filetype)).c_str(), &Width, &Height);
 	rgba_t source[Width*Height*Depth];
-	
+
 	char num[5];
-	
+
 	for (int x = 0; x < Depth; x++)
 	{
 		sprintf(num, "%d", x);
 		LoadTextData((string(Name) + string(num) + "." + string(Filetype)).c_str(), &Width, &Height, source, Height*Width*x);
 	}
-		
+
 	glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 	glPixelStorei(GL_PACK_ALIGNMENT, 1);
 	glGenTextures(1, &Map);
 	glBindTexture(GL_TEXTURE_3D, Map);
-	if (LOD)
+	/*if (LOD)
 	{
-		glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, Width, Height, Depth, 0, GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char*)source);
-		glGenerateMipmap(GL_TEXTURE_3D);
+		gluBuild3DMipmaps(GL_TEXTURE_3D, GL_RGBA, Width, Height, Depth, GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char*)source);
 		glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
 		glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -315,14 +315,14 @@ void Texture::Load3DTexture()
 		glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
 	}
 	else
-	{
+	{*/
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_CLAMP);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-		glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, Width, Height, Depth, 0, GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char*)source);	
-	}	
+		glTexImage3D(GL_TEXTURE_3D, 0, GL_RGBA, Width, Height, Depth, 0, GL_RGBA, GL_UNSIGNED_BYTE, (unsigned char*)source);
+	//}
 }
 
 void Texture::LoadTexture(char *filename, char *type, int depth)

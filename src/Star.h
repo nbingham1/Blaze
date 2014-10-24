@@ -15,19 +15,19 @@
 struct Star
 {
 	string Name;
-	
+
 	Material Coloring;
 	PhsHandle Physics; // Relative to the center of the Solar System
 	GLdouble Radius;
 	GLdouble LightRadius;
-	
+
 	// temperary variables (optimization)
 	GLdouble RadiusSquared;
 	GLdouble LightRadiusSquared;
 	GLdouble BackProjectionDistance;
-	
+
 	camera_reference reference;
-	
+
 	void Load(string name, Camera *r);
 	void Prepare();
 	void Render();

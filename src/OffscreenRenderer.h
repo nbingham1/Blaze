@@ -7,7 +7,7 @@
  *
  */
 
-#include "OpenGLIncludes.h"
+#include "graphics.h"
 
 #ifndef OffscreenRenderer_h
 #define OffscreenRenderer_h
@@ -17,12 +17,12 @@ struct OffscreenRenderer
 	GLuint tex;
 	GLint viewport[4];
 	int width, height;
-	
+
 	void Init(int w, int h);
 	void Release();
-	
+
 	void Bind();
-	GLuint Unbind(); 
+	GLuint Unbind();
 };
 
 #endif

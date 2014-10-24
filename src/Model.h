@@ -10,7 +10,8 @@
 #ifndef Model_h
 #define Model_h
 
-#include "OpenGLIncludes.h"
+#include "graphics.h"
+#include <string.h>
 #include "CoreMathematics.h"
 #include "CorePhysics.h"
 #include "Material.h"
@@ -22,7 +23,7 @@ struct ModelFace
 	int n1, n2, n3;
 	int t1, t2, t3;
 	short MatID;
-	
+
 	ModelFace *Next;
 };
 
@@ -30,7 +31,7 @@ struct ModelEdge
 {
 	int v1, v2;
 	GLdouble RestDistance;
-	
+
 	ModelEdge *Next;
 };
 
@@ -49,31 +50,31 @@ struct Model
 	GLdouble		Texts[2250000];
 	ModelEdge *Edges;
 	ModelFace *Faces;
-	
+
 	ModelFace *Current;
-	
+
 	Vector		Min, Max;
 	GLdouble		Radius;
-	
+
 	Material   *Materials;
-	
+
 	PhsHandle Physics;
-		
+
 	int NumVerts;
 	int NumNorms;
 	int NumTexts;
 	int NumEdges;
 	int NumFaces;
 	int NumMats;
-	
+
 	void AddVert(GLdouble x, GLdouble y, GLdouble z);
 	void AddNorm(GLdouble x, GLdouble y, GLdouble z);
 	void AddText(GLdouble x, GLdouble y, GLdouble z);
 	void AddEdge(ModelEdge *Edge);
 	void AddFace(ModelFace *Face);
-	
+
 	void Move(GLdouble x, GLdouble y, GLdouble z);
-	
+
 	void Render();
 };
 

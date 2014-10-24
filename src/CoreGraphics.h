@@ -6,10 +6,10 @@
  *  Copyright 2006 Sol Gaming. All rights reserved.
  *
  */
- 
+
 #include "CorePhysics.h"
 #include "CoreMathematics.h"
-#include "OpenGLIncludes.h"
+#include "graphics.h"
 
 #ifndef CoreGraphics_h
 #define CoreGraphics_h
@@ -23,10 +23,10 @@ struct CoreGraphics
 	CorePhysics Physics;
 	Camera view;
 	Model viewmod;
-	
+
 	Star s;
 	Planet p;
-	
+
 	void Init();
 	void RenderFrame();
 	void Release();

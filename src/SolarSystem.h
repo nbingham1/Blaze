@@ -17,7 +17,7 @@
 struct SolarSystem
 {
 	string Name;
-	
+
 	PhsHandle Physics; // Relative to the center of the Galaxy
 };
 

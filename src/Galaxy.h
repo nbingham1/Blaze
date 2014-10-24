@@ -15,7 +15,7 @@
 struct Galaxy
 {
 	string Name;
-	
+
 	PhsHandle Physics; // Relative to the center of the Universe
 };
 

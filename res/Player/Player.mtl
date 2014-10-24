@@ -5,6 +5,6 @@ Sp 1.0 1.0 1.0
 Em 0.0 0.0 0.0
 Re 100.0
 Op 1.0
-Vertex Texture.vx
-Fragment Texture.ft
-TextMap GrassSample.tga
+Vertex res/Texture.vx
+Fragment res/Texture.ft
+TextMap res/GrassSample.tga

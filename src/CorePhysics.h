@@ -18,7 +18,7 @@ struct CorePhysics
 	PhsHandle *curr;
 	int num_frame;
 	int start_time;
-	
+
 	void Init();
 	void AddPhsHandle(PhsHandle *phs);
 	void ApplyGlobals();

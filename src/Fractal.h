@@ -10,7 +10,7 @@
 #ifndef Fractal_h
 #define Fractal_h
 
-#include "OpenGLIncludes.h"
+#include "graphics.h"
 #include <math.h>
 #include <time.h>
 #include <stdlib.h>

@@ -1,9 +1,9 @@
-#include "OpenGLIncludes.h"
+#include "graphics.h"
 
 #ifndef Shader_h
 #define Shader_h
 
-GLhandleARB LoadGLSLShader(GLenum ShadeType, const char *SourceFile, char *ErrorLog, int *ErrorLength);
-GLhandleARB LoadGLSLShaderSource(GLenum ShadeType, char *Source, char *ErrorLog, int *ErrorLength);
+GLhandleARB LoadGLSLShader(GLhandleARB ShadeType, const char *SourceFile, char *ErrorLog, int *ErrorLength);
+GLhandleARB LoadGLSLShaderSource(GLhandleARB ShadeType, char *Source, char *ErrorLog, int *ErrorLength);
 
 #endif

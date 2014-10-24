@@ -1,23 +1,31 @@
-/*
- *  Mouse.h
- *  Blaze Game Engine
- *
- *  Created by Ned Bingham on 10/6/06.
- *  Copyright 2006 Sol Gaming. All rights reserved.
- *
- */
+#include "graphics.h"
+#include "Vector.h"
 
-#ifndef Mouse_h
-#define Mouse_h
+#ifndef mouse_h
+#define mouse_h
 
-struct Mouse
+struct mousehdl
 {
-	int current_mouse_x;
-	int current_mouse_y;
-	
-	bool HandleMouseMoved(int x, int y);					// handles mouse movement
-	bool HandleMouseDown(int button, int x, int y);		// handles a mouse click
-	bool HandleMouseUp(int botton, int x, int y);			// handles a mouse release
+	mousehdl();
+	~mousehdl();
+
+	int h;
+	int v;
+	bool warp;
+
+	int sheight;
+	int swidth;
+
+	float speed_mult;
+
+	void init(float speed, int height, int width);
+
+	void setmouseloc(int x, int y);
+	void setmouseloc(Vector v);
+
+	Vector getdelta(int x, int y);
+	Vector getdelta(Vector v);
+
 };
 
 #endif

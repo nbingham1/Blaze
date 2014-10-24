@@ -3,6 +3,6 @@ varying vec2 tex;
 void main()
 {
 	tex = gl_MultiTexCoord0.st;
-	//gl_FogFragCoord = length(gl_Vertex.xyz);
+	gl_FogFragCoord = length(gl_Vertex.xyz);
 	gl_Position = ftransform();
 }

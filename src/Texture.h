@@ -7,7 +7,7 @@
  *
  */
 
-#include "OpenGLIncludes.h"
+#include "graphics.h"
 #include "CoreMathematics.h"
 
 #ifndef Texture_h
@@ -15,6 +15,16 @@
 
 struct rgba_t
 {
+	rgba_t()
+	{
+		r = 0;
+		g = 0;
+		b = 0;
+		a = 0;
+	}
+	~rgba_t()
+	{
+	}
 	unsigned char r;
 	unsigned char g;
 	unsigned char b;
@@ -38,20 +48,20 @@ struct Texture
 	int Depth;
 	bool LOD;
 	GLuint Map;
-	
+
 	void SetInfo(char *name, char *type, int depth);
-	
+
 	void Load2DTexture(char *filename);
 	void Load2DTexture();
-	
+
 	void Load3DTexture(char *name, char *type, int depth);
 	void Load3DTexture();
-	
+
 	void LoadTexture(char *filename, char *type, int depth);
 	void LoadTexture();
-	
+
 	void Release();
-	
+
 	Texture *Next;
 };
 

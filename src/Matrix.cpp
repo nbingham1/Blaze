@@ -45,7 +45,7 @@ void Inverse(Matrix M)
 		i[x] = 0;
 	for (int x = 0; x < 4; x++)
 		i[x*5] = 1;
-	
+
 	for (int x = 0; x < 4; x++)
 		for (int y = 0; y < 4; y++)
 			if (x != y)
@@ -58,7 +58,7 @@ void Inverse(Matrix M)
 		ScaleRow(i, x, GLdouble(1/M[(x*4) + x]));
 		ScaleRow(M, x, GLdouble(1/M[(x*4) + x]));
 	}
-	
+
 	SetMatrix(i, M);
 }
 
@@ -66,7 +66,7 @@ void Transpose(Matrix M)
 {
 	Matrix m;
 	SetMatrix(M, m);
-	
+
 	for (int x = 0; x < 4; x++)
 		for (int y = 0; y < 4; y++)
 			M[(x*4) + y] = m[(y*4) + x];

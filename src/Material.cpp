@@ -12,8 +12,6 @@
 void Material::Init()
 {
 	textures = NULL;
-	curr = NULL;
-	Next = NULL;
 }
 
 void Material::AddTexture(char *name, char *type, int depth)
@@ -54,27 +52,24 @@ void Material::AddTexture(GLuint tex)
 
 void Material::Load(char *vert, char *frag)
 {
-	printf("loading shaders...\n");
 	int TextLen;
 	char ErrText[256];
-	
+
 	TextLen = 256;
 	VertShad = LoadGLSLShader(GL_VERTEX_SHADER_ARB, vert, ErrText, &TextLen);
-	//if(!VertShad || TextLen > 0)
-	//{
-	//	cout << "Vertex Error: ";
-		cout << ErrText << endl;
-	//	exit(0);
-	//}
+	if(!VertShad || TextLen > 0)
+	{
+		cout << ErrText;
+		//exit(0);
+	}
 
 	TextLen = 256;
 	FragShad = LoadGLSLShader(GL_FRAGMENT_SHADER_ARB, frag, ErrText, &TextLen);
-	//if(!FragShad || TextLen > 0)
-	//{
-	//	cout << "Fragment Error: ";
-		cout << ErrText << endl;
-	//	exit(0);
-	//}
+	if(!FragShad || TextLen > 0)
+	{
+		cout << ErrText;
+		//exit(0);
+	}
 
 	ShadProg = glCreateProgramObjectARB();
 	glAttachObjectARB(ShadProg, VertShad);
@@ -84,25 +79,24 @@ void Material::Load(char *vert, char *frag)
 
 void Material::Load()
 {
-	printf("loading shaders...\n");
 	int TextLen;
 	char ErrText[128];
-	
+
 	TextLen = 128;
 	VertShad = LoadGLSLShader(GL_VERTEX_SHADER_ARB, Vert, ErrText, &TextLen);
-	//if(!VertShad || TextLen > 0)
-	//{
-		cout << ErrText << endl;
-	//	exit(0);
-	//}
+	if(!VertShad || TextLen > 0)
+	{
+		cout << ErrText;
+		//exit(0);
+	}
 
 	TextLen = 128;
 	FragShad = LoadGLSLShader(GL_FRAGMENT_SHADER_ARB, Frag, ErrText, &TextLen);
-	//if(!FragShad || TextLen > 0)
-	//{
-		cout << ErrText << endl;
-	//	exit(0);
-	//}
+	if(!FragShad || TextLen > 0)
+	{
+		cout << ErrText;
+		//exit(0);
+	}
 
 	ShadProg = glCreateProgramObjectARB();
 	glAttachObjectARB(ShadProg, VertShad);
@@ -132,7 +126,7 @@ void Material::Use()
 		x++;
 		curr = curr->Next;
 	}
-	
+
 	glUseProgramObjectARB(ShadProg);
 }
 
@@ -147,7 +141,7 @@ void Material::ReleaseTextures()
 		free(Prev);
 		Prev = NULL;
 	}
-	
+
 	textures = NULL;
 }
 
@@ -161,7 +155,7 @@ void Material::Release()
 		Prev->Release();
 		free(Prev);
 	}
-	
+
 	glDeleteObjectARB(VertShad);
 	glDeleteObjectARB(FragShad);
 	glDeleteObjectARB(ShadProg);

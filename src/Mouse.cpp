@@ -1,60 +1,69 @@
-/*
- *  Mouse.cpp
- *  Blaze Game Engine
- *
- *  Created by Ned Bingham on 10/6/06.
- *  Copyright 2006 Sol Gaming. All rights reserved.
- *
- */
+#include "mouse.h"
+#include <stdlib.h>
+#include <stdio.h>
 
-#include "Mouse.h"
-#include "CoreGraphics.h"
-
-extern CoreGraphics Renderer;
-
-bool Mouse::HandleMouseDown(int button, int x, int y)
+mousehdl::mousehdl()
 {
-    switch (button)
-    {
-    case GLUT_LEFT_BUTTON:
-    	break;
-    case GLUT_RIGHT_BUTTON:
-    	break;
-    case GLUT_MIDDLE_BUTTON:
-    	break;
-    }
-
-    return true;
+	warp = false;
+	h = 0;
+	v = 0;
+	swidth = 0;
+	sheight = 0;
+	speed_mult = 0;
+	speed_mult = 1.0;
 }
 
-bool Mouse::HandleMouseUp(int button, int x, int y)
+mousehdl::~mousehdl()
 {
-    switch (button)
-    {
-    case GLUT_LEFT_BUTTON:
-    	break;
-    case GLUT_RIGHT_BUTTON:
-    	break;
-    case GLUT_MIDDLE_BUTTON:
-    	break;
-    }
-
-    return true;
 }
 
-bool Mouse::HandleMouseMoved(int x, int y)
+void mousehdl::init(float speed, int height, int width)
 {
-	Renderer.view.Rotate(double(y - current_mouse_y)/5, double(x - current_mouse_x)/5, 0.0);
+	speed_mult = speed;
+	sheight = height;
+	swidth = width;
 
-	current_mouse_x = x;
-	current_mouse_y = y;
-	
-	if (current_mouse_x > 1200 || current_mouse_x < 200 || current_mouse_y > 700 || current_mouse_y < 200)
+	setmouseloc(swidth/2, sheight/2);
+	warp = false;
+}
+
+void mousehdl::setmouseloc(int x, int y)
+{
+	h = x;
+	v = y;
+	glutWarpPointer(x, y);
+	warp = true;
+}
+
+void mousehdl::setmouseloc(Vector v)
+{
+	h = (int)v.x;
+	this->v = (int)v.y;
+	glutWarpPointer((int)v.x, (int)v.y);
+	warp = true;
+}
+
+Vector mousehdl::getdelta(int x, int y)
+{
+	Vector mov(speed_mult*GLdouble(y - v)/GLdouble(sheight), speed_mult*GLdouble(x - h)/GLdouble(swidth), 0.0);
+
+	v = y;
+	h = x;
+	if (!warp)
+		return mov;
+	else
 	{
-		glutWarpPointer(700, 450);
-		current_mouse_x = 700;
-		current_mouse_y = 450;
+		warp = false;
+		return Vector();
 	}
-	
-    return true;
+}
+
+Vector mousehdl::getdelta(Vector v)
+{
+	Vector mov(speed_mult*GLdouble(v.y - this->v)/GLdouble(sheight), speed_mult*GLdouble(v.x - h)/GLdouble(swidth), 0.0);
+
+	this->v = v.y;
+	h = v.x;
+
+	return mov;
 }

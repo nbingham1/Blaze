@@ -1,30 +1,14 @@
-/*
- *  Keyboard.h
- *  Blaze Game Engine
- *
- *  Created by Ned Bingham on 10/6/06.
- *  Copyright 2006 Sol Gaming. All rights reserved.
- *
- */
+#ifndef keyboard_h
+#define keyboard_h
 
-#ifndef Keyboard_h
-#define Keyboard_h
-
-struct Keyboard
+struct keyboardhdl
 {
-	Keyboard()
-	{
-		for (int x = 0; x < 256; x++)
-		{
-			KeyState[x] = false;
-		}
-	}
-	
-	bool KeyState[256];
-	
-	bool HandleKeyDown(unsigned char key);				// handles key down events
-	bool HandleKeyUp(unsigned char key);				// handles key up events
-	void	 HandleKeyStillDown();						// handles key held down events
+	keyboardhdl();
+
+	bool keystates[256];
+
+	void keydown(unsigned char key);
+	void keyup(unsigned char key);
 };
 
 #endif

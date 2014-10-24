@@ -26,11 +26,11 @@ void Camera::Move(Vector v)
 	if (Host)
 	{
 		if (movementtype == 2)
-			Host->Physics.SumForces += move_mult*(v.z*RotateY(RotateZ(RotateZ(RotateY(Vector(0.0, 0.0, -1.0), v1.y), v1.z), p.z), p.y) + 
-										v.x*RotateY(RotateZ(RotateZ(RotateY(Vector(1.0, 0.0, 0.0), v1.y), v1.z), p.z), p.y) + 
+			Host->Physics.SumForces += move_mult*(v.z*RotateY(RotateZ(RotateZ(RotateY(Vector(0.0, 0.0, -1.0), v1.y), v1.z), p.z), p.y) +
+										v.x*RotateY(RotateZ(RotateZ(RotateY(Vector(1.0, 0.0, 0.0), v1.y), v1.z), p.z), p.y) +
 										v.y*RotateY(RotateZ(RotateZ(RotateY(Vector(0.0, 1.0, 0.0), v1.y), v1.z), p.z), p.y));
 		else if (movementtype == 3)
-			Host->Physics.SumForces += move_mult*(v.z*RotateX(RotateY(RotateZ(RotateZ(RotateY(RotateX(Vector(0.0, 0.0, -1.0), v1.x), v1.y), v1.z), p.z), p.y), p.x) + 
+			Host->Physics.SumForces += move_mult*(v.z*RotateX(RotateY(RotateZ(RotateZ(RotateY(RotateX(Vector(0.0, 0.0, -1.0), v1.x), v1.y), v1.z), p.z), p.y), p.x) +
 										v.x*RotateX(RotateY(RotateZ(RotateZ(RotateY(RotateX(Vector(1.0, 0.0, 0.0), v1.x), v1.y), v1.z), p.z), p.y), p.x));
 	}
 	else
@@ -44,7 +44,7 @@ void Camera::Rotate(GLdouble x, GLdouble y, GLdouble z)
 	Orientation.z += z;
 	if (Orientation.x >= 90)
 		Orientation.x = 90;
-	
+
 	else if (Orientation.x <= -80)
 		Orientation.x = -80;
 }
@@ -56,7 +56,7 @@ void Camera::Rotate(Vector v)
 	Orientation.z += v.z;
 	if (Orientation.x >= 90)
 		Orientation.x = 90;
-	
+
 	else if (Orientation.x <= -80)
 		Orientation.x = -80;
 }
@@ -67,7 +67,7 @@ void Camera::Translate(GLdouble x, GLdouble y, GLdouble z)
 
     Position.x += x*cos(pi/180 * Orientation.y) + z*cos(pi/180 * (Orientation.y-90));
 	Position.z += x*sin(pi/180 * Orientation.y) + z*sin(pi/180 * (Orientation.y-90));
-	
+
 	if (Host != NULL && Control)
 		Host->Move(x*cos(pi/180 * Orientation.y) + z*cos(pi/180 * (Orientation.y-90)), y, x*sin(pi/180 * Orientation.y) + z*sin(pi/180 * (Orientation.y-90)));
 }
@@ -96,12 +96,11 @@ void Camera::Render()
     glRotated(Orientation.y, 0, 1, 0);
     glRotated(Orientation.z, 0, 0, 1);
 	glTranslated(-DistanceFromHost.x, -DistanceFromHost.y, -DistanceFromHost.z);
-	
+
 	glScalef(.1, .1, .1);
-	if (Host != NULL)
-		RenderMdl(Host);
+	RenderMdl(Host);
 	glScalef(10.0, 10.0, 10.0);
-	
+
 	if (Host != NULL)
 	{
 		glRotated(Host->Physics.Orientation.z, 0, 0, -1);

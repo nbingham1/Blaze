@@ -21,7 +21,7 @@ struct Quaternion
 		z = 0.0;
 		w = 0.0;
 	}
-	
+
 	Quaternion(double a, double b, double c, double d)
 	{
 		x = a;
@@ -29,9 +29,9 @@ struct Quaternion
 		z = c;
 		w = d;
 	}
-	
+
 	double x, y, z, w;
-	
+
 	Quaternion &operator =(Quaternion q);
 };
 

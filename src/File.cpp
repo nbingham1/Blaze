@@ -60,10 +60,10 @@ char* better_fgets(char *line, int len, FILE *in_file)
 char* string_to_char(string value)
 {
 	char *result = new char[value.length() + 1];
-	
+
 	value.copy(result, value.length());
 	result[value.length()] = '\0';
-	
+
 	return result;
 }
 

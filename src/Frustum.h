@@ -23,7 +23,7 @@ struct Frustum
 	Vector *Orientation;
 	GLdouble front, back, right, left, top, bottom;
 	Vector Vertices[8];
-	
+
 	void Set(GLdouble f, GLdouble b, GLdouble r, GLdouble l, GLdouble t, GLdouble bo);
 	//void AttachFrustumToEntity();
 };

@@ -30,19 +30,19 @@ void PhsHandle::ApplyForce(Vector mag, Vector pos)
 	Force f;
 	f.Magnitude = mag;
 	f.AppliedPos = pos;
-	
+
 	SumForces += f.Magnitude;
 	SumTorques += f.ToTorque();
 }
-	
+
 void PhsHandle::UpdateLinear()
 {
 	LinearAccelaration = SumForces/Mass;
 	LinearVelocity += LinearAccelaration;
 	Position += LinearVelocity;
-	
+
 	LinearMomentum = Momentum(Mass, LinearVelocity);
-	
+
 	SumForces = Vector();
 }
 
@@ -51,9 +51,9 @@ void PhsHandle::UpdateAngular()
 	AngularAccelaration = SumTorques/Inertia;
 	AngularVelocity += AngularAccelaration;
 	Orientation += AngularVelocity;
-	
+
 	AngularMomentum = Momentum(Inertia, AngularVelocity);
-	
+
 	SumTorques = Vector();
 }
 
@@ -104,14 +104,14 @@ void PhsHandle::Disable()
 void Gravity(PhsHandle *h1, PhsHandle *h2, GLfloat spf)
 {
 	Force f;
-	f.AppliedPos = Vector(0.0, 0.0, 0.0);	
+	f.AppliedPos = Vector(0.0, 0.0, 0.0);
 	double d = Distance(h1->Position, h2->Position);
-		
+
 	if (d == 0)
 		f.Magnitude = Vector();
 	else
 		f.Magnitude = spf*spf*(h2->Position - h1->Position)*G*h1->Mass*h2->Mass/(d*d*d);
-		
+
 	h1->ApplyForce(f);
 	f.Magnitude *= -1.0;
 	h2->ApplyForce(f);
@@ -124,7 +124,7 @@ void Collide(PhsHandle *h1, PhsHandle *h2)
 	f2.AppliedPos = Normalize(h1->Position - h2->Position)*h2->Radius;
 	f1.Magnitude = h2->Elasticity*h1->Elasticity*(h2->LinearMomentum - h1->LinearMomentum);
 	f2.Magnitude = h2->Elasticity*h1->Elasticity*(h1->LinearMomentum - h2->LinearMomentum);
-	
+
 	h1->ApplyForce(f1);
 	h2->ApplyForce(f2);
 }

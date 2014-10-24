@@ -10,18 +10,17 @@
 #ifndef File_h
 #define File_h
 
-#include "OpenGLIncludes.h"
+#include "graphics.h"
 #include "CoreMathematics.h"
 #include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 
 using namespace std;
 
 struct CoreFile
 {
 	FILE *file;
-	
+
 	void Open(const char *filename);
 	void Close();
 };

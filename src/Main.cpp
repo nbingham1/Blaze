@@ -1,41 +1,46 @@
-/*
- *  Main.cpp
- *  Blaze Game Engine
- *
- *  Created by Ned Bingham on 10/2/06.
- *  Copyright 2006 Sol Gaming. All rights reserved.
- *
- */
+#include "graphics.h"
+#include "standard.h"
 
 #include "CoreGraphics.h"
-#include "Keyboard.h"
-#include "Mouse.h"
 
-CoreGraphics		Renderer;		// Handles all of the OpenGL rendering
-Keyboard		KeyboardHandler;// Handles all keyboard input events
-Mouse			MouseHandler;	// Handles all mouse input events
+#include "keyboard.h"
+#include "mouse.h"
 
-bool windowed = false;
+CoreGraphics renderer;
+keyboardhdl keys;
+mousehdl mouse;
 
-void init()
+void initialize()
 {
 	glClearColor(0.0, 0.0, 0.0, 0.0);
-	glViewport(0, 0, 1440, 900);
-	Renderer.Init();
-	glLoadIdentity();
-	// initialize anything you need to here
 
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);		// Clears the back buffer
-	glutSwapBuffers();								// Switches the front and back buffers
+	mouse.init(200.0, 900, 1600);
+	renderer.Init();
 }
 
 void displayfunc()
 {
-	KeyboardHandler.HandleKeyStillDown();				// Checks for keys that are being held down
+	if (keys.keystates['w'])
+		renderer.view.Move(Vector(0.0, 0.0, 0.001));
+	if (keys.keystates['a'])
+		renderer.view.Move(Vector(-0.001, 0.0, 0.0));
+	if (keys.keystates['s'])
+		renderer.view.Move(Vector(0.0, 0.0, -0.001));
+	if (keys.keystates['d'])
+		renderer.view.Move(Vector(0.001, 0.0, 0.0));
+	if (keys.keystates['e'])
+		renderer.view.Move(Vector(0.0, 0.001, 0.0));
+	if (keys.keystates['q'])
+		renderer.view.Move(Vector(0.0, -0.001, 0.0));
+	if (keys.keystates['.'])
+		renderer.view.move_mult *= 2.0;
+	if (keys.keystates[','])
+		renderer.view.move_mult *= .5;
+	if (keys.keystates['z'])
+		renderer.view.Host->Physics.LinearVelocity = Vector(0.0, 0.0, 0.0);
 
-	Renderer.RenderFrame();
-
-	glutSwapBuffers();							// Swaps the front and back buffers
+	renderer.RenderFrame();
+	glutSwapBuffers();
 }
 
 void reshape(int w, int h)
@@ -45,39 +50,39 @@ void reshape(int w, int h)
 
 void pmotionfunc(int x, int y)
 {
-	MouseHandler.HandleMouseMoved(x, y);
+	renderer.view.Rotate(mouse.getdelta(x, y));
+
+	if (mouse.v > 900*3/4 || mouse.v < 900*1/4 || mouse.h > 1600*3/4 || mouse.h < 1600*1/4)
+		mouse.setmouseloc(1600/2, 900/2);
 }
 
 void mousefunc(int button, int state, int x, int y)
 {
-	if (state == GLUT_DOWN)
-		MouseHandler.HandleMouseDown(button, x, y);
-	else if (state == GLUT_UP)
-		MouseHandler.HandleMouseUp(button, x, y);
 }
 
 void motionfunc(int x, int y)
 {
-	MouseHandler.HandleMouseMoved(x, y);
-	MouseHandler.HandleMouseDown(0, x, y);
+	renderer.view.Rotate(mouse.getdelta(x, y));
+
+	if (mouse.v > 900*3/4 || mouse.v < 900*1/4 || mouse.h > 1600*3/4 || mouse.h < 1600*1/4)
+		mouse.setmouseloc(1600/2,900/2);
 }
 
 void keydownfunc(unsigned char key, int x, int y)
 {
-	if (key == 27)
+	if (key == 'u')
 		exit(0);
-
-	KeyboardHandler.HandleKeyDown(key);
+	keys.keydown(key);
 }
 
 void keyupfunc(unsigned char key, int x, int y)
 {
-	KeyboardHandler.HandleKeyUp(key);
+	keys.keyup(key);
 }
 
 void release()
 {
-	Renderer.Release();
+	renderer.Release();
 }
 
 int main(int argc, char **argv)
@@ -86,18 +91,8 @@ int main(int argc, char **argv)
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
 
 	atexit(release);
-
-	if (windowed)
-	{
-		glutInitWindowSize(1600, 900);
-		glutInitWindowPosition(0, 0);
-		glutCreateWindow("BGE");
-	}
-	else
-	{
-		glutGameModeString("1440x900:32@60");
-		glutEnterGameMode();
-	}
+	glutGameModeString("1600x900@60");
+	glutEnterGameMode();
 
 	GLenum err = glewInit();
 	if (GLEW_OK != err)
@@ -106,15 +101,6 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 	fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
-
-	if (GLEW_ARB_vertex_program)
-		fprintf(stdout, "Status: ARB vertex programs available.\n");
-
-	if (glewGetExtension("GL_ARB_fragment_program"))
-		fprintf(stdout, "Status: ARB fragment programs available.\n");
-
-	if (glewIsSupported("GL_VERSION_1_4  GL_ARB_point_sprite"))
-		fprintf(stdout, "Status: ARB point sprites available.\n");
 
 	glutReshapeFunc(reshape);
 	glutDisplayFunc(displayfunc);
@@ -127,8 +113,7 @@ int main(int argc, char **argv)
 
 	glutSetCursor(GLUT_CURSOR_NONE);
 
-	init();
+	initialize();
 	glutMainLoop();
-	if (!windowed)
-		glutLeaveGameMode();
+	glutLeaveGameMode();
 }

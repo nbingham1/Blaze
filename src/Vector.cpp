@@ -115,13 +115,13 @@ Vector AngleBetween(Vector v1, Vector v2)
 {
 	GLdouble a = acos(Dot(v1, v2));
 	Vector n = Normalize(Cross(v1, v2));
-
+	
 	Vector result;
-
+	
 	result.y = atan2(n.y*sin(a)-n.x*n.z*(1.0-cos(a)), 1.0-(n.y*n.y+n.z*n.z)*(1.0-cos(a)));
 	result.z = asin(n.x*n.y*(1.0-cos(a))+n.z*sin(a));
 	result.x = atan2(n.x*sin(a)-n.y*n.z*(1.0-cos(a)), 1.0-(n.x*n.x+n.z*n.z)*(1.0-cos(a)));
-
+	
 	if (n.y == 1.0)
 	{
 		result.y = 2.0*atan2(n.x*sin(a/2.0), cos(a/2.0));
@@ -134,6 +134,6 @@ Vector AngleBetween(Vector v1, Vector v2)
 		result.z = -3.1415926535898;
 		result.x = 0;
 	}
-
+		
 	return result;
 }

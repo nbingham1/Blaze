@@ -10,7 +10,7 @@
 #ifndef Matrix_h
 #define Matrix_h
 
-#include "OpenGLIncludes.h"
+#include "graphics.h"
 #include <math.h>
 
 typedef GLdouble Matrix[16];

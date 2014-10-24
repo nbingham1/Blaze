@@ -12,25 +12,25 @@
 
 #include "Texture.h"
 #include "Shader.h"
-#include "OpenGLIncludes.h"
+#include "graphics.h"
 #include "File.h"
 
 struct Material
 {
 	char Name[32];
-	
+
 	Texture *textures;
 	Texture *curr;
-	
+
 	GLhandleARB VertShad;
 	GLhandleARB FragShad;
 	GLhandleARB ShadProg;
 	char Vert[255];
 	char Frag[255];
-	
-	
+
+
 	Material *Next;
-	
+
 	void Init();
 	void AddTexture(char *name, char *type, int depth);
 	void AddTexture(GLuint tex);
@@ -39,7 +39,7 @@ struct Material
 	void Use();
 	void Release();
 	void ReleaseTextures();
-	
+
 	void ImportNumber(GLdouble n, char *name);
 	void ImportVector(Vector v, char *name);
 };

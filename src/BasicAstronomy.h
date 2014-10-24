@@ -10,7 +10,7 @@
 #ifndef BasicAstronomy_h
 #define BasicAstronomy_h
 
-#include "OpenGLIncludes.h"
+#include "graphics.h"
 #include "CorePhysics.h"
 #include "Material.h"
 #include "Camera.h"
@@ -34,12 +34,12 @@ struct camera_reference
 	GLdouble scale;
 	GLdouble visualangle;
 	GLdouble ground_height;
-	
+
 	Vector vp_vis;
 	GLdouble vp_dist;
-	
+
 	PhsHandle *body_physics;
-	
+
 	void Initialize(Camera *c, PhsHandle *phs);
 	void Update();
 	void UpdateScale();

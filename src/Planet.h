@@ -2,88 +2,100 @@
  *  Planet.h
  *  Infinity Game Engine
  *
- *  Created by Ned Bingham on 2/17/08.
- *  Copyright 2008 __MyCompanyName__. All rights reserved.
+ *  Created by Ned Bingham on 11/24/07.
+ *  Copyright 2007 __MyCompanyName__. All rights reserved.
  *
  */
+
+#include "graphics.h"
+#include "OffscreenRenderer.h"
+#include "CoreMathematics.h"
+#include "CorePhysics.h"
+#include "Shader.h"
+#include "Material.h"
+#include "Model.h"
+#include "Camera.h"
 
 #ifndef Planet_h
 #define Planet_h
 
-#include "BasicAstronomy.h"
-#include "Material.h"
+#define node_size 32
+#define tex_size 64
+#define node_tex_radio GLdouble(node_size-1)/GLdouble(tex_size)
 
-// Verts per node
-#define vpn 32
-// Pixels per node
-#define ppn 128
-// vpn/ppn
-#define ppn_into_vpn GLdouble(vpn-1)/GLdouble(ppn)
-
-enum terra_type
+struct ReferenceInformation
 {
-	height,
-	three_shift
+	Camera *ReferencePoint;
+	Vector vec1, vec2;
+	GLdouble x_angle, y_angle,
+			 nx_angle, ny_angle;
+	GLdouble distance;
+	GLdouble ndistance;
+	GLdouble visualangle, visualangle1;
+	void *planet;
+
+	void Update(void *planet);
 };
 
-struct QuadTreeNode
+struct planet_node
 {
-	GLdouble *verts;
-	terra_type *type;
-	
-	GLdouble *liquid_verts;
-	
-	Material mat;
-	
-	GLdouble x_size, longitude, // rads
-			 y_size, latitude; // rads
-	
-	QuadTreeNode *data_start;
-	GLdouble *planet_minimum;
-	GLdouble *planet_maximum;
-	
-	Vector half_vec;
-	
-	GLdouble minimum;
-	GLdouble maximum;
-	GLdouble average;
-	
-	bool rend;
-	
-	GLdouble radius; //  meters
-	
-	QuadTreeNode *children;
-	QuadTreeNode *parent;
-	
-	void Load(int seed, GLdouble rad, terra_type *t);
-	
-	void LODCheck(camera_reference *info);
-	void Split();
-	void Merge();
-	void MakeTexture();
-	
-	void Render(GLdouble *texts, unsigned int *indices, camera_reference *info);
-	void Release();
-	
-	GLdouble GetGroundHeight(GLdouble longitude, GLdouble latitude);
+	int seed;
+	GLdouble *heights; // meters
+	Material material;
+	GLfloat percent_loaded;
+	GLdouble foglimit;
+
+	GLdouble x_size, x_angle, // rads
+			 y_size, y_angle; // rads
+
+	GLdouble radius, //  meters
+			 average, // meters
+			 minimum, // meters
+			 maximum; // meters
+
+	planet_node *parent;
+	planet_node *children;
+
+	void load(int sd, ReferenceInformation *reference);
+	void destroy();
+
+	void split(ReferenceInformation *reference);
+	void merge();
+
+	void determine_lod(ReferenceInformation *reference);
+	void renderheights(ReferenceInformation *reference);
+	void renderwater(ReferenceInformation *reference);
+	void rendersky(ReferenceInformation *reference, GLdouble scale, GLdouble angle);
+	GLdouble get_height(ReferenceInformation *reference);
+	GLdouble get_minimum(GLdouble curr);
+	GLdouble get_maximum(GLdouble curr);
+	void CreateTextureMap(int a, int b, ReferenceInformation *reference);
 };
 
 struct Planet
 {
 	string Name;
-	
-	QuadTreeNode *vert_data;
-	terra_type type;
-	
-	PhsHandle Physics; // Relative to the center of the Solar System
-	GLdouble Radius; // meters
-	
-	GLdouble *node_texts;
-	unsigned int *node_indices;
-	
-	camera_reference player_info;
-	
-	void Load(string name, Camera *view);
+	planet_node data;
+	PhsHandle Physics;
+	Material Water;
+ 	Material Sky;
+	Material Shell;
+
+	GLdouble sky_angle;
+
+	GLdouble AtmosphereScale;
+	GLfloat AtmosphereDensity;
+	Vector AtmosphereColor;
+
+	Vector OceanColor;
+
+	GLdouble maximum;
+	GLdouble radius;
+	GLdouble minimum;
+
+	ReferenceInformation referencepoint;
+
+	void Load(string Name, Camera *reference);
 	void Prepare();
 	void Render();
 	void Release();

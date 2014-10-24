@@ -11,7 +11,7 @@
 #define Vector_h
 
 #include "Matrix.h"
-#include "OpenGLIncludes.h"
+#include "graphics.h"
 
 #include <math.h>
 
@@ -23,21 +23,21 @@ struct Vector
 	Vector(GLfloat *arr);
 	Vector();
 	~Vector();
-	
+
 	GLdouble x, y, z;
-	
+
 	Vector &operator =(Vector v);
-	
+
 	Vector &operator +=(Vector v);
 	Vector &operator -=(Vector v);
 	Vector &operator *=(Vector v);
 	Vector &operator /=(Vector v);
-	
+
 	Vector &operator +=(GLdouble f);
 	Vector &operator -=(GLdouble f);
 	Vector &operator *=(GLdouble f);
 	Vector &operator /=(GLdouble f);
-	
+
 	Vector &operator +=(GLfloat f1);
 	Vector &operator -=(GLfloat f1);
 	Vector &operator *=(GLfloat f1);
@@ -171,7 +171,7 @@ inline Vector abs(Vector v)
 		r.y = v.y*-1;
 	if (v.z < 0.0)
 		r.z = v.z*-1;
-	
+
 	return r;
 }
 
@@ -224,7 +224,7 @@ inline void EulertoMatrix(Vector e, Matrix m)
 {
 	GLdouble c1 = cos(e.x), c2 = cos(e.y), c3 = cos(e.z);
 	GLdouble s1 = sin(e.x), s2 = sin(e.y), s3 = sin(e.z);
-	
+
 	m[0] = c2*c1;
 	m[1] = s1;
 	m[2] = -s2*c1;

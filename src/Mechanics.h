@@ -16,7 +16,7 @@ struct Force
 {
 	Vector Magnitude;
 	Vector AppliedPos;
-	
+
 	Vector ToTorque();
 };
 
