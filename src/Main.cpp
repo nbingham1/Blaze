@@ -15,7 +15,7 @@ CoreGraphics		Renderer;		// Handles all of the OpenGL rendering
 Keyboard		KeyboardHandler;// Handles all keyboard input events
 Mouse			MouseHandler;	// Handles all mouse input events
 
-bool windowed = true;
+bool windowed = false;
 
 void init()
 {
