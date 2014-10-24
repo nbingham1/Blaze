@@ -1,0 +1,8 @@
+varying vec3  vertexdir;
+
+void main()
+{
+	vertexdir = normalize(gl_Vertex.xyz);
+	
+	gl_Position = ftransform();
+}

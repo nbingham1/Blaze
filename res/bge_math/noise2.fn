@@ -1,0 +1,53 @@
+vec3 noise2D(vec2 p, float radius)
+{
+	int bx0, bx1, by0, by1, b00, b10, b01, b11, i, j;
+	float rx0, rx1, ry0, ry1, t;
+	float k0, k1, k2, k3;
+	float a, b, c, d;
+	float u, v, du, dv;
+	vec3 q;
+	
+	t = p.x + radius;
+    bx0 = int(t) & (noise_size-1);
+	bx1 = (bx0+1) & (noise_size-1);
+    rx0 = t - floor(t);
+    rx1 = rx0 - 1.0;
+
+	t = p.y + radius;
+	by0 = int(t) & (noise_size-1);
+    by1 = (by0+1) & (noise_size-1);
+    ry0 = t - floor(t);
+    ry1 = ry0 - 1.0;
+
+	u = rx0*rx0*rx0*(rx0*(rx0*6.0f-15.0f)+10.0f);
+	v = ry0*ry0*ry0*(ry0*(ry0*6.0f-15.0f)+10.0f);
+	du = 30.0f*rx0*rx0*(rx0 * (rx0 - 2.0f) + 1.0f);
+  	dv = 30.0f*ry0*ry0*(ry0 * (ry0 - 2.0f) + 1.0f);
+	
+	i = int(pg2[bx0].x);
+	j = int(pg2[bx1].x);
+	
+	b00 = int(pg2[(i + by0) & (noise_size-1)].x);
+	b10 = int(pg2[(j + by0) & (noise_size-1)].x);
+	b01 = int(pg2[(i + by1) & (noise_size-1)].x);
+	b11 = int(pg2[(j + by1) & (noise_size-1)].x);
+	
+	q = pg2[(b00 + bz0) & (noise_size-1)];
+	a = rx0*q.y + ry0*q.z;
+	q = pg2[(b10 + bz0) & (noise_size-1)];
+	b = rx1*q.y + ry0*q.z;
+	
+	q = pg2[(b01 + bz0) & (noise_size-1)];
+	c = rx0*q.y + ry1*q.z;
+	q = pg2[(b11 + bz0) & (noise_size-1)];
+	d = rx1*q.y + ry1*q.z;
+	
+	k0 =  a;
+	k1 =  b - a;
+	k2 =  c - a;
+	k3 =  a - b - c + d;
+	
+	return vec4(k0 + k1*u + k2*v + k3*u*v, 
+				du * (k1 + k3*v), 
+				dv * (k2 + k3*u));
+}

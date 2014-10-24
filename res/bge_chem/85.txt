@@ -1,0 +1,11 @@
+Symbol: At
+Atomic Number: 85
+Atomic Mass: 210.000000
+Start Spectral Index: 1
+1 2
+End Spectral Index:
+Order of Magnitude: 0.000001
+Start Spectral Lines:
+1 0.216293
+1 0.224471
+End Spectral Lines:

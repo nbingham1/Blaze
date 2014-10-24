@@ -1,99 +1,62 @@
-#include "graphics.h"
-#include "standard.h"
+#include "bge_mtrl.h"
+#include "bge_input.h"
+#include "bge_core.h"
+#include "common.h"
 
-#include "renderer.h"
-
-#include "keyboard.h"
-#include "mouse.h"
-
-renderhdl renderer;
+canvashdl core;
 keyboardhdl keys;
 mousehdl mouse;
 
+bool windowed = false;
+
 void init()
 {
-	glEnable(GL_ALPHA_TEST);
-		glAlphaFunc(GL_GEQUAL, 0.05);
-	glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_DEPTH_TEST);
-		glDepthFunc(GL_LEQUAL);
-		glClearDepth(1.5);
-
-	glEnable(GL_CULL_FACE);
-	{
-		glFrontFace(GL_CCW);
-		glCullFace(GL_BACK);
-	}
-
-	glClearColor(0.0, 0.0, 0.0, 0.0);
-
-	renderer.init();
-	noiseinit();
-
-	mouse.init(200.0, renderer.display.height, renderer.display.width);
+	srand(time(0));
+	mouse.init(200.0, core.getheight(), core.getwidth());
+	keys.reset();
+	core.initialize(&keys, &mouse);
 }
 
 void displayfunc()
 {
-	if (keys.keystates['w'])
-		renderer.camera.forward(0.001);
-	if (keys.keystates['a'])
-		renderer.camera.left(0.001);
-	if (keys.keystates['s'])
-		renderer.camera.backward(0.001);
-	if (keys.keystates['d'])
-		renderer.camera.right(0.001);
-	if (keys.keystates['e'])
-		renderer.camera.up(0.001);
-	if (keys.keystates['q'])
-		renderer.camera.down(0.001);
-	if (keys.keystates['z'])
-	{
-		renderer.camera.object->linear_velocity = vec();
-		renderer.camera.object->linear_acceleration = vec();
-		renderer.camera.object->forces = vec();
-	}
-
-	renderer.displayf();
+	core.render();
 }
 
 void reshape(int w, int h)
 {
-	glViewport(0, 0, w, h);
-	renderer.display.height = h;
-	renderer.display.width = w;
+	core.setviewport(w, h);
 }
 
 void pmotionfunc(int x, int y)
 {
-	renderer.camera.rotate(mouse.getdelta(x, y));
-
-	if (mouse.v > renderer.display.height*3/4 || mouse.v < renderer.display.height*1/4 || mouse.h > renderer.display.width*3/4 || mouse.h < renderer.display.width*1/4)
-		mouse.setmouseloc(renderer.display.width/2, renderer.display.height/2);
+	vec delta = mouse.getdelta(x, y);
+	core.mouse_move(delta);
 }
 
 void mousefunc(int button, int state, int x, int y)
 {
+	if (state == GLUT_DOWN)
+		mouse.mouse_down(button - GLUT_LEFT_BUTTON);
+	else if (state == GLUT_UP)
+		mouse.mouse_up(button - GLUT_LEFT_BUTTON);
+
+	core.mouse_change(x, y, button - GLUT_LEFT_BUTTON);
 }
 
 void motionfunc(int x, int y)
 {
-	renderer.camera.rotate(mouse.getdelta(x, y));
-
-	if (mouse.v > renderer.display.height*3/4 || mouse.v < renderer.display.height*1/4 || mouse.h > renderer.display.width*3/4 || mouse.h < renderer.display.width*1/4)
-		mouse.setmouseloc(renderer.display.width/2, renderer.display.height/2);
+	vec delta = mouse.getdelta(x, y);
+	core.mouse_move(delta);
 }
 
 void keydownfunc(unsigned char key, int x, int y)
 {
-	if (key == 'u')
+	if (key == 27)
 		exit(0);
+	if (key == 'm')
+		mouse.switchbind();
+
 	keys.keydown(key);
-	if (keys.keystates['.'])
-		renderer.camera.speed *= 2.0;
-	if (keys.keystates[','])
-		renderer.camera.speed /= 2.0;
 }
 
 void keyupfunc(unsigned char key, int x, int y)
@@ -103,7 +66,7 @@ void keyupfunc(unsigned char key, int x, int y)
 
 void release()
 {
-	renderer.release();
+	core.release();
 }
 
 int main(int argc, char **argv)
@@ -113,8 +76,7 @@ int main(int argc, char **argv)
 
 	atexit(release);
 
-	renderer.display.windowed = false;
-	if (renderer.display.windowed)
+	if (windowed)
 	{
 		glutInitWindowSize(1600, 900);
 		glutInitWindowPosition(0, 0);
@@ -133,15 +95,23 @@ int main(int argc, char **argv)
 		exit(1);
 	}
 	fprintf(stdout, "Status: Using GLEW %s\n", glewGetString(GLEW_VERSION));
+	fprintf(stdout, "Status: Using OpenGL %s\n", glGetString(GL_VERSION));
+	fprintf(stdout, "Status: Using GLSL %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
-	if (GLEW_ARB_vertex_program)
-		fprintf(stdout, "Status: ARB vertex programs available.\n");
+	GLint max_2d_texture_size,
+		  max_3d_texture_size,
+		  max_texture_layer_count,
+		  max_texture_units;
 
-	if (glewGetExtension("GL_ARB_fragment_program"))
-		fprintf(stdout, "Status: ARB fragment programs available.\n");
+	glGetIntegerv(GL_MAX_TEXTURE_SIZE, &max_2d_texture_size);
+	glGetIntegerv(GL_MAX_3D_TEXTURE_SIZE, &max_3d_texture_size);
+	glGetIntegerv(GL_MAX_ARRAY_TEXTURE_LAYERS, &max_texture_layer_count);
+	glGetIntegerv(GL_MAX_COMBINED_TEXTURE_IMAGE_UNITS, &max_texture_units);
 
-	if (glewIsSupported("GL_VERSION_1_4  GL_ARB_point_sprite"))
-		fprintf(stdout, "Status: ARB point sprites available.\n");
+	fprintf(stdout, "Maximum 2D Texture Size: %d\n", max_2d_texture_size);
+	fprintf(stdout, "Maximum 3D Texture Size: %d\n", max_3d_texture_size);
+	fprintf(stdout, "Maximum Texture Layer Count: %d\n", max_texture_layer_count);
+	fprintf(stdout, "Maximum Texture Unit Count: %d\n", max_texture_units);
 
 	glutReshapeFunc(reshape);
 	glutDisplayFunc(displayfunc);
@@ -154,10 +124,8 @@ int main(int argc, char **argv)
 
 	glutSetCursor(GLUT_CURSOR_NONE);
 
-	printf("\n");
-
 	init();
 	glutMainLoop();
-	if (!renderer.display.windowed)
+	if (!windowed)
 		glutLeaveGameMode();
 }

@@ -1,0 +1,109 @@
+float ray_sphere_near(vec3 center, vec3 ray, float dist2, float radius2)
+{
+	float a = dot(center, ray);
+	float b = sqrt(max(0.0, a*a - dist2 + radius2));
+	return - a - b;
+}
+
+float scalef(float cos_angle, float scaledepth)
+{
+	float x = 1.0 - cos_angle;
+	return scaledepth * exp(-0.00287 + x*(0.459 + x*(3.83 + x*(-6.80 + x*5.25))));
+}
+
+varying vec3 c0;
+varying vec3 c1;
+varying vec3 direction;
+
+uniform vec3 camera;
+uniform vec3 light;
+
+uniform vec3 invwavelength;
+
+uniform float height;
+uniform float height2;
+
+uniform float inner_radius;
+uniform float inner_radius2;
+
+uniform float outer_radius;
+uniform float outer_radius2;
+
+uniform float KrESun;
+uniform float KmESun;
+
+uniform float Kr4Pi;
+uniform float Km4Pi;
+
+uniform float scale;
+uniform float scaledepth;
+uniform float scale_scaledepth;
+
+uniform int samples;
+
+uniform mat4 matrix;
+
+varying float logz;
+uniform float FC;
+uniform float C;
+
+void main()
+{
+	float r = outer_radius/inner_radius;
+	vec4 vertex = gl_Vertex*vec4(r, r, r, 1.0);
+
+	vec3 start;
+	vec3 end;
+	vec3 ray;
+	
+	float near;
+	float far;
+
+	end		= (matrix*vertex).xyz;
+	ray		= end - camera;
+	far		= length(ray);
+	ray		/= far;
+	
+	near	= max(0.0, ray_sphere_near(camera, ray, height2, outer_radius2));
+	
+	start	= camera + near * ray;
+	far		-= near;
+	
+	float start_angle = dot(ray, start)/outer_radius;
+	float start_depth = exp(-1.0/scaledepth);
+	float start_offset = start_depth*scalef(start_angle, scaledepth);
+	
+	float samplelength = far / float(samples);
+	float scaledlength = samplelength * scale;
+	vec3 sampleray = ray*samplelength;
+	vec3 samplepoint = start + sampleray*0.5;
+	
+	float alt;
+	float depth;
+	float light_angle;
+	float camera_angle;
+	float scatter;
+	vec3 attenuate;
+	
+	vec3 frontcolor = vec3(0.0, 0.0, 0.0);
+	for (int i = 0; i < samples; i++)
+	{
+		alt = length(samplepoint);
+		depth = exp(scale_scaledepth * (inner_radius - alt));
+		light_angle = dot(light, samplepoint) / alt;
+		camera_angle = dot(ray, samplepoint) / alt;
+		scatter = (start_offset + depth * (scalef(light_angle, scaledepth) - scalef(camera_angle, scaledepth)));
+		attenuate = exp(-scatter * (invwavelength * Kr4Pi + Km4Pi));
+		frontcolor += attenuate * (depth * scaledlength);
+		samplepoint += sampleray;
+	}
+		
+	c0 = frontcolor*(invwavelength*KrESun);
+	c1 = frontcolor*KmESun;
+	direction = camera - end;
+	
+	gl_Position = gl_ModelViewProjectionMatrix*vertex;
+	
+	logz = log(gl_Position.z*C + 1.0)*FC;
+	//gl_Position.z = (2.0*logz - 1.0)*gl_Position.w;
+}

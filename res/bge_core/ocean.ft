@@ -1,0 +1,20 @@
+varying vec2 texture_coordinate;
+uniform float interpolator;
+
+// Atmospherics
+varying vec3 c0;
+varying vec3 c1;
+
+varying float logz;
+
+void main()
+{
+	vec4 color;
+			
+	color = vec4(0.0, 0.15, 0.4, 0.9);
+	
+	// Atmospherics
+	
+	gl_FragColor = vec4(c0 + c1*color.rgb, 0.7);
+	gl_FragDepth = logz;
+}

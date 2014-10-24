@@ -1,0 +1,9 @@
+varying vec4 color;
+varying vec2 tex_0c;
+
+void main()
+{
+	tex_0c = gl_MultiTexCoord0.st;
+	color = gl_Color;
+	gl_Position = ftransform();
+}

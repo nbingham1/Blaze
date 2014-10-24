@@ -4,7 +4,7 @@ SOURCES	:= $(shell find src -name '*.cpp') $(shell find src -name '*.c')
 OBJECTS	:= $(subst .c,.o,$(subst .cpp,.o,$(subst src/,build/,$(SOURCES))))
 DIRECTORIES := $(sort $(dir $(OBJECTS)))
 SEARCH_PATHS =
-LDFLAGS	= -lfreeglut -lglu32 -lglew32 -lopengl32 -lpthread -lgmp
+LDFLAGS	= -lfreeglut -lglu32 -lglew32 -lopengl32 -lpthread -lgmp -lws2_32
 TARGET	= Blaze
 
 all: build $(TARGET)

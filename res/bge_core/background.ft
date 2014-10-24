@@ -1,0 +1,10 @@
+varying vec3  vertexdir;
+
+uniform samplerCube tex_0;
+
+void main()
+{		
+	vec4 color = textureCube(tex_0, vertexdir);
+	
+	gl_FragColor = color;
+}

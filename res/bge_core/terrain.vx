@@ -1,0 +1,141 @@
+varying vec2 texture_coordinate;
+uniform vec4 position;
+
+// geomorphing
+uniform float interpolator;
+attribute vec2 Height;
+attribute vec3 HNormal;
+
+varying vec3 fragnorm;
+varying float ndotl;
+
+// crack fixing
+uniform vec3 neighbors;
+
+// atmospherics
+float ray_sphere_near(vec3 center, vec3 ray, float dist2, float radius2)
+{
+	float a = dot(center, ray);
+	float b = sqrt(max(0.0, a*a - dist2 + radius2));
+	return - a - b;
+}
+
+float scalef(float cos_angle, float scaledepth)
+{
+	float x = 1.0 - cos_angle;
+	return scaledepth * exp(-0.00287 + x*(0.459 + x*(3.83 + x*(-6.80 + x*5.25))));
+}
+
+varying vec3 c0;
+varying vec3 c1;
+varying float slope;
+
+uniform vec3 camera;
+uniform vec3 light;
+
+uniform vec3 invwavelength;
+
+uniform float height;
+uniform float height2;
+
+uniform float inner_radius;
+uniform float inner_radius2;
+
+uniform float outer_radius;
+uniform float outer_radius2;
+
+uniform float KrESun;
+uniform float KmESun;
+
+uniform float Kr4Pi;
+uniform float Km4Pi;
+
+uniform float scale;
+uniform float scaledepth;
+uniform float scale_scaledepth;
+
+uniform int samples;
+
+varying float logz;
+uniform float FC;
+uniform float C;
+
+varying float altitude;
+
+void main()
+{
+	float crack = 1.0 - (gl_MultiTexCoord0.z > 0.0 ? clamp(neighbors[int(gl_MultiTexCoord0.z - 1.0)], 0.0, 1.0) : 0.0);
+	
+	float i = (gl_MultiTexCoord0.z == 0.0 ? interpolator : 1.0)*crack;
+	altitude = (Height.y*(1.0 - i) + Height.x*i);
+		
+	vec4 vertex = gl_Vertex + position + altitude*vec4(gl_Normal, 0.0);
+	texture_coordinate = gl_MultiTexCoord0.xy;
+	
+	// Atmospherics
+	
+	vec3 start;
+	vec3 end;
+	vec3 ray;
+	
+	float near;
+	float far;
+
+	end		= vertex.xyz + camera;
+	ray		= end - camera;
+	far		= length(ray);
+	ray		/= far;
+	
+	near	= max(0.0, ray_sphere_near(camera, ray, height2, outer_radius2));
+	
+	start	= camera + near * ray;
+	far		-= near;
+	
+	float alt;
+	float depth;
+	float light_angle;
+	float scatter;
+	vec3 attenuate;
+	
+	depth = exp((inner_radius - min(height, outer_radius))/scaledepth);
+	light_angle = dot(light, end)/length(end);
+	float light_scale = scalef(light_angle, scaledepth);
+	float temp = light_scale;
+	
+	float samplelength = far / float(samples);
+	float scaledlength = samplelength * scale;
+	vec3 sampleray = ray*samplelength;
+	vec3 samplepoint = start + sampleray*0.5;
+	
+	vec3 frontcolor = vec3(0.0, 0.0, 0.0);
+	for (int i = 0; i < samples; i++)
+	{
+		alt = length(samplepoint);
+		depth = exp(scale_scaledepth * (inner_radius - alt));
+		scatter = depth * temp;
+		attenuate = exp(-scatter * (invwavelength * Kr4Pi + Km4Pi));
+		frontcolor += attenuate * (depth * scaledlength);
+		samplepoint += sampleray;
+	}
+	
+	c0 = frontcolor*(invwavelength*KrESun + KmESun);
+	c1 = attenuate;
+	
+	gl_Position = gl_ModelViewProjectionMatrix*vertex;
+	
+	logz = log(gl_Position.z*C + 1.0)*FC;
+	//gl_Position.z = (2.0*logz - 1.0)*gl_Position.w;
+	
+	vec3 tan1 = cross(gl_Normal.xyz, gl_Normal.zyx);
+	vec3 tan2 = cross(gl_Normal, tan1);
+	
+	float slope1 = dot(tan1, HNormal);
+	float slope2 = dot(tan2, HNormal);
+	slope = sqrt(slope1*slope1 + slope2*slope2);
+	
+	tan1 = normalize(tan1 - slope1*gl_Normal);
+	tan2 = normalize(tan2 - slope2*gl_Normal);
+	
+	fragnorm = cross(tan1, tan2);
+	ndotl = max(dot(fragnorm, light), 0.0)*0.5 + 0.5;	
+}

@@ -1,0 +1,76 @@
+vec4 noise3D(vec3 p, float radius)
+{
+	int bx0, bx1, by0, by1, bz0, bz1, b00, b10, b01, b11, i, j;
+	float rx0, rx1, ry0, ry1, rz0, rz1, t;
+	float k0, k1, k2, k3, k4, k5, k6, k7;
+	float a, b, c, d, e, f, g, h;
+	float u, v, w, du, dv, dw;
+	vec4 q;
+	
+	t = p.x + radius;
+	bx0 = int(t) & (noise_size-1);
+	bx1 = (bx0+1) & (noise_size-1);
+	rx0 = t - floor(t);
+	rx1 = rx0 - 1.0;
+
+	t = p.y + radius;
+	by0 = int(t) & (noise_size-1);
+	by1 = (by0+1) & (noise_size-1);
+	ry0 = t - floor(t);
+	ry1 = ry0 - 1.0;
+
+	t = p.z + radius;
+	bz0 = int(t) & (noise_size-1);
+	bz1 = (bz0+1) & (noise_size-1);
+	rz0 = t - floor(t);
+	rz1 = rz0 - 1.0;
+	
+	u = rx0*rx0*rx0*(rx0*(rx0*6.0f-15.0f)+10.0f);
+	v = ry0*ry0*ry0*(ry0*(ry0*6.0f-15.0f)+10.0f);
+	w = rz0*rz0*rz0*(rz0*(rz0*6.0f-15.0f)+10.0f);
+	du = 30.0f*rx0*rx0*(rx0 * (rx0 - 2.0f) + 1.0f);
+  	dv = 30.0f*ry0*ry0*(ry0 * (ry0 - 2.0f) + 1.0f);
+  	dw = 30.0f*rz0*rz0*(rz0 * (rz0 - 2.0f) + 1.0f);
+	
+	i = int(pg3[bx0].x);
+	j = int(pg3[bx1].x);
+	
+	b00 = int(pg3[(i + by0) & (noise_size-1)].x);
+	b10 = int(pg3[(j + by0) & (noise_size-1)].x);
+	b01 = int(pg3[(i + by1) & (noise_size-1)].x);
+	b11 = int(pg3[(j + by1) & (noise_size-1)].x);
+	
+	q = pg3[(b00 + bz0) & (noise_size-1)];
+	a = rx0*q.y + ry0*q.z + rz0*q.w;
+	q = pg3[(b10 + bz0) & (noise_size-1)];
+	b = rx1*q.y + ry0*q.z + rz0*q.w;
+	
+	q = pg3[(b01 + bz0) & (noise_size-1)];
+	c = rx0*q.y + ry1*q.z + rz0*q.w;
+	q = pg3[(b11 + bz0) & (noise_size-1)];
+	d = rx1*q.y + ry1*q.z + rz0*q.w;
+	
+	q = pg3[(b00 + bz1) & (noise_size-1)];
+	e = rx0*q.y + ry0*q.z + rz1*q.w;
+	q = pg3[(b10 + bz1) & (noise_size-1)];
+	f = rx1*q.y + ry0*q.z + rz1*q.w;
+	
+	q = pg3[(b01 + bz1) & (noise_size-1)];
+	g = rx0*q.y + ry1*q.z + rz1*q.w;
+	q = pg3[(b11 + bz1) & (noise_size-1)];
+	h = rx1*q.y + ry1*q.z + rz1*q.w;
+	
+	k0 = a;
+	k1 = b - a;
+	k2 = c - a;
+	k3 = e - a;
+	k4 = - k1 - c + d;
+	k5 = - k2 - e + g;
+	k6 = - k1 - e + f;
+	k7 = - k4 + e - f - g + h;
+	
+	return vec4(k0 + k1*u + k2*v + k3*w + k4*u*v + k5*v*w + k6*w*u + k7*u*v*w, 
+				du * (k1 + k4*v + k6*w + k7*v*w), 
+				dv * (k2 + k5*w + k4*u + k7*w*u), 
+				dw * (k3 + k6*u + k5*v + k7*u*v));
+}

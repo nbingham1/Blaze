@@ -1,0 +1,8 @@
+Symbol: Sg
+Atomic Number: 106
+Atomic Mass: 266.000000
+Start Spectral Index: 0
+End Spectral Index:
+Order of Magnitude: 0.000001
+Start Spectral Lines:
+End Spectral Lines:

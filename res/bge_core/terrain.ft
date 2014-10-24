@@ -1,0 +1,38 @@
+uniform sampler2DArray tex_0;
+
+varying vec2 texture_coordinate;
+
+// Atmospherics
+varying vec3 c0;
+varying vec3 c1;
+
+varying float logz;
+varying float ndotl;
+
+varying float slope;
+varying float altitude;
+
+void main()
+{
+	vec4 color;
+	vec4 sand, dirt, grass, rock, snow;
+	
+	sand = texture2DArray(tex_0, vec3(texture_coordinate, 0.0));
+	dirt = texture2DArray(tex_0, vec3(texture_coordinate, 1.0));
+	grass = texture2DArray(tex_0, vec3(texture_coordinate, 2.0));
+	rock = texture2DArray(tex_0, vec3(texture_coordinate, 3.0));
+	snow = texture2DArray(tex_0, vec3(texture_coordinate, 4.0));
+	
+	float alt = clamp(altitude/100.0, 0.0, 1.0);
+	float slp = clamp(7.0*slope - 5.0, 0.0, 1.0);
+	
+	color = (alt*(slp*rock + (1.0 - slp)*grass) + (1.0 - alt)*sand);
+	color = vec4(c0 + c1*color.rgb*ndotl, color.a);
+	color = vec4(color.rg*clamp(altitude/50 + 1.0, 0.0, 1.0), color.b*clamp(altitude/100 + 1.0, 0.0, 1.0), color.a);
+	
+	// Atmospherics
+	
+	gl_FragColor = vec4(color.rgb, 1.0);
+	gl_FragDepth = logz;
+}
+

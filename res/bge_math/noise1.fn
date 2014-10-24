@@ -1,0 +1,31 @@
+vec2 noise1D(float p, float radius)
+{
+	int bx0, bx1, b0, b1;
+	float rx0, rx1, t;
+	float k0, k1;
+	float a, b;
+	float u, du;
+	vec2 q;
+	
+	t = p + radius;
+    bx0 = int(t) & (noise_size-1);
+	bx1 = (bx0+1) & (noise_size-1);
+    rx0 = t - floor(t);
+    rx1 = rx0 - 1.0;
+	
+	u = rx0*rx0*rx0*(rx0*(rx0*6.0f-15.0f)+10.0f);
+	du = 30.0f*rx0*rx0*(rx0 * (rx0 - 2.0f) + 1.0f);
+	
+	b0 = int(pg1[bx0].x);
+	b1 = int(pg1[bx1].x);
+	
+	q = pg1[b0];
+	a = rx0*q.y;
+	q = pg1[b1];
+	b = rx1*q.y;
+	
+	k0 =  a;
+	k1 =  b - a;
+	
+	return vec2(k0 + k1*u, du * k1);
+}
