@@ -1,7 +1,13 @@
-#include "color.h"
-#include "opengl.h"
-#include "../base.h"
-#include "texture.h"
+/*
+ * shader.h
+ *
+ *  Created on: May 22, 2015
+ *      Author: nbingham
+ */
+
+#include "core/string.h"
+
+using namespace core;
 
 #ifndef shader_h
 #define shader_h
@@ -9,34 +15,22 @@
 struct shaderhdl
 {
 	shaderhdl();
-	shaderhdl(const shaderhdl &s);
-	shaderhdl(string v, string f, bool raw = false);
+	shaderhdl(unsigned int type, unsigned int identity);
 	~shaderhdl();
 
-	GLuint vertex, fragment, program;
+	unsigned int type;
+	unsigned int identity;
 
-	GLuint load_file(string filename, GLenum type);
-	GLuint load_source(string source, GLenum type);
-
-	void release();
-
-	void bind();
-
-	void uniform(string location, float data);
-	void uniform(string location, vec1f data);
-	void uniform(string location, vec2f data);
-	void uniform(string location, vec3f data);
-	void uniform(string location, vec4f data);
-
-	void uniform(string location, int data);
-	void uniform(string location, vec1i data);
-	void uniform(string location, vec2i data);
-	void uniform(string location, vec3i data);
-	void uniform(string location, vec4i data);
-
-	void uniform(string location, texturehdl data);
-
-	shaderhdl &operator=(shaderhdl s);
+	bool load(unsigned int type, string filename);
+	bool compile(unsigned int type, string source);
 };
+
+bool operator<(shaderhdl s0, shaderhdl s1);
+bool operator>(shaderhdl s0, shaderhdl s1);
+bool operator<=(shaderhdl s0, shaderhdl s1);
+bool operator>=(shaderhdl s0, shaderhdl s1);
+bool operator==(shaderhdl s0, shaderhdl s1);
+bool operator!=(shaderhdl s0, shaderhdl s1);
+
 
 #endif

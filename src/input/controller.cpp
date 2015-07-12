@@ -25,9 +25,28 @@
 
 controllerhdl::controllerhdl()
 {
-	type = CNTRL_UNKNOWN;
+	flags = 0;
+}
+
+controllerhdl::controllerhdl(int num_axes)
+{
+	flags = 0;
+	axes.resize(num_axes);
 }
 
 controllerhdl::~controllerhdl()
 {
+}
+
+void controllerhdl::update(double real_current_time, double game_current_time)
+{
+	for (int i = 0; i < buttons.pressed.size(); i++)
+	{
+		map<int, preference>::iterator j = buttons.control.find(buttons.pressed[i]);
+		if (j != buttons.control.end())
+			j->value(vec3f(1.0f, 0.0f, 0.0f), real_current_time, game_current_time);
+	}
+
+	for (int i = 0; i < axes.size(); i++)
+		axes[i].move(0, real_current_time, game_current_time);
 }

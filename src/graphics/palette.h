@@ -5,7 +5,11 @@
  *      Author: Ned Bingham
  */
 
-#include "material.h"
+#include "core/map.h"
+#include "shader.h"
+#include "texture.h"
+
+using namespace core;
 
 #ifndef palette_h
 #define palette_h
@@ -15,10 +19,13 @@ struct palettehdl
 	palettehdl();
 	~palettehdl();
 
-	map<string, materialhdl> materials;
+	map<string, texturehdl> textures;
+	map<string, shaderhdl> shaders;
+	map<array<shaderhdl>, unsigned int> programs;
 
-	materialhdl *insert(string path);
-	void release();
+	unsigned int program(string vertex, string fragment);
+	unsigned int program(string vertex, string geometry, string fragment);
+	texturehdl texture(unsigned int type, string filename);
 };
 
 #endif

@@ -1,34 +1,38 @@
-#include "../math.h"
-#include "opengl.h"
+/*
+ * texture.h
+ *
+ *  Created on: May 22, 2015
+ *      Author: nbingham
+ */
+
+#include "image.h"
 
 #ifndef texture_h
 #define texture_h
 
-typedef vec<float, 3> uvw;
-typedef vec<float, 2> uv;
-
 struct texturehdl
 {
 	texturehdl();
-	texturehdl(const texturehdl &t);
-	texturehdl(string filename, GLuint type, GLenum repeat, bool lod);
-	texturehdl(array<string> filenames, GLuint type, GLenum repeat, bool lod);
-	texturehdl(int width, int height);
+	texturehdl(unsigned int type, unsigned int identity);
 	~texturehdl();
 
-	GLuint type, identity;
-	int bpp, width, height, depth;
+	unsigned int type;
+	unsigned int identity;
 
-	string load_tga(string filename);
-
-	void release();
+	bool load(unsigned int type, const imagehdl &image);
 
 	void bind();
+	void release();
 
-	void begin_render(bool depth_test);
-	void end_render();
-
-	texturehdl &operator=(const texturehdl &t);
+	void frame(int width, int height, bool color = true, bool depth = false);
+	void unframe();
 };
+
+bool operator<(texturehdl s0, texturehdl s1);
+bool operator>(texturehdl s0, texturehdl s1);
+bool operator<=(texturehdl s0, texturehdl s1);
+bool operator>=(texturehdl s0, texturehdl s1);
+bool operator==(texturehdl s0, texturehdl s1);
+bool operator!=(texturehdl s0, texturehdl s1);
 
 #endif

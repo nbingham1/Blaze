@@ -21,10 +21,12 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "common.h"
-#include "../base.h"
-#include "../math.h"
-#include <stdint.h>
+#include "core/string.h"
+#include "core/array.h"
+#include "buttons.h"
+#include "axis.h"
+
+using namespace core;
 
 #ifndef controller_h
 #define controller_h
@@ -35,29 +37,18 @@
 #define GET_FLAG(res, flag) 	((res & flag) > 0)
 #define FLAG_NUMBER(n)			(1 << (n))
 
-// [value][delta][sensitivity]
-typedef vec3f		axishdl;
-
-// one bit boolean values
-typedef uint8_t		button8hdl[1];
-typedef uint16_t	button16hdl[1];
-typedef uint32_t	button32hdl[1];
-typedef uint32_t	button64hdl[2];
-typedef uint32_t	button128hdl[4];
-typedef uint32_t	button256hdl[8];
-
-#define PRESS_BUTTON(states, index)		SET_FLAG(states[index/32], FLAG_NUMBER(index%32))
-#define RELEASE_BUTTON(states, index)	UNSET_FLAG(states[index/32], FLAG_NUMBER(index%32))
-#define GET_BUTTON(states, index)		GET_FLAG(states[index/32], FLAG_NUMBER(index%32))
-
-#define CNTRL_UNKNOWN 0x00
-
 struct controllerhdl
 {
 	controllerhdl();
-	virtual ~controllerhdl();
+	controllerhdl(int num_axes);
+	~controllerhdl();
 
-	uint8_t type;
+	unsigned char flags;
+
+	buttonshdl buttons;
+	array<axishdl> axes;
+
+	void update(double real_current_time, double game_current_time);
 };
 
 #endif

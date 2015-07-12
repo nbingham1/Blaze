@@ -6,7 +6,11 @@
  */
 
 #include "texture.h"
-#include "shader.h"
+
+#include "core/string.h"
+#include "core/map.h"
+
+using namespace core;
 
 #ifndef material_h
 #define material_h
@@ -14,17 +18,13 @@
 struct materialhdl
 {
 	materialhdl();
-	materialhdl(const materialhdl &m);
-	materialhdl(string path);
 	~materialhdl();
 
-	texturehdl texture;
-	shaderhdl shader;
+	unsigned int program;
+	map<string, texturehdl> textures;
+	map<string, array<float> > values;
 
-	void release();
 	void bind();
-
-	materialhdl &operator=(materialhdl m);
 };
 
 #endif

@@ -21,182 +21,162 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core.h"
+#include "core/list.h"
+#include "core/geometry.h"
 #include <time.h>
+#include <pthread.h>
 
-canvashdl core;
-keyboardhdl *keys;
-mousehdl *mouse;
-/*objecthdl obj;
-camerahdl cam;*/
+#include "graphics/opengl.h"
+#include "engine/canvas.h"
 
-bool windowed = false;
-int mouse_x = -1;
-int mouse_dx = -1;
-int mouse_y = -1;
-int mouse_dy = -1;
+using namespace core;
+
+int num_threads = 0;
+pthread_t *threads = NULL;
+
+bool done = false;
+bool windowed = true;
+
+canvashdl canvas;
+
+void release(preference *pref, vec3f value)
+{
+	glutLeaveMainLoop();
+}
+
+int player = 0;
+void next_player(preference *pref, vec3f value)
+{
+	if (value[1] > 0.0)
+	{
+		player = (player+1)%canvas.players.size();
+		canvas.devices["keyboard"].buttons.control.insert('w', preference(&canvas.players[player], playerhdl::forward));
+		canvas.devices["keyboard"].buttons.control.insert('a', preference(&canvas.players[player], playerhdl::left));
+		canvas.devices["keyboard"].buttons.control.insert('s', preference(&canvas.players[player], playerhdl::backward));
+		canvas.devices["keyboard"].buttons.control.insert('d', preference(&canvas.players[player], playerhdl::right));
+		canvas.devices["keyboard"].buttons.control.insert('e', preference(&canvas.players[player], playerhdl::up));
+		canvas.devices["keyboard"].buttons.control.insert('q', preference(&canvas.players[player], playerhdl::down));
+		canvas.devices["keyboard"].buttons.control.insert('.', preference(&canvas.players[player], playerhdl::accelerate));
+		canvas.devices["keyboard"].buttons.control.insert(',', preference(&canvas.players[player], playerhdl::deccelerate));
+		canvas.devices["keyboard"].buttons.control.insert('z', preference(&canvas.players[player], playerhdl::stop));
+
+		canvas.devices["mouse"].axes[0].control = preference(&canvas.players[player], playerhdl::horizontal);
+		canvas.devices["mouse"].axes[1].control = preference(&canvas.players[player], playerhdl::vertical);
+	}
+}
 
 void init()
 {
 	srand(time(0));
-	core.initialize();
-	/*cam.init(0.0, 1.0, 1.0, 0.0, vec4f(1.0, 1.0, 1.0, 1.0), vec4f(), vec4f(), 0.0);
-	cam.frustum = frustum4f(-.16, .16, -.1, .1, .2, 1.0E10);
-	user.cam = &cam;
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	core.add_child(&cam);
-	core.add_user(&user);*/
-	mouse = core.devices.new_mouse();
-	keys = core.devices.new_keyboard();
+	canvas.initialize();
+	canvas.devices.insert("mouse", controllerhdl(2));
+	canvas.devices.insert("keyboard", controllerhdl());
+	for (int i = 0; i < 1; i++)
+		canvas.add_player()->camera->position = vec3f(-20.0, 0.0, 0.0);
 
-	mouse->hide();
+	canvas.devices["keyboard"].buttons.control.insert(27, preference(NULL, release));
+	canvas.devices["keyboard"].buttons.control.insert('n', preference(NULL, next_player));
+	canvas.devices["keyboard"].buttons.control.insert('w', preference(&canvas.players[player], playerhdl::forward));
+	canvas.devices["keyboard"].buttons.control.insert('a', preference(&canvas.players[player], playerhdl::left));
+	canvas.devices["keyboard"].buttons.control.insert('s', preference(&canvas.players[player], playerhdl::backward));
+	canvas.devices["keyboard"].buttons.control.insert('d', preference(&canvas.players[player], playerhdl::right));
+	canvas.devices["keyboard"].buttons.control.insert('e', preference(&canvas.players[player], playerhdl::up));
+	canvas.devices["keyboard"].buttons.control.insert('q', preference(&canvas.players[player], playerhdl::down));
+	canvas.devices["keyboard"].buttons.control.insert('.', preference(&canvas.players[player], playerhdl::accelerate));
+	canvas.devices["keyboard"].buttons.control.insert(',', preference(&canvas.players[player], playerhdl::deccelerate));
+	canvas.devices["keyboard"].buttons.control.insert('z', preference(&canvas.players[player], playerhdl::stop));
 
-	core.player.map_analog(&mouse->pointer[0], &lookv);
-	core.player.map_analog(&mouse->pointer[1], &lookh);
-	core.player.map_digital(&(((button8hdl*)&keys->keystates)[12]), NULL, &left, NULL, NULL,      &right, &up,  NULL, NULL);
-	core.player.map_digital(&(((button8hdl*)&keys->keystates)[14]), NULL, &down, NULL, &backward, NULL,   NULL, NULL, &forward);
+	canvas.devices["mouse"].axes[0].control = preference(&canvas.players[player], playerhdl::horizontal);
+	canvas.devices["mouse"].axes[1].control = preference(&canvas.players[player], playerhdl::vertical);
+	canvas.devices["mouse"].axes[0].low = 0.25;
+	canvas.devices["mouse"].axes[0].high = 0.75;
+	canvas.devices["mouse"].axes[1].low = 0.25;
+	canvas.devices["mouse"].axes[1].high = 0.75;
+}
+
+void *preparefunc(void *data)
+{
+	while (!done)
+	{
+		canvas.prepare();
+	}
+
+	pthread_exit(NULL);
+	return NULL;
 }
 
 void displayfunc()
 {
-	core.render();
+	canvas.clock();
+	canvas.input();
+	canvas.render();
 }
 
-void reshape(int w, int h)
+void reshapefunc(int w, int h)
 {
-	core.reshape(w, h);
+	canvas.reshape(w, h);
 }
 
 void pmotionfunc(int x, int y)
 {
-	int dx = mouse_x != -1 ? x - mouse_x : 0;
-	int dy = mouse_y != -1 ? y - mouse_y : 0;
-	mouse_x = x;
-	mouse_y = y;
-	int d2x = mouse_dx != -1 ? dx - mouse_dx : 0;
-	int d2y = mouse_dy != -1 ? dy - mouse_dy : 0;
-	mouse_dx = dx;
-	mouse_dy = dy;
+	map<string, controllerhdl>::iterator mouse = canvas.devices.find("mouse");
+	mouse->value.axes[0].set((float)x/(float)canvas.screen[0], canvas.real_current_time, canvas.game_current_time);
+	mouse->value.axes[1].set((float)y/(float)canvas.screen[1], canvas.real_current_time, canvas.game_current_time);
 
-	mousehdl *currm = NULL;
-	for (list_node<controllerhdl> *i = core.devices.begin(); i != core.devices.end(); i = i->next)
+	if (!mouse->value.axes[0].contained() || !mouse->value.axes[1].contained())
 	{
-		if (i->type == CNTRL_MOUSE)
-		{
-			currm = (mousehdl*)i;
-			currm->pointer[0] = vec3f((float)mouse_y, (float)mouse_dy, (float)d2y);
-			currm->pointer[1] = vec3f((float)mouse_x, (float)mouse_dx, (float)d2x);
-		}
+		glutWarpPointer(canvas.screen[0]/2, canvas.screen[1]/2);
+		mouse->value.axes[0].warp(0.5);
+		mouse->value.axes[1].warp(0.5);
 	}
 }
 
 void mousefunc(int button, int state, int x, int y)
 {
-	int dx = mouse_x != -1 ? x - mouse_x : 0;
-	int dy = mouse_y != -1 ? y - mouse_y : 0;
-	mouse_x = x;
-	mouse_y = y;
-	int d2x = mouse_dx != -1 ? dx - mouse_dx : 0;
-	int d2y = mouse_dy != -1 ? dy - mouse_dy : 0;
-	mouse_dx = dx;
-	mouse_dy = dy;
+	map<string, controllerhdl>::iterator mouse = canvas.devices.find("mouse");
+	mouse->value.axes[0].set((float)x/(float)canvas.screen[0], canvas.real_current_time, canvas.game_current_time);
+	mouse->value.axes[1].set((float)y/(float)canvas.screen[1], canvas.real_current_time, canvas.game_current_time);
 
-	mousehdl *currm = NULL;
-	for (list_node<controllerhdl> *i = core.devices.begin(); i != core.devices.end(); i = i->next)
+	if (!mouse->value.axes[0].contained() || !mouse->value.axes[1].contained())
 	{
-		if (i->type == CNTRL_MOUSE)
-		{
-			currm = (mousehdl*)i;
-			currm->pointer[0] = vec3f((float)mouse_y, (float)mouse_dy, (float)d2y);
-			currm->pointer[1] = vec3f((float)mouse_x, (float)mouse_dx, (float)d2x);
-
-			if (state == GLUT_DOWN)
-				currm->press(button - GLUT_LEFT_BUTTON);
-			else if (state == GLUT_UP)
-				currm->release(button - GLUT_LEFT_BUTTON);
-		}
+		glutWarpPointer(canvas.screen[0]/2, canvas.screen[1]/2);
+		mouse->value.axes[0].warp(0.5);
+		mouse->value.axes[1].warp(0.5);
 	}
+
+	if (state == GLUT_DOWN)
+		mouse->value.buttons.press(button - GLUT_LEFT_BUTTON, canvas.real_current_time, canvas.game_current_time);
+	else if (state == GLUT_UP)
+		mouse->value.buttons.release(button - GLUT_LEFT_BUTTON, canvas.real_current_time, canvas.game_current_time);
 }
 
 void motionfunc(int x, int y)
 {
-	int dx = mouse_x != -1 ? x - mouse_x : 0;
-	int dy = mouse_y != -1 ? y - mouse_y : 0;
-	mouse_x = x;
-	mouse_y = y;
-	int d2x = mouse_dx != -1 ? dx - mouse_dx : 0;
-	int d2y = mouse_dy != -1 ? dy - mouse_dy : 0;
-	mouse_dx = dx;
-	mouse_dy = dy;
-
-	mousehdl *currm = NULL;
-	for (list_node<controllerhdl> *i = core.devices.begin(); i != core.devices.end(); i = i->next)
-	{
-		if (i->type == CNTRL_MOUSE)
-		{
-			currm = (mousehdl*)i;
-			currm->pointer[0] = vec3f((float)mouse_y, (float)mouse_dy, (float)d2y);
-			currm->pointer[1] = vec3f((float)mouse_x, (float)mouse_dx, (float)d2x);
-		}
-	}
+	map<string, controllerhdl>::iterator mouse = canvas.devices.find("mouse");
+	mouse->value.axes[0].set((float)x/(float)canvas.screen[0], canvas.real_current_time, canvas.game_current_time);
+	mouse->value.axes[1].set((float)y/(float)canvas.screen[1], canvas.real_current_time, canvas.game_current_time);
 }
 
 void keydownfunc(unsigned char key, int x, int y)
 {
-	if (key == 27)
-		exit(0);
-
-	keyboardhdl *currm = NULL;
-	for (list_node<controllerhdl> *i = core.devices.begin(); i != core.devices.end(); i = i->next)
-	{
-		if (i->type == CNTRL_KEYBOARD)
-		{
-			currm = (keyboardhdl*)i;
-			currm->press(key);
-		}
-	}
+	map<string, controllerhdl>::iterator keyboard = canvas.devices.find("keyboard");
+	keyboard->value.buttons.press(key, canvas.real_current_time, canvas.game_current_time);
 }
 
 void keyupfunc(unsigned char key, int x, int y)
 {
-	keyboardhdl *currm = NULL;
-	for (list_node<controllerhdl> *i = core.devices.begin(); i != core.devices.end(); i = i->next)
-	{
-		if (i->type == CNTRL_KEYBOARD)
-		{
-			currm = (keyboardhdl*)i;
-			currm->release(key);
-		}
-	}
+	map<string, controllerhdl>::iterator keyboard = canvas.devices.find("keyboard");
+	keyboard->value.buttons.release(key, canvas.real_current_time, canvas.game_current_time);
 }
 
-void release()
-{
-	core.release();
-}
-
-struct test_node : ilist_node<test_node>
-{
-	test_node() {}
-	test_node(int x)
-	{
-		i = x;
-	}
-	~test_node(){}
-	int i;
-};
-
-struct test_list : ilist<test_node>
-{
-
-};
+#include <sys/time.h>
 
 int main(int argc, char **argv)
 {
-	/*glutInit(&argc, argv);
+	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
-
-	atexit(release);
 
 	if (windowed)
 	{
@@ -220,7 +200,7 @@ int main(int argc, char **argv)
 	fprintf(stdout, "Status: Using OpenGL %s\n", glGetString(GL_VERSION));
 	fprintf(stdout, "Status: Using GLSL %s\n", glGetString(GL_SHADING_LANGUAGE_VERSION));
 
-	glutReshapeFunc(reshape);
+	glutReshapeFunc(reshapefunc);
 	glutDisplayFunc(displayfunc);
 	glutIdleFunc(displayfunc);
 
@@ -230,16 +210,33 @@ int main(int argc, char **argv)
 	glutKeyboardFunc(keydownfunc);
 	glutKeyboardUpFunc(keyupfunc);
 
+	glutSetCursor(GLUT_CURSOR_NONE);
+
 	init();
+
+	// Initialize Threading
+	if (num_threads > 0)
+	{
+		done = false;
+		threads = new pthread_t[num_threads];
+		for (int x = 0; x < num_threads; x++)
+			pthread_create(&threads[x], NULL, preparefunc, NULL);
+	}
+
 	glutMainLoop();
 	if (!windowed)
-		glutLeaveGameMode();*/
+		glutLeaveGameMode();
 
-	test_list x;
-	x.push_back(test_node(10));
-	x.push_back(test_node(7));
-	x.push_back(test_node(2));
+	done = true;
+	void *end;
+	if (threads != NULL)
+	{
+		for (int x = 0; x < num_threads; x++)
+			pthread_join(threads[x], &end);
 
-	for (test_node *n = x.begin(); n != x.end(); n = n->next)
-		cout << n->i << endl;
+		delete [] threads;
+	}
+
+	num_threads = 0;
+	threads = NULL;
 }

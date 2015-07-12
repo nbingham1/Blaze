@@ -5,47 +5,15 @@
  *      Author: Ned Bingham
  */
 
+#include "core/string.h"
 #include "material.h"
-#include <dirent.h>
+#include "opengl.h"
+
+using namespace core;
 
 materialhdl::materialhdl()
 {
-
-}
-
-materialhdl::materialhdl(const materialhdl &m)
-{
-	texture = m.texture;
-	shader = m.shader;
-}
-
-materialhdl::materialhdl(string path)
-{
-	DIR *dir = opendir(path.data());
-	dirent *ent;
-	if (dir == NULL)
-	{
-		cerr << "Error: could not open " << path << "." << endl;
-		return;
-	}
-
-	array<string> files;
-	string vert, frag;
-	while ((ent = readdir(dir)) != NULL)
-	{
-		if (sscanf(ent->d_name, "%*s.vx"))
-			vert = ent->d_name;
-		else if (sscanf(ent->d_name, "%*s.ft"))
-			frag = ent->d_name;
-		else if (sscanf(ent->d_name, "%*s.tga"))
-			files.push_back(ent->d_name);
-	}
-
-	shader = shaderhdl(vert, frag);
-	if (files.size() == 1)
-		texture = texturehdl(files.front(), GL_TEXTURE_2D, GL_REPEAT, true);
-	else
-		texture = texturehdl(files, GL_TEXTURE_2D_ARRAY, GL_REPEAT, true);
+	program = -1;
 }
 
 materialhdl::~materialhdl()
@@ -53,24 +21,29 @@ materialhdl::~materialhdl()
 
 }
 
-void materialhdl::release()
-{
-	texture.release();
-	shader.release();
-}
-
 void materialhdl::bind()
 {
-	shader.bind();
+	glUseProgram(program);
 
-	glActiveTexture(GL_TEXTURE0);
-	texture.bind();
-	shader.uniform("tex", texture);
-}
+	int j = 0;
+	for (map<string, texturehdl>::iterator tex = textures.begin(); tex != textures.end(); tex++)
+	{
+		glActiveTexture(GL_TEXTURE0 + j);
+		tex->value.bind();
+		glUniform1i(glGetUniformLocation(program, tex->key.c_str()), j);
+		j++;
+	}
 
-materialhdl &materialhdl::operator=(materialhdl m)
-{
-	texture = m.texture;
-	shader = m.shader;
-	return *this;
+	for (map<string, array<float> >::iterator value = values.begin(); value != values.end(); value++)
+	{
+		switch (value->value.size())
+		{
+		case 1: glUniform1fv(glGetUniformLocation(program, value->key.c_str()), 1, value->value.data); break;
+		case 2: glUniform2fv(glGetUniformLocation(program, value->key.c_str()), 1, value->value.data); break;
+		case 3: glUniform3fv(glGetUniformLocation(program, value->key.c_str()), 1, value->value.data); break;
+		case 4: glUniform4fv(glGetUniformLocation(program, value->key.c_str()), 1, value->value.data); break;
+		case 9: glUniformMatrix3fv(glGetUniformLocation(program, value->key.c_str()), 1, false, value->value.data); break;
+		case 16: glUniformMatrix4fv(glGetUniformLocation(program, value->key.c_str()), 1, false, value->value.data); break;
+		}
+	}
 }

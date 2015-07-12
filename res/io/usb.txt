@@ -13918,7 +13918,7 @@
 	0839  Audio 4 DJ
 	0d8d  Guitarrig Mobile
 	1915  Session I/O
-	1940  RigKontrol3
+	1940  RigKontrotate_zyx
 	1969  RigKontrol2
 	1978  Audio 8 DJ
 	2280  Medion MDPNA1500 in card reader mode

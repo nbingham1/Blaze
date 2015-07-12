@@ -1,171 +1,116 @@
+/*
+ * shader.cpp
+ *
+ *  Created on: May 22, 2015
+ *      Author: nbingham
+ */
+
 #include "shader.h"
-#include "../base.h"
 #include "opengl.h"
 
 shaderhdl::shaderhdl()
 {
-	vertex = 0xFFFFFFFF;
-	fragment = 0xFFFFFFFF;
-	program = 0xFFFFFFFF;
+	type = GL_NONE;
+	identity = 0xFFFFFFFF;
 }
 
-shaderhdl::shaderhdl(const shaderhdl &s)
+shaderhdl::shaderhdl(unsigned int type, unsigned int identity)
 {
-	vertex = s.vertex;
-	fragment = s.fragment;
-	program = s.program;
-}
-
-shaderhdl::shaderhdl(string v, string f, bool raw)
-{
-	if (raw)
-	{
-		vertex = load_source(v, GL_VERTEX_SHADER);
-		fragment = load_source(f, GL_FRAGMENT_SHADER);
-	}
-	else
-	{
-		vertex = load_file(v, GL_VERTEX_SHADER);
-		fragment = load_file(f, GL_FRAGMENT_SHADER);
-	}
-
-	program = glCreateProgram();
-	glAttachShader(program, vertex);
-	glAttachShader(program, fragment);
-	glLinkProgram(program);
+	this->type = type;
+	this->identity = identity;
 }
 
 shaderhdl::~shaderhdl()
 {
 }
 
-GLuint shaderhdl::load_file(string filename, GLuint type)
+bool shaderhdl::load(unsigned int type, string filename)
 {
-	GLuint handle = 0;
-
+	this->type = type;
 	file fin(filename, "rt");
 	if (!fin.is_open())
 	{
 		cerr << "Error: Could not find file: " << filename << endl;
-		return 0;
+		return false;
 	}
 	string source = fin.read_file();
-	const char* data = source.data();
+	const char* data = source.c_str();
 	int length = source.length();
 	fin.close();
 
-	handle = glCreateShader(type);
-	glShaderSource(handle, 1, &data, &length);
-	glCompileShader(handle);
+	identity = glCreateShader(type);
+	glShaderSource(identity, 1, &data, &length);
+	glCompileShader(identity);
 
 	char temp[1024];
 	length = 1023;
-	glGetShaderInfoLog(handle, 1023, &length, temp);
+	glGetShaderInfoLog(identity, 1023, &length, temp);
 	if (length > 0)
+	{
 		cerr << temp;
+		return false;
+	}
 
-	return handle;
+	return true;
 }
 
-GLuint shaderhdl::load_source(string source, GLuint type)
+bool shaderhdl::compile(unsigned int type, string source)
 {
-	GLuint handle = 0;
-	const char* data = source.data();
+	this->type = type;
+
+	const char* data = source.c_str();
 	GLint length = source.length();
 
 	if (length == 0)
-		return 0;
+		return false;
 
-	handle = glCreateShader(type);
-	glShaderSource(handle, 1, &data, &length);
-	glCompileShader(handle);
+	identity = glCreateShader(type);
+	glShaderSource(identity, 1, &data, &length);
+	glCompileShader(identity);
 
 	char temp[1024];
 	length = 1023;
-	glGetShaderInfoLog(handle, 1023, &length, temp);
+	glGetShaderInfoLog(identity, 1023, &length, temp);
 	if (length > 0)
+	{
 		cerr << temp;
+		return false;
+	}
 
-	return handle;
+	return true;
 }
 
-void shaderhdl::release()
+bool operator<(shaderhdl s0, shaderhdl s1)
 {
-	if (vertex != 0xFFFFFFFF)
-		glDeleteShader(vertex);
-	if (fragment != 0xFFFFFFFF)
-		glDeleteShader(fragment);
-	if (program != 0xFFFFFFFF)
-		glDeleteShader(program);
-	vertex = 0xFFFFFFFF;
-	fragment = 0xFFFFFFFF;
-	program = 0xFFFFFFFF;
+	return (s0.type < s1.type) ||
+		   (s0.type == s1.type && s0.identity < s1.identity);
 }
 
-void shaderhdl::bind()
+bool operator>(shaderhdl s0, shaderhdl s1)
 {
-	glUseProgram(program);
+	return (s0.type > s1.type) ||
+		   (s0.type == s1.type && s0.identity > s1.identity);
 }
 
-void shaderhdl::uniform(string location, float data)
+bool operator<=(shaderhdl s0, shaderhdl s1)
 {
-	glUniform1f(glGetUniformLocation(program, location.data()), data);
+	return (s0.type <= s1.type) ||
+		   (s0.type == s1.type && s0.identity <= s1.identity);
 }
 
-void shaderhdl::uniform(string location, vec1f data)
+bool operator>=(shaderhdl s0, shaderhdl s1)
 {
-	glUniform1fv(glGetUniformLocation(program, location.data()), 1, data.data);
+	return (s0.type >= s1.type) ||
+		   (s0.type == s1.type && s0.identity >= s1.identity);
 }
 
-void shaderhdl::uniform(string location, vec2f data)
+bool operator==(shaderhdl s0, shaderhdl s1)
 {
-	glUniform2fv(glGetUniformLocation(program, location.data()), 2, data.data);
+	return (s0.type == s1.type && s0.identity == s1.identity);
 }
 
-void shaderhdl::uniform(string location, vec3f data)
+bool operator!=(shaderhdl s0, shaderhdl s1)
 {
-	glUniform3fv(glGetUniformLocation(program, location.data()), 3, data.data);
+	return (s0.type != s1.type || s0.identity != s1.identity);
 }
 
-void shaderhdl::uniform(string location, vec4f data)
-{
-	glUniform4fv(glGetUniformLocation(program, location.data()), 4, data.data);
-}
-
-void shaderhdl::uniform(string location, int data)
-{
-	glUniform1i(glGetUniformLocation(program, location.data()), data);
-}
-
-void shaderhdl::uniform(string location, vec1i data)
-{
-	glUniform1iv(glGetUniformLocation(program, location.data()), 1, data.data);
-}
-
-void shaderhdl::uniform(string location, vec2i data)
-{
-	glUniform2iv(glGetUniformLocation(program, location.data()), 2, data.data);
-}
-
-void shaderhdl::uniform(string location, vec3i data)
-{
-	glUniform3iv(glGetUniformLocation(program, location.data()), 3, data.data);
-}
-
-void shaderhdl::uniform(string location, vec4i data)
-{
-	glUniform4iv(glGetUniformLocation(program, location.data()), 4, data.data);
-}
-
-void shaderhdl::uniform(string location, texturehdl data)
-{
-	glUniform1i(glGetUniformLocation(program, location.data()), data.identity);
-}
-
-shaderhdl &shaderhdl::operator=(shaderhdl s)
-{
-	vertex = s.vertex;
-	fragment = s.fragment;
-	program = s.program;
-	return *this;
-}
