@@ -27,7 +27,7 @@ canvashdl::~canvashdl()
 	release();
 }
 
-void canvashdl::initialize()
+void canvashdl::initialize(int w, int h)
 {
 	// Initialize Time
 	timeval gtime;
@@ -39,8 +39,8 @@ void canvashdl::initialize()
 	game_time_multiplier	= 1.0;
 
 	// Initialize Display
-	screen[0] = glutGet(GLUT_WINDOW_WIDTH);
-	screen[1] = glutGet(GLUT_WINDOW_HEIGHT);
+	screen[0] = w;
+	screen[1] = h;
 
 	// Initialize some OpenGL Settings
 	glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -48,14 +48,15 @@ void canvashdl::initialize()
 	glEnable(GL_DEPTH_TEST);
 		glDepthFunc(GL_LEQUAL);
 		glClearDepth(1.0);
-	glEnable(GL_CULL_FACE);
+	glDisable(GL_CULL_FACE);
 
 	objects.push_back(new planethdl(palette, 0));
 }
 
 void canvashdl::reshape(int w, int h)
 {
-	screen = vec2i(w, h);
+	screen[0] = w;
+	screen[1] = h;
 }
 
 void canvashdl::release()
@@ -76,15 +77,11 @@ void canvashdl::prepare()
 {
 	for (list<objecthdl*>::iterator obj = objects.begin(); obj != objects.end(); obj++)
 		if (*obj != NULL)
-			(*obj)->prepare(palette);
+			(*obj)->prepare(*this);
 }
 
 void canvashdl::render()
 {
-	prepare();
-
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
 	for (int i = 0; i < players.size(); i++)
 	{
 		players[i].view(frame, screen);
@@ -93,8 +90,6 @@ void canvashdl::render()
 			if ((*i) != NULL && (*i)->type != "camera")
 				(*i)->render(frame);
 	}
-
-	glutSwapBuffers();
 }
 
 void canvashdl::clock()

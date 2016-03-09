@@ -90,12 +90,12 @@ void texturehdl::frame(int width, int height, bool color, bool depth)
 	glViewport(0, 0, width, height);
 }
 
-void texturehdl::unframe()
+void texturehdl::unframe(int width, int height)
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 	glBindRenderbuffer(GL_RENDERBUFFER, 0);
 
-	glViewport(0, 0, glutGet(GLUT_WINDOW_WIDTH), glutGet(GLUT_WINDOW_HEIGHT));
+	glViewport(0, 0, width, height);
 }
 
 bool operator<(texturehdl s0, texturehdl s1)

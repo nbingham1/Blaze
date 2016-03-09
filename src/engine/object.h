@@ -9,12 +9,13 @@
 #include "core/string.h"
 #include "core/big.h"
 #include "graphics/frame.h"
-#include "graphics/palette.h"
 
 using namespace core;
 
 #ifndef object_h
 #define object_h
+
+struct canvashdl;
 
 struct objecthdl
 {
@@ -41,8 +42,8 @@ struct objecthdl
 
 	void impulse(vec3d force, vec3d location);
 
-	virtual void init(palettehdl &palette);
-	virtual void prepare(palettehdl &palette);
+	virtual void init(canvashdl &canvas);
+	virtual void prepare(canvashdl &canvas);
 	virtual void render(framehdl &frame);
 	virtual void clock(double game_current_time);
 };

@@ -58,6 +58,8 @@ type max(type t1, type t2)
 	return (t1 < t2 ? t2 : t1);
 }
 
+using ::sqrt;
+
 template <class type>
 type clamp(type t, type left, type right)
 {

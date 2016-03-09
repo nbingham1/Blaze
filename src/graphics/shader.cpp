@@ -7,6 +7,7 @@
 
 #include "shader.h"
 #include "opengl.h"
+#include "core/file.h"
 
 shaderhdl::shaderhdl()
 {

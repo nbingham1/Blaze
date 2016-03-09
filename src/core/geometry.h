@@ -166,6 +166,37 @@ typedef gradient<int,    10> grad10i;
 typedef gradient<int,    11> grad11i;
 typedef gradient<int,    12> grad12i;
 
+template <class t, int s>
+gradient<t, s> input_grad(t c, int i)
+{
+	gradient<t, s> result;
+	result.elems[s] = c;
+	result.elems[i] = (t)1;
+	return result;
+}
+
+template <class t, int s>
+vector<gradient<t, s>, s> input_gvec(vector<t, s> c)
+{
+	vector<gradient<t, s>, s> result;
+	for (int i = 0; i < s; i++)
+		result.elems[i] = input_grad<t, s>(c[i], i);
+	return result;
+}
+
+typedef vector<gradient<float, 1>, 1> gvec1f;
+typedef vector<gradient<float, 2>, 2> gvec2f;
+typedef vector<gradient<float, 3>, 3> gvec3f;
+typedef vector<gradient<float, 4>, 4> gvec4f;
+typedef vector<gradient<float, 5>, 5> gvec5f;
+typedef vector<gradient<float, 6>, 6> gvec6f;
+typedef vector<gradient<float, 7>, 7> gvec7f;
+typedef vector<gradient<float, 8>, 8> gvec8f;
+typedef vector<gradient<float, 9>, 9> gvec9f;
+typedef vector<gradient<float, 10>, 10> gvec10f;
+typedef vector<gradient<float, 11>, 11> gvec11f;
+typedef vector<gradient<float, 12>, 12> gvec12f;
+
 typedef matrix<Real,  1, 1>	mat1F;
 typedef matrix<Real,  2, 2>	mat2F;
 typedef matrix<Real,  3, 3>	mat3F;

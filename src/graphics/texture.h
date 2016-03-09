@@ -25,7 +25,7 @@ struct texturehdl
 	void release();
 
 	void frame(int width, int height, bool color = true, bool depth = false);
-	void unframe();
+	void unframe(int width, int height);
 };
 
 bool operator<(texturehdl s0, texturehdl s1);

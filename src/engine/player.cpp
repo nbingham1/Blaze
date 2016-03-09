@@ -29,7 +29,7 @@ void playerhdl::view(framehdl &frame, vec2i screen)
 	float ratio = (float)screen[0]*viewport[2]/((float)screen[1]*viewport[3]);
 
 	if (camera != NULL)
-		camera->view(frame, ratio, 2.0, 10000.0);
+		camera->view(frame, ratio, 2.0, 10000000.0);
 }
 
 void playerhdl::forward(preference *pref, vec3f value)

@@ -6,6 +6,7 @@
  */
 
 #include "object.h"
+#include "canvas.h"
 
 objecthdl::objecthdl()
 {
@@ -39,12 +40,12 @@ void objecthdl::impulse(vec3d force, vec3d location)
 		angular_acceleration += cross(force, location)/inertia;
 }
 
-void objecthdl::init(palettehdl &palette)
+void objecthdl::init(canvashdl &canvas)
 {
 
 }
 
-void objecthdl::prepare(palettehdl &palette)
+void objecthdl::prepare(canvashdl &canvas)
 {
 }
 
@@ -56,10 +57,10 @@ void objecthdl::render(framehdl &frame)
 void objecthdl::clock(double game_current_time)
 {
 	double elapsed = game_current_time - last_update_time;
-	velocity += acceleration*elapsed;
-	position += velocity*elapsed;
-	angular_velocity += angular_acceleration*elapsed;
-	orientation += angular_velocity*elapsed;
+	velocity += acceleration*(float)elapsed;
+	position += velocity*(float)elapsed;
+	angular_velocity += angular_acceleration*(float)elapsed;
+	orientation += angular_velocity*(float)elapsed;
 	last_update_time = game_current_time;
 	acceleration = vec3f(0.0, 0.0, 0.0);
 	angular_velocity = vec3f(0.0, 0.0, 0.0);

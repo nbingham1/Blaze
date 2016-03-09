@@ -24,15 +24,11 @@ void camerahdl::view(framehdl &frame, float ratio, float front, float back)
 	frame.modelview *= translate(-(vec3f)position);
 }
 
-void camerahdl::prepare()
-{
-}
-
 void camerahdl::render(framehdl &frame)
 {
 	objecthdl::render(frame);
 
-	frame.modelview.push();
+	/*frame.modelview.push();
 	frame.modelview *= translate((vec3f)position);
 	frame.modelview *= rotate_xyz(orientation);
 
@@ -47,5 +43,5 @@ void camerahdl::render(framehdl &frame)
 	frame.modelview *= translate(vec3f(0.0, 0.0, -1.0));
 	frame.modelview *= rotate_z((float)m_pi/4.0f);
 	glutWireCone(1.0, 1.0, 4, 1);
-	frame.modelview.pop();
+	frame.modelview.pop();*/
 }

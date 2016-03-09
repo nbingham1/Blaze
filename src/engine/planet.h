@@ -22,7 +22,7 @@ struct cavehdl
 	array<pair<vec3f, float> > control;
 	float strength;
 
-	float operator()(vec3f location);
+	grad3f operator()(gvec3f location);
 };
 
 struct planethdl : objecthdl
@@ -39,8 +39,8 @@ struct planethdl : objecthdl
 	int program;
 
 	void render(framehdl &frame);
-	void prepare(palettehdl &palette);
-	static float density(vec3f location, void *data);
+	void prepare(canvashdl &canvas);
+	static grad3f density(gvec3f location, void *data);
 };
 
 #endif

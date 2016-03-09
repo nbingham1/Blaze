@@ -1,5 +1,6 @@
 #include "core/geometry.h"
 #include "object.h"
+#include "primitive.h"
 
 using namespace core;
 
@@ -18,10 +19,9 @@ struct camerahdl : objecthdl
 	} projection;
 
 	objecthdl *link;
-
+	
 	void view(framehdl &frame, float ratio, float front, float back);
 
-	void prepare();
 	void render(framehdl &frame);
 };
 

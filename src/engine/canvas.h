@@ -42,7 +42,7 @@ struct canvashdl
 
 	framehdl frame;
 
-	void initialize();
+	void initialize(int w, int h);
 	void reshape(int w, int h);
 	void release();
 

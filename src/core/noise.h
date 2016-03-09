@@ -22,7 +22,7 @@ struct noise1hdl
 
 	void initialize(int s);
 
-	grad1f operator()(vec1f n, float r = 0.0, float m = 0.0) const;
+	grad1f operator()(gvec1f n) const;
 };
 
 struct noise2hdl
@@ -36,7 +36,7 @@ struct noise2hdl
 
 	void initialize(int s);
 
-	grad2f operator()(vec2f n, float r = 0.0, float m = 0.0) const;
+	grad2f operator()(gvec2f n) const;
 };
 
 struct noise3hdl
@@ -50,7 +50,7 @@ struct noise3hdl
 
 	void initialize(int s);
 
-	grad3f operator()(vec3f n, float r = 0.0, float m = 0.0) const;
+	grad3f operator()(gvec3f n) const;
 };
 
 /*
@@ -63,7 +63,7 @@ struct noise3hdl
  *    ``lacunarity''  is the gap between successive frequencies
  *    ``octaves''  is the number of frequencies in the fBm
  */
-double fBm(vec3f point, double H, double lacunarity, double octaves, const noise3hdl &noise = noise3hdl(0));
+grad3f fBm(gvec3f point, float H, float lacunarity, float octaves, const noise3hdl &noise = noise3hdl(0));
 
 /*
  * Procedural multifractal evaluated at "point";
@@ -77,7 +77,7 @@ double fBm(vec3f point, double H, double lacunarity, double octaves, const noise
  *    ``octaves''  is the number of frequencies in the fBm
  *    ``offset''  is the zero offset, which determines multifractality
  */
-double multifractal(vec3f point, double H, double lacunarity, double octaves, double offset, const noise3hdl &noise = noise3hdl(0));
+grad3f multifractal(gvec3f point, float H, float lacunarity, float octaves, float offset, const noise3hdl &noise = noise3hdl(0));
 
 /* Ridged multifractal terrain model.
  *
@@ -89,7 +89,7 @@ double multifractal(vec3f point, double H, double lacunarity, double octaves, do
  *      offset:      1.0
  *      gain:        2.0
  */
-double ridge_noise(vec3f point, double H, double lacunarity, double octaves, double offset, double gain, const noise3hdl &noise = noise3hdl(0));
+grad3f ridge_noise(gvec3f point, float H, float lacunarity, float octaves, float offset, float gain, const noise3hdl &noise = noise3hdl(0));
 
 }
 

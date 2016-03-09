@@ -160,32 +160,28 @@ struct vector
 		return *this;
 	}
 
-	template <class t2>
-	vector<t, s> &operator+=(t2 f)
+	vector<t, s> &operator+=(t f)
 	{
 		for (int i = 0; i < s; i++)
 			elems[i] += f;
 		return *this;
 	}
 
-	template <class t2>
-	vector<t, s> &operator-=(t2 f)
+	vector<t, s> &operator-=(t f)
 	{
 		for (int i = 0; i < s; i++)
 			elems[i] -= f;
 		return *this;
 	}
 
-	template <class t2>
-	vector<t, s> &operator*=(t2 f)
+	vector<t, s> &operator*=(t f)
 	{
 		for (int i = 0; i < s; i++)
 			elems[i] *= f;
 		return *this;
 	}
 
-	template <class t2>
-	vector<t, s> &operator/=(t2 f)
+	vector<t, s> &operator/=(t f)
 	{
 		for (int i = 0; i < s; i++)
 			elems[i] /= f;
@@ -357,8 +353,8 @@ vector<t1, (s1 < s2 ? s1 : s2)> operator/(vector<t1, s1> v1, vector<t2, s2> v2)
  * This creates a vector who's components are f plus by the
  * corresponding component in the vector v.
  */
-template <class t, class t2, int s>
-vector<t, s> operator+(t2 f, vector<t, s> v)
+template <class t, int s>
+vector<t, s> operator+(t f, vector<t, s> v)
 {
 	vector<t, s> result;
 
@@ -373,8 +369,8 @@ vector<t, s> operator+(t2 f, vector<t, s> v)
  * This creates a vector who's components are f minus by the
  * corresponding component in the vector v.
  */
-template <class t, class t2, int s>
-vector<t, s> operator-(t2 f, vector<t, s> v)
+template <class t, int s>
+vector<t, s> operator-(t f, vector<t, s> v)
 {
 	vector<t, s> result;
 
@@ -389,8 +385,8 @@ vector<t, s> operator-(t2 f, vector<t, s> v)
  * This creates a vector who's components are f multiplied by
  * the corresponding component in the vector v.
  */
-template <class t, class t2, int s>
-vector<t, s> operator*(t2 f, vector<t, s> v)
+template <class t, int s>
+vector<t, s> operator*(t f, vector<t, s> v)
 {
 	vector<t, s> result;
 
@@ -405,8 +401,8 @@ vector<t, s> operator*(t2 f, vector<t, s> v)
  * This creates a vector who's components are f divided by the
  * corresponding component in the vector v.
  */
-template <class t, class t2, int s>
-vector<t, s> operator/(t2 f, vector<t, s> v)
+template <class t, int s>
+vector<t, s> operator/(t f, vector<t, s> v)
 {
 	vector<t, s> result;
 
@@ -420,8 +416,8 @@ vector<t, s> operator/(t2 f, vector<t, s> v)
  *
  * Adds f to all of the components of v.
  */
-template <class t, class t2, int s>
-vector<t, s> operator+(vector<t, s> v, t2 f)
+template <class t, int s>
+vector<t, s> operator+(vector<t, s> v, t f)
 {
 	vector<t, s> result;
 
@@ -435,8 +431,8 @@ vector<t, s> operator+(vector<t, s> v, t2 f)
  *
  * Subtracts f from all of the components of v.
  */
-template <class t, class t2, int s>
-vector<t, s> operator-(vector<t, s> v, t2 f)
+template <class t, int s>
+vector<t, s> operator-(vector<t, s> v, t f)
 {
 	vector<t, s> result;
 
@@ -447,8 +443,8 @@ vector<t, s> operator-(vector<t, s> v, t2 f)
 }
 
 // vector-scalar multiplication
-template <class t, class t2, int s>
-vector<t, s> operator*(vector<t, s> v, t2 f)
+template <class t, int s>
+vector<t, s> operator*(vector<t, s> v, t f)
 {
 	vector<t, s> result;
 
@@ -459,8 +455,8 @@ vector<t, s> operator*(vector<t, s> v, t2 f)
 }
 
 // vector-scalar division
-template <class t, class t2, int s>
-vector<t, s> operator/(vector<t, s> v, t2 f)
+template <class t, int s>
+vector<t, s> operator/(vector<t, s> v, t f)
 {
 	vector<t, s> result;
 
@@ -699,9 +695,11 @@ vector<t, s> rotate_zyx(vector<t, s> v, vector <at, s> a)
 template <class t, int s>
 vector<t, s> slerp(vector<t, s> v1, vector<t, s> v2, t p)
 {
-	double omega = acos((double)dot(v1, v2));
-	double somega = sin(omega);
-	vector <t, s> ret = v1*sin(omega - p*omega) + v2*sin(p*omega);
+	t omega = acos(dot(v1, v2));
+	if (abs(omega) < 0.000001)
+		return v1;
+	t somega = sin(omega);
+	vector <t, s> ret = v1*(t)sin(omega - p*omega) + v2*(t)sin(p*omega);
 	return ret/somega;
 }
 
@@ -714,7 +712,7 @@ vector<t, s> slerp(vector<t, s> v1, vector<t, s> v2, t p)
 template <class t, int s>
 t mag(vector<t, s> v)
 {
-	return ::sqrt(mag2(v));
+	return sqrt(mag2(v));
 }
 
 /* mag2
@@ -794,7 +792,7 @@ t1 dot(vector<t1, s1> v1, vector<t2, s2> v2)
 template <class t1, class t2, int s>
 t1 dist(vector<t1, s> v1, vector<t2, s> v2)
 {
-	return mag(v2 - v1);
+	return mag(v1 - v2);
 }
 
 /* dist2
@@ -806,7 +804,7 @@ t1 dist(vector<t1, s> v1, vector<t2, s> v2)
 template <class t1, class t2, int s>
 t1 dist2(vector<t1, s> v1, vector<t2, s> v2)
 {
-	return mag2(v2 - v1);
+	return mag2(v1 - v2);
 }
 
 /* dir
@@ -818,7 +816,7 @@ t1 dist2(vector<t1, s> v1, vector<t2, s> v2)
 template <class t1, class t2, int s>
 vector<t1, s> dir(vector<t1, s> v1, vector<t2, s> v2)
 {
-	return (v2 - v1)/mag(v2 - v1);
+	return (-v1 + v2)/dist(v1, v2);
 }
 
 /* clamp

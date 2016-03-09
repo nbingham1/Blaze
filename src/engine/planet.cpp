@@ -8,6 +8,7 @@
 #include "planet.h"
 #include "core/algorithm.h"
 #include "core/curve.h"
+#include "canvas.h"
 
 cavehdl::cavehdl()
 {
@@ -18,31 +19,34 @@ cavehdl::~cavehdl()
 {
 }
 
-float cavehdl::operator()(vec3f location)
+grad3f cavehdl::operator()(gvec3f location)
 {
-	float d = 1e100;
+	grad3f d = 1e30f;
 	for (int i = 0; i < control.size()-1; i++)
 	{
 		vec3f v = control[i+1].first - control[i].first;
-		vec3f w = location - control[i].first;
+		gvec3f w = location - control[i].first;
 
-		float c1 = dot(w, v);
+		grad3f c1 = dot(w, v);
 		float c2 = mag2(v);
-		float b = c1/c2;
-		if (c1 <= 0)
-			d = min(d, dist2(location, control[i].first)/control[i].second);
+		grad3f b = c1/c2;
+		if (c1 <= 0.0f)
+			d = min(d, dist2(location, control[i].first)/(control[i].second*control[i].second));
 		else if (c2 <= c1)
-			d = min(d, dist2(location, control[i+1].first)/control[i+1].second);
+			d = min(d, dist2(location, control[i+1].first)/(control[i+1].second*control[i+1].second));
 		else
-			d = min(d, dist2(location, control[i].first + b*v)/(control[i].second*(1-b) + control[i+1].second*b));
+		{
+			grad3f rad = (control[i].second*(1.0f-b) + control[i+1].second*b);
+			d = min(d, dist2(location, gvec3f(control[i].first) + b*gvec3f(v))/(rad*rad));
+		}
 	}
 
 	if (control.size() == 1)
-		d = min(d, dist2(control.back().first, location)/control.back().second);
+		d = min(d, dist2(location, control[0].first)/(control[0].second*control[0].second));
 
-	float x = strength*d;
-	x *= x;
-	return 1.0/(1.0+x);
+	//cout << d << " " << dot(d.normal(), norm(control[0].first - vec3f(location[0][3], location[1][3], location[2][3]))) << endl;
+
+	return d;
 }
 
 planethdl::planethdl()
@@ -56,7 +60,7 @@ planethdl::planethdl(palettehdl &palette, int seed)
 {
 	type = "planet";
 	noise.initialize(seed);
-	program = palette.program("res/core/block.vx", "res/core/block.ft");
+	program = palette.program("res/engine/block.vx", "res/engine/block.ft");
 	geometry.density = density;
 	geometry.size = 100.0;
 
@@ -71,14 +75,15 @@ planethdl::planethdl(palettehdl &palette, int seed)
 		point[2] = (float)rand()/(float)(RAND_MAX-1);
 		point *= geometry.size;
 
+		caves[i].strength = 1.0f;
 		caves[i].control.reserve(m);
 		caves[i].control.push_back(pair<vec3f, float>());
 		caves[i].control[0].first = point;
-		caves[i].control[0].second = 5.0*(float)rand()/(float)(RAND_MAX-1) + 1.0;
+		caves[i].control[0].second = 3.0*(float)rand()/(float)(RAND_MAX-1) + 1.0;
 		for (int j = 1; j < m; j++)
 		{
 			caves[i].control.push_back(pair<vec3f, float>());
-			caves[i].control[j].second = 5.0*(float)rand()/(float)(RAND_MAX-1) + 1.0;
+			caves[i].control[j].second = 3.0*(float)rand()/(float)(RAND_MAX-1) + 1.0;
 			float ry = 2.0*m_pi*(float)rand()/(float)(RAND_MAX-1);
 			float rx = m_pi*(float)rand()/(float)(RAND_MAX-1);
 			float srx = sin(rx);
@@ -123,22 +128,69 @@ void planethdl::render(framehdl &frame)
 	geometry.render(vertex_location, origin_location);
 }
 
-void planethdl::prepare(palettehdl &palette)
+void planethdl::prepare(canvashdl &canvas)
 {
+	/*for (int c = 0; c < canvas.players.size(); c++)
+	{
+		objecthdl *camera = canvas.players[c].camera;
+
+		if (camera != NULL)
+		{
+			array<blockhdl*> loc;
+
+			if (geometry.contains(camera->position, 10.0f))
+				loc.push_back(&geometry);
+			else
+				geometry.merge();
+
+			bool change = true;
+			while (loc.size() > 0 && change)
+			{
+				change = false;
+				for (int i = loc.size()-1; i >= 0; i--)
+				{
+					bool found = false;
+					for (int j = 0; j < loc[i]->children.size(); j++)
+					{
+						if (loc[i]->children[j].contains(camera->position, 10.0f))
+						{
+							loc.push_back(&loc[i]->children[j]);
+							found = true;
+						}
+						else
+							loc[i]->children[j].merge();
+					}
+
+					if (found)
+					{
+						(loc.begin() + i).pop();
+						change = true;
+					}
+				}
+			}
+
+			for (int i = 0; i < loc.size(); i++)
+				if (loc[i]->size > (float)cubes_per_side)
+					loc[i]->split(this);
+		}
+	}*/
 }
 
-float planethdl::density(vec3f location, void *data)
+grad3f planethdl::density(gvec3f location, void *data)
 {
 	planethdl *planet = (planethdl*)data;
 
-	float result = 0.0;
+	grad3f d = 1e30f;
 	for (int i = 0; i < planet->caves.size(); i++)
-		result -= planet->caves[i](location);
+		d = core::min(d, planet->caves[i](location));
 
-	float x = mag(location - vec3f(50, 50, 50)) - 40.0;
-	float y = 1.0f/(1.0f+pow(2.0, x));
+	d = 1.0f/(1.0f + d);
 
-	float n = ridge_noise(location/10.0, 1.0, 5.0, 3.0, 1.0, 2.0, planet->noise) - 0.2;
+	grad3f x = mag(location - vec3f(planet->geometry.size, planet->geometry.size, planet->geometry.size)/2.0f) - (float)planet->geometry.size/2.5f;
+	grad3f y = 1.0f/(1.0f+pow(2.0f, x));
 
-	return (result + n)*y + y - 1.0f;
+	grad3f n = ridge_noise(location/grad3f(10.0f), 1.0, 5.0, 3.0, 1.0, 2.0, planet->noise) - 0.2f;
+
+	return (n - d)*y + y - 1.0f;
 }
+
