@@ -3,9 +3,9 @@ CXXFLAGS	= -O2 -g -fmessage-length=0 -std=c++11
 SOURCES	:= $(shell find src -name '*.cpp') $(shell find src -name '*.c')
 OBJECTS	:= $(subst .c,.o,$(subst .cpp,.o,$(subst src/,build/,$(SOURCES))))
 DIRECTORIES := $(sort $(dir $(OBJECTS)))
-INC_PATHS = -Isrc -I../Core
-LIB_PATHS = -L../Core
-LDFLAGS	= -lglfw -lGL -lGLU -lGLEW -lpthread -lcore
+INC_PATHS = -Isrc -I../stdcore -I../mathcore
+LIB_PATHS = -L../stdcore -L../mathcore
+LDFLAGS	= -lglfw -lGL -lGLU -lGLEW -lpthread -lstdcore -lmathcore
 TARGET	= Blaze
 
 all: build $(TARGET)
