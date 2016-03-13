@@ -41,7 +41,6 @@ canvashdl canvas;
 
 void release(preference *pref, vec3f value)
 {
-	printf("closing window\n");
 	glfwSetWindowShouldClose(window, true);
 }
 
@@ -91,7 +90,7 @@ void next_player(preference *pref, vec3f value)
 void init()
 {
 	srand(time(0));
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	canvas.initialize(1600, 900);
 	canvas.devices.insert("mouse", controllerhdl(2));
@@ -139,7 +138,7 @@ void *displayfunc(void *data)
 		canvas.input();
 		canvas.render();
 		glfwSwapBuffers(window);
-	//}	
+	//}
 }
 
 void reshapefunc(int w, int h)
@@ -149,7 +148,6 @@ void reshapefunc(int w, int h)
 
 void cursorfunc(GLFWwindow* window, double x, double y)
 {
-	cout << x << " " << y << endl;
 	map<string, controllerhdl>::iterator mouse = canvas.devices.find("mouse");
 	if (mouse != canvas.devices.end())
 	{
@@ -168,7 +166,6 @@ void mousefunc(GLFWwindow* window, int button, int action, int mods)
 void keyfunc(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
 	map<string, controllerhdl>::iterator keyboard = canvas.devices.find("keyboard");
-	cout << key << " " << scancode << " " << action << " " << mods << endl;
 	if (keyboard != canvas.devices.end())
 		keyboard->value.buttons.set(key, action != 0, canvas.real_current_time, canvas.game_current_time);
 }

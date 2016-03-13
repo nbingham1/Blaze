@@ -402,7 +402,6 @@ void blockhdl::load()
 						point += ipoints[m];
 					point /= (float)ipoints.size();
 					grid[index(i, j, k, cubes_per_side)] = points.size();
-					cout << point << endl;
 					points.push_back(point);
 				}
 				else
