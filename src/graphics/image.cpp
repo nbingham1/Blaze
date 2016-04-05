@@ -30,10 +30,10 @@ imagehdl::~imagehdl()
 
 bool imagehdl::load(string filename)
 {
-	int dot = filename.find_last_of(".");
+	string::iterator dot = find_last(filename.ref(), '.');
 	string filetype;
-	if (dot != -1)
-		filetype = filename.substr(dot);
+	if (dot != filename.end())
+		filetype = dot.sub();
 
 	if (filetype == ".tga")
 		return load_tga(filename);

@@ -31,7 +31,7 @@ controllerhdl::controllerhdl()
 controllerhdl::controllerhdl(int num_axes)
 {
 	flags = 0;
-	axes.resize(num_axes);
+	axes.push_back(num_axes, axishdl());
 }
 
 controllerhdl::~controllerhdl()

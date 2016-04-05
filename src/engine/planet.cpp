@@ -65,7 +65,7 @@ planethdl::planethdl(palettehdl &palette, int seed)
 	geometry.size = 100.0;
 
 	int n = rand()%50;
-	caves.resize(n);
+	caves.push_back(n, cavehdl());
 	for (int i = 0; i < n; i++)
 	{
 		int m = rand()%50 + 1;

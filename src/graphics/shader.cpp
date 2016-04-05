@@ -36,7 +36,7 @@ bool shaderhdl::load(unsigned int type, string filename)
 	}
 	string source = fin.read_file();
 	const char* data = source.c_str();
-	int length = source.length();
+	int length = source.size();
 	fin.close();
 
 	identity = glCreateShader(type);
@@ -60,7 +60,7 @@ bool shaderhdl::compile(unsigned int type, string source)
 	this->type = type;
 
 	const char* data = source.c_str();
-	GLint length = source.length();
+	GLint length = source.size();
 
 	if (length == 0)
 		return false;
