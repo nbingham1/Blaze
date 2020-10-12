@@ -1,6 +1,9 @@
 Blaze
 =====
 
+For screenshots, view the releases:
+https://github.com/nbingham1/Blaze/releases
+
 Planetary game engine
 
 This engine may not look as pretty as the last, but I was attempting
