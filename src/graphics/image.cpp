@@ -6,7 +6,9 @@
  */
 
 #include "image.h"
-#include "core/file.h"
+#include <std/file.h>
+#include <std/io.h>
+#include <std/search.h>
 
 using namespace core;
 
@@ -30,7 +32,7 @@ imagehdl::~imagehdl()
 
 bool imagehdl::load(string filename)
 {
-	string::iterator dot = find_last(filename.ref(), '.');
+	string::iterator dot = find_last(filename, '.');
 	string filetype;
 	if (dot != filename.end())
 		filetype = dot.sub();
@@ -43,8 +45,8 @@ bool imagehdl::load(string filename)
 
 bool imagehdl::load_tga(string filename)
 {
-	file fin(filename, "rb");
-	if (!fin.is_open())
+	file fin(filename, file::r);
+	if (!fin)
 	{
 		cerr << "Could not open the file: " << filename << endl;;
 		return false;
@@ -59,7 +61,7 @@ bool imagehdl::load_tga(string filename)
 		return false;
 	}
 
-	fin.move(header[0]);
+	fin.mov(header[0]);
 
 	// get the size and bitdepth from the header
 	width = header[13] * 256 + header[12];
@@ -91,12 +93,12 @@ bool imagehdl::load_tga(string filename)
 		while (ctpixel < image_size)
 		{
 			// reads the the RLE header
-			rle = fin.get();
+			fin.read(1, (char*)&rle);
 
 			// if the rle header is below 128 it means that what folows is just raw data with rle+1 pixels
 			if (rle < 128)
 			{
-				fin.read(&data[ctpixel], bpp*(rle+1));
+				fin.read(bpp*(rle+1), &data[ctpixel]);
 				ctpixel += bpp*(rle+1);
 			}
 
@@ -105,7 +107,7 @@ bool imagehdl::load_tga(string filename)
 			else
 			{
 				// read what color we should use
-				fin.read(color, bpp);
+				fin.read(bpp, (char*)color);
 
 				// insert the color stored in tmp into the folowing rle-127 pixels
 				ctloop = 0;

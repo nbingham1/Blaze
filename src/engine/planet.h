@@ -5,11 +5,11 @@
  *      Author: nbingham
  */
 
-#include "core/array.h"
+#include <std/array.h>
 #include "block.h"
 #include "object.h"
 #include "graphics/palette.h"
-#include "core/noise.h"
+#include <math/noise.h>
 
 #ifndef planet_h
 #define planet_h

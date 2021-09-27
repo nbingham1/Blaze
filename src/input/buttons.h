@@ -5,8 +5,8 @@
  *      Author: nbingham
  */
 
-#include "core/array.h"
-#include "core/map.h"
+#include <std/array.h>
+#include <std/map.h>
 #include "preference.h"
 
 using namespace core;

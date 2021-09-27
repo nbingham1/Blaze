@@ -21,8 +21,8 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/string.h"
-#include "core/array.h"
+#include <std/string.h>
+#include <std/array.h>
 #include "buttons.h"
 #include "axis.h"
 

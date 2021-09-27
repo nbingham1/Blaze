@@ -11,7 +11,7 @@
 #include <pthread.h>
 #include <sys/time.h>
 #include "block.h"
-#include "core/noise.h"
+#include <math/noise.h>
 
 canvashdl::canvashdl()
 {

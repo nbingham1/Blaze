@@ -5,7 +5,7 @@
  *      Author: nbingham
  */
 
-#include "core/matrix_stack.h"
+#include <math/matrix_stack.h>
 
 using namespace core;
 

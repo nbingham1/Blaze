@@ -7,7 +7,7 @@
 
 #include "palette.h"
 #include "opengl.h"
-#include "core/file.h"
+#include <std/file.h>
 
 palettehdl::palettehdl()
 {

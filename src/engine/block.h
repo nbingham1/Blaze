@@ -5,7 +5,7 @@
  *      Author: nbingham
  */
 
-#include "core/geometry.h"
+#include <math/geometry.h>
 #include "graphics/opengl.h"
 #include <pthread.h>
 

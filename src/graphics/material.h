@@ -7,8 +7,8 @@
 
 #include "texture.h"
 
-#include "core/string.h"
-#include "core/map.h"
+#include <std/string.h>
+#include <std/map.h>
 
 using namespace core;
 

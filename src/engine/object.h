@@ -5,9 +5,9 @@
  *      Author: nbingham
  */
 
-#include "core/geometry.h"
-#include "core/string.h"
-#include "core/big.h"
+#include <math/geometry.h>
+#include <std/string.h>
+#include <math/big.h>
 #include "graphics/frame.h"
 
 using namespace core;

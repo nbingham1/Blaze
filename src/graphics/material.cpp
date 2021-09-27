@@ -5,7 +5,7 @@
  *      Author: Ned Bingham
  */
 
-#include "core/string.h"
+#include <std/string.h>
 #include "material.h"
 #include "opengl.h"
 

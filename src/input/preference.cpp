@@ -6,7 +6,7 @@
  */
 
 #include "preference.h"
-#include "core/list.h"
+#include <std/list.h>
 
 preference::preference()
 {

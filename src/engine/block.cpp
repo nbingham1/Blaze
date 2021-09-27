@@ -7,6 +7,7 @@
  */
 
 #include "block.h"
+#include <std/fill.h>
 
 rw_lock::rw_lock()
 {
@@ -148,7 +149,7 @@ void blockhdl::generate(void *data)
 {
 	if (density != NULL)
 	{
-		values.push_back((cubes_per_side+1)*(cubes_per_side+1)*(cubes_per_side+1), grad3f());
+		values.append_back(fill_t((cubes_per_side+1)*(cubes_per_side+1)*(cubes_per_side+1), grad3f()));
 		float step = size/(float)cubes_per_side;
 		for (int i = 0; i < cubes_per_side+1; i++)
 			for (int j = 0; j < cubes_per_side+1; j++)
@@ -162,7 +163,7 @@ void blockhdl::generate(array<grad3f> svalues, vec3i offset, void *data)
 {
 	if (density != NULL && svalues.size() == (cubes_per_side+1)*(cubes_per_side+1)*(cubes_per_side+1))
 	{
-		values.push_back((cubes_per_side+1)*(cubes_per_side+1)*(cubes_per_side+1), grad3f());
+		values.append_back(fill_t((cubes_per_side+1)*(cubes_per_side+1)*(cubes_per_side+1), grad3f()));
 		float step = size/(float)cubes_per_side;
 		for (int i = 0; i < cubes_per_side+1; i++)
 			for (int j = 0; j < cubes_per_side+1; j++)
@@ -185,7 +186,7 @@ void blockhdl::split(void *data)
 	{
 		if (children.size() == 0)
 		{
-			children.push_back(8, blockhdl());
+			children.append_back(fill_t(8, blockhdl()));
 			for (int i = 0; i < 2; i++)
 				for (int j = 0; j < 2; j++)
 					for (int k = 0; k < 2; k++)
@@ -248,7 +249,7 @@ void blockhdl::merge()
 			{
 				if (children.size() > 0)
 				{
-					values.push_back((cubes_per_side+1)*(cubes_per_side+1)*(cubes_per_side+1), grad3f());
+					values.append_back(fill_t((cubes_per_side+1)*(cubes_per_side+1)*(cubes_per_side+1), grad3f()));
 					for (int i = 0; i < cubes_per_side+1; i++)
 						for (int j = 0; j < cubes_per_side+1; j++)
 							for (int k = 0; k < cubes_per_side+1; k++)

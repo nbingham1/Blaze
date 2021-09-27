@@ -6,9 +6,10 @@
  */
 
 #include "planet.h"
-#include "core/algorithm.h"
-#include "core/curve.h"
+#include <std/algorithm.h>
+#include <math/curve.h>
 #include "canvas.h"
+#include <std/fill.h>
 
 cavehdl::cavehdl()
 {
@@ -65,7 +66,7 @@ planethdl::planethdl(palettehdl &palette, int seed)
 	geometry.size = 100.0;
 
 	int n = rand()%50;
-	caves.push_back(n, cavehdl());
+	caves.append_back(fill_t(n, cavehdl()));
 	for (int i = 0; i < n; i++)
 	{
 		int m = rand()%50 + 1;

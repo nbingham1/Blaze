@@ -1,4 +1,4 @@
-#include "core/geometry.h"
+#include <math/geometry.h>
 #include "object.h"
 #include "primitive.h"
 

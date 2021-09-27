@@ -6,7 +6,7 @@
  */
 
 #include "buttons.h"
-#include "core/file.h"
+#include <std/file.h>
 
 buttonshdl::buttonshdl()
 {
@@ -20,7 +20,7 @@ buttonshdl::~buttonshdl()
 
 void buttonshdl::press(int button, double real_current_time, double game_current_time)
 {
-	array<int>::iterator k = find_first(pressed.ref(), button);
+	array<int>::iterator k = find_first(pressed, button);
 	if (k == pressed.end())
 	{
 		pressed.push_back(button);
@@ -33,7 +33,7 @@ void buttonshdl::press(int button, double real_current_time, double game_current
 
 void buttonshdl::release(int button, double real_current_time, double game_current_time)
 {
-	array<int>::iterator k = find_first(pressed.ref(), button);
+	array<int>::iterator k = find_first(pressed, button);
 	if (k != pressed.end())
 	{
 		k.pop();
@@ -46,12 +46,12 @@ void buttonshdl::release(int button, double real_current_time, double game_curre
 
 bool buttonshdl::get(int button)
 {
-	return contains(pressed.ref(), button);
+	return contains(pressed, button);
 }
 
 void buttonshdl::set(int button, bool value, double real_current_time, double game_current_time)
 {
-	array<int>::iterator k = find_first(pressed.ref(), button);
+	array<int>::iterator k = find_first(pressed, button);
 	if (!value && k != pressed.end())
 	{
 		k.pop();

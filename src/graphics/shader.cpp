@@ -7,7 +7,8 @@
 
 #include "shader.h"
 #include "opengl.h"
-#include "core/file.h"
+#include <std/file.h>
+#include <std/io.h>
 
 shaderhdl::shaderhdl()
 {
@@ -28,13 +29,13 @@ shaderhdl::~shaderhdl()
 bool shaderhdl::load(unsigned int type, string filename)
 {
 	this->type = type;
-	file fin(filename, "rt");
-	if (!fin.is_open())
+	file fin(filename, file::r);
+	if (!fin)
 	{
 		cerr << "Error: Could not find file: " << filename << endl;
 		return false;
 	}
-	string source = fin.read_file();
+	string source = fin.read(fin.size());
 	const char* data = source.c_str();
 	int length = source.size();
 	fin.close();

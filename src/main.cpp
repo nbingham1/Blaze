@@ -21,8 +21,8 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "core/list.h"
-#include "core/geometry.h"
+#include <std/list.h>
+#include <math/geometry.h>
 #include <time.h>
 #include <pthread.h>
 
@@ -87,16 +87,19 @@ void next_player(preference *pref, vec3f value)
 	}
 }
 
-void init()
+void init(int w, int h)
 {
 	srand(time(0));
 	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
-	canvas.initialize(1600, 900);
+	canvas.initialize(w, h);
 	canvas.devices.insert("mouse", controllerhdl(2));
 	canvas.devices.insert("keyboard", controllerhdl());
-	for (int i = 0; i < 1; i++)
-		canvas.add_player()->camera->position = vec3f(-20.0, 0.0, 0.0);
+	for (int i = 0; i < 1; i++) {
+		playerhdl *player = canvas.add_player();
+		player->camera->position = vec3f(20.0, 0.0, 0.0);
+		player->camera->orientation = vec3f(m_pi*0.2, -m_pi*0.8, 0.0);
+	}
 
 	canvas.devices["keyboard"].buttons.control.insert(GLFW_KEY_ESCAPE, preference(NULL, release));
 	canvas.devices["keyboard"].buttons.control.insert(GLFW_KEY_N, preference(NULL, next_player));
@@ -131,14 +134,16 @@ void *preparefunc(void *data)
 
 void *displayfunc(void *data)
 {
-	//while (!glfwWindowShouldClose(window))
-	//{
+	while (!glfwWindowShouldClose(window))
+	{
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		canvas.clock();
 		canvas.input();
 		canvas.render();
 		glfwSwapBuffers(window);
-	//}
+		glfwPollEvents();
+	}
+	return NULL;
 }
 
 void reshapefunc(int w, int h)
@@ -148,9 +153,16 @@ void reshapefunc(int w, int h)
 
 void cursorfunc(GLFWwindow* window, double x, double y)
 {
+	static bool init = false;
+
 	map<string, controllerhdl>::iterator mouse = canvas.devices.find("mouse");
 	if (mouse != canvas.devices.end())
 	{
+		if (!init) {
+			mouse->value.axes[0].warp((float)x/(float)canvas.screen[0]);
+			mouse->value.axes[1].warp((float)y/(float)canvas.screen[1]);
+			init = true;
+		}
 		mouse->value.axes[0].set((float)x/(float)canvas.screen[0], canvas.real_current_time, canvas.game_current_time);
 		mouse->value.axes[1].set((float)y/(float)canvas.screen[1], canvas.real_current_time, canvas.game_current_time);
 	}
@@ -186,8 +198,13 @@ int main(int argc, char **argv)
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
+	GLFWmonitor* monitor = glfwGetPrimaryMonitor();
+	const GLFWvidmode* mode = glfwGetVideoMode(monitor);
+
+	printf("%d %d\n", mode->width, mode->height);
+
 	glfwSetErrorCallback(error_callback);
-	window = glfwCreateWindow(1600, 900, "BGE", NULL, NULL);
+	window = glfwCreateWindow(mode->width, mode->height, "BGE", monitor, NULL);
 	if (!window)
 	{
 		glfwTerminate();
@@ -212,17 +229,13 @@ int main(int argc, char **argv)
 	glfwSetMouseButtonCallback(window, mousefunc);
 	glfwSetKeyCallback(window, keyfunc);
 
-	init();
+	init(mode->width, mode->height);
 
 	// Initialize Threading
 	pthread_create(&prepare_thread, NULL, preparefunc, NULL);
 	//pthread_create(&display_thread, NULL, displayfunc, NULL);
-
-	while (!glfwWindowShouldClose(window))
-	{
-		displayfunc(NULL);
-		glfwPollEvents();
-	}
+	
+	displayfunc(NULL);
 
 	void *end;
 	pthread_join(prepare_thread, &end);

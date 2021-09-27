@@ -1,8 +1,8 @@
 #pragma once
 
 #include "graphics/opengl.h"
-#include "core/array.h"
-#include "core/geometry.h"
+#include <std/array.h>
+#include <math/geometry.h>
 
 using namespace core;
 

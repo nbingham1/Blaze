@@ -5,8 +5,8 @@
  *      Author: nbingham
  */
 
-#include "core/geometry.h"
-#include "core/big.h"
+#include <math/geometry.h>
+#include <math/big.h>
 #include "input/controller.h"
 #include "graphics/palette.h"
 #include "graphics/opengl.h"

@@ -22,6 +22,7 @@
  */
 
 #include "controller.h"
+#include <std/fill.h>
 
 controllerhdl::controllerhdl()
 {
@@ -31,7 +32,7 @@ controllerhdl::controllerhdl()
 controllerhdl::controllerhdl(int num_axes)
 {
 	flags = 0;
-	axes.push_back(num_axes, axishdl());
+	axes.append_back(fill_t(num_axes, axishdl()));
 }
 
 controllerhdl::~controllerhdl()

@@ -1,0 +1,6 @@
+[submodule "stdcore"]
+	path = stdcore
+	url = https://github.com/c-cores/stdcore.git
+[submodule "mathcore"]
+	path = mathcore
+	url = https://github.com/c-cores/mathcore.git

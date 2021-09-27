@@ -5,7 +5,7 @@
  *      Author: nbingham
  */
 
-#include "core/string.h"
+#include <std/string.h>
 
 using namespace core;
 
