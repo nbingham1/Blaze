@@ -90,7 +90,7 @@ void next_player(preference *pref, vec3f value)
 void init(int w, int h)
 {
 	srand(time(0));
-	//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
 	canvas.initialize(w, h);
 	canvas.devices.insert("mouse", controllerhdl(2));

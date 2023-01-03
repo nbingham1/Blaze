@@ -14,6 +14,7 @@ using namespace core;
 
 struct framehdl
 {
+	vec3F offset;
 	matrix_stack<float, 4> modelview;
 	matrix_stack<float, 4> projection;
 	matrix_stack<float, 4> texture;

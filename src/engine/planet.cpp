@@ -63,7 +63,7 @@ planethdl::planethdl(palettehdl &palette, int seed)
 	noise.initialize(seed);
 	program = palette.program("res/engine/block.vx", "res/engine/block.ft");
 	geometry.density = density;
-	geometry.size = 100.0;
+	geometry.size = 6000000.0;
 
 	int n = rand()%50;
 	caves.append_back(fill_t(n, cavehdl()));
@@ -126,12 +126,12 @@ void planethdl::render(framehdl &frame)
 	glUniformMatrix4fv(mvp_matrix_location, 1, true, (GLfloat*)&modelview_projection_matrix);
 	//glUniformMatrix3fv(normal_matrix_location, 1, true, (GLfloat*)&normal_matrix);
 
-	geometry.render(vertex_location, origin_location);
+	geometry.render(frame, vertex_location, origin_location);
 }
 
 void planethdl::prepare(canvashdl &canvas)
 {
-	/*for (int c = 0; c < canvas.players.size(); c++)
+	for (int c = 0; c < canvas.players.size(); c++)
 	{
 		objecthdl *camera = canvas.players[c].camera;
 
@@ -139,7 +139,7 @@ void planethdl::prepare(canvashdl &canvas)
 		{
 			array<blockhdl*> loc;
 
-			if (geometry.contains(camera->position, 10.0f))
+			if (geometry.contains(camera->position, 1.0f))
 				loc.push_back(&geometry);
 			else
 				geometry.merge();
@@ -153,7 +153,7 @@ void planethdl::prepare(canvashdl &canvas)
 					bool found = false;
 					for (int j = 0; j < loc[i]->children.size(); j++)
 					{
-						if (loc[i]->children[j].contains(camera->position, 10.0f))
+						if (loc[i]->children[j].contains(camera->position, 1.0f))
 						{
 							loc.push_back(&loc[i]->children[j]);
 							found = true;
@@ -174,7 +174,7 @@ void planethdl::prepare(canvashdl &canvas)
 				if (loc[i]->size > (float)cubes_per_side)
 					loc[i]->split(this);
 		}
-	}*/
+	}
 }
 
 grad3f planethdl::density(gvec3f location, void *data)

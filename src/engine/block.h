@@ -8,13 +8,14 @@
 #include <math/geometry.h>
 #include "graphics/opengl.h"
 #include <pthread.h>
+#include "graphics/frame.h"
 
 using namespace core;
 
 #ifndef block_h
 #define block_h
 
-#define cubes_per_side 64
+#define cubes_per_side 8
 
 struct rw_lock
 {
@@ -62,7 +63,7 @@ struct blockhdl
 	void merge();
 	void load();
 	void unload();
-	void render(int vertex_location, int origin_location);
+	void render(framehdl &frame, int vertex_location, int origin_location);
 	bool contains(vec3F location, float radius);
 };
 

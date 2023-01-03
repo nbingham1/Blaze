@@ -415,13 +415,17 @@ void blockhdl::load()
 				if (values[index(i+1, j+1, k+1)] > 0.0f)
 				{
 					// front
-					if (grid[index(i, j  , k, cubes_per_side)] >= 0 && grid[index(i+1, j  , k, cubes_per_side)] >= 0 &&
+					if (grid[index(i, j  , k, cubes_per_side)] >= 0 &&
 						grid[index(i, j+1, k, cubes_per_side)] >= 0 && grid[index(i+1, j+1, k, cubes_per_side)] >= 0)
 					{
 						indices.push_back(grid[index(i  , j  , k, cubes_per_side)]);
 						indices.push_back(grid[index(i  , j+1, k, cubes_per_side)]);
 						indices.push_back(grid[index(i+1, j+1, k, cubes_per_side)]);
+					}
 
+					if (grid[index(i, j  , k, cubes_per_side)] >= 0 && grid[index(i+1, j  , k, cubes_per_side)] >= 0 &&
+						grid[index(i+1, j+1, k, cubes_per_side)] >= 0)
+					{
 						indices.push_back(grid[index(i  , j  , k, cubes_per_side)]);
 						indices.push_back(grid[index(i+1, j+1, k, cubes_per_side)]);
 						indices.push_back(grid[index(i+1, j  , k, cubes_per_side)]);
@@ -429,12 +433,16 @@ void blockhdl::load()
 
 					// back
 					if (grid[index(i, j  , k+1, cubes_per_side)] >= 0 && grid[index(i+1, j  , k+1, cubes_per_side)] >= 0 &&
-						grid[index(i, j+1, k+1, cubes_per_side)] >= 0 && grid[index(i+1, j+1, k+1, cubes_per_side)] >= 0)
+						 grid[index(i+1, j+1, k+1, cubes_per_side)] >= 0)
 					{
 						indices.push_back(grid[index(i  , j  , k+1, cubes_per_side)]);
 						indices.push_back(grid[index(i+1, j  , k+1, cubes_per_side)]);
 						indices.push_back(grid[index(i+1, j+1, k+1, cubes_per_side)]);
+					}
 
+					if (grid[index(i, j  , k+1, cubes_per_side)] >= 0 &&
+						grid[index(i, j+1, k+1, cubes_per_side)] >= 0 && grid[index(i+1, j+1, k+1, cubes_per_side)] >= 0)
+					{
 						indices.push_back(grid[index(i  , j  , k+1, cubes_per_side)]);
 						indices.push_back(grid[index(i+1, j+1, k+1, cubes_per_side)]);
 						indices.push_back(grid[index(i  , j+1, k+1, cubes_per_side)]);
@@ -442,38 +450,50 @@ void blockhdl::load()
 
 					// bottom
 					if (grid[index(i, j, k, cubes_per_side)] >= 0 && grid[index(i+1, j, k, cubes_per_side)] >= 0 &&
-						grid[index(i+1, j, k+1, cubes_per_side)] >= 0 && grid[index(i, j, k+1, cubes_per_side)] >= 0)
+						grid[index(i+1, j, k+1, cubes_per_side)] >= 0)
 					{
 						indices.push_back(grid[index(i  , j, k  , cubes_per_side)]);
 						indices.push_back(grid[index(i+1, j, k  , cubes_per_side)]);
 						indices.push_back(grid[index(i+1, j, k+1, cubes_per_side)]);
+					}
 
+					if (grid[index(i, j, k, cubes_per_side)] >= 0 &&
+						grid[index(i+1, j, k+1, cubes_per_side)] >= 0 && grid[index(i, j, k+1, cubes_per_side)] >= 0)
+					{
 						indices.push_back(grid[index(i  , j, k  , cubes_per_side)]);
 						indices.push_back(grid[index(i+1, j, k+1, cubes_per_side)]);
 						indices.push_back(grid[index(i  , j, k+1, cubes_per_side)]);
 					}
 
 					// top
-					if (grid[index(i, j+1, k, cubes_per_side)] >= 0 && grid[index(i+1, j+1, k, cubes_per_side)] >= 0 &&
+					if (grid[index(i, j+1, k, cubes_per_side)] >= 0 &&
 						grid[index(i+1, j+1, k+1, cubes_per_side)] >= 0 && grid[index(i, j+1, k+1, cubes_per_side)] >= 0)
 					{
 						indices.push_back(grid[index(i  , j+1, k  , cubes_per_side)]);
 						indices.push_back(grid[index(i  , j+1, k+1, cubes_per_side)]);
 						indices.push_back(grid[index(i+1, j+1, k+1, cubes_per_side)]);
+					}
 
+					if (grid[index(i, j+1, k, cubes_per_side)] >= 0 && grid[index(i+1, j+1, k, cubes_per_side)] >= 0 &&
+						grid[index(i+1, j+1, k+1, cubes_per_side)] >= 0)
+					{
 						indices.push_back(grid[index(i  , j+1, k  , cubes_per_side)]);
 						indices.push_back(grid[index(i+1, j+1, k+1, cubes_per_side)]);
 						indices.push_back(grid[index(i+1, j+1, k  , cubes_per_side)]);
 					}
 
 					// left
-					if (grid[index(i, j  , k  , cubes_per_side)] >= 0 && grid[index(i, j+1, k  , cubes_per_side)] >= 0 &&
+					if (grid[index(i, j  , k  , cubes_per_side)] >= 0 &&
 						grid[index(i, j+1, k+1, cubes_per_side)] >= 0 && grid[index(i, j  , k+1, cubes_per_side)] >= 0)
 					{
 						indices.push_back(grid[index(i, j  , k  , cubes_per_side)]);
 						indices.push_back(grid[index(i, j  , k+1, cubes_per_side)]);
 						indices.push_back(grid[index(i, j+1, k+1, cubes_per_side)]);
+					}
 
+					if (grid[index(i, j  , k  , cubes_per_side)] >= 0 && grid[index(i, j+1, k  , cubes_per_side)] >= 0 &&
+						grid[index(i, j+1, k+1, cubes_per_side)] >= 0)
+					{
 						indices.push_back(grid[index(i, j  , k  , cubes_per_side)]);
 						indices.push_back(grid[index(i, j+1, k+1, cubes_per_side)]);
 						indices.push_back(grid[index(i, j+1, k  , cubes_per_side)]);
@@ -481,12 +501,16 @@ void blockhdl::load()
 
 					// right
 					if (grid[index(i+1, j  , k  , cubes_per_side)] >= 0 && grid[index(i+1, j+1, k  , cubes_per_side)] >= 0 &&
-						grid[index(i+1, j+1, k+1, cubes_per_side)] >= 0 && grid[index(i+1, j  , k+1, cubes_per_side)] >= 0)
+						grid[index(i+1, j+1, k+1, cubes_per_side)] >= 0)
 					{
 						indices.push_back(grid[index(i+1, j  , k  , cubes_per_side)]);
 						indices.push_back(grid[index(i+1, j+1, k  , cubes_per_side)]);
 						indices.push_back(grid[index(i+1, j+1, k+1, cubes_per_side)]);
+					}
 
+					if (grid[index(i+1, j  , k  , cubes_per_side)] >= 0 &&
+						grid[index(i+1, j+1, k+1, cubes_per_side)] >= 0 && grid[index(i+1, j  , k+1, cubes_per_side)] >= 0)
+					{
 						indices.push_back(grid[index(i+1, j  , k  , cubes_per_side)]);
 						indices.push_back(grid[index(i+1, j+1, k+1, cubes_per_side)]);
 						indices.push_back(grid[index(i+1, j  , k+1, cubes_per_side)]);
@@ -501,14 +525,15 @@ void blockhdl::unload()
 	indices.clear();
 }
 
-void blockhdl::render(int vertex_location, int origin_location)
+void blockhdl::render(framehdl &frame, int vertex_location, int origin_location)
 {
+	vec3F loc = origin - frame.offset;
 	// Render the geometry
 	if (geo_lock.r_trylock())
 	{
 		if (points.size() > 0)
 		{
-			glUniform3f(origin_location, (float)origin[0], (float)origin[1], (float)origin[2]);
+			glUniform3f(origin_location, (float)loc[0], (float)loc[1], (float)loc[2]);
 			GLuint vao;
 			glGenVertexArrays(1, &vao);
 			glBindVertexArray(vao);
@@ -539,7 +564,7 @@ void blockhdl::render(int vertex_location, int origin_location)
 	if (child_lock.r_trylock())
 	{
 		for (int i = 0; i < children.size(); i++)
-			children[i].render(vertex_location, origin_location);
+			children[i].render(frame, vertex_location, origin_location);
 
 		child_lock.r_unlock();
 	}

@@ -86,6 +86,10 @@ void canvashdl::render()
 	{
 		players[i].view(frame, screen);
 
+		vec3F position;
+		if (players[i].camera != NULL) {
+			position = players[i].camera->position;
+		}
 		for (list<objecthdl*>::iterator i = objects.begin(); i != objects.end(); i++)
 			if ((*i) != NULL && (*i)->type != "camera")
 				(*i)->render(frame);

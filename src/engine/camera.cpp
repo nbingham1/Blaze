@@ -21,7 +21,10 @@ void camerahdl::view(framehdl &frame, float ratio, float front, float back)
 		frame.modelview *= rotate_xyz(-link->orientation);
 	frame.modelview *= rotate_xyz(-orientation);
 
-	frame.modelview *= translate(-(vec3f)position);
+	// This doesn't scale to large objects
+	//frame.modelview *= translate(-(vec3f)position);
+	// Use this instead
+	frame.offset = position;
 }
 
 void camerahdl::render(framehdl &frame)
