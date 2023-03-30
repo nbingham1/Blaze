@@ -29,6 +29,8 @@
 #include "graphics/opengl.h"
 #include "engine/canvas.h"
 
+#include "graphics/series.h"
+
 using namespace core;
 
 pthread_t prepare_thread;
@@ -191,7 +193,37 @@ void error_callback(int error, const char* description)
 
 int main(int argc, char **argv)
 {
-	if (!glfwInit())
+	sseries3f alpha;
+	int count = 2;
+	float step = 2.0*m_pi/(float)count;
+	for (int i = 0; i < count; i++) {
+		for (int j = 0; j < count; j++) {
+			for (int k = 0; k < count; k++) {
+				vec3f w = vec3f(step*(float)i, step*(float)j, step*float(k));
+				float c = mag(w/float(2.0*m_pi))*(1.0 + 0.1*float(rand()%100)/100.0);
+				float p = m_pi*float(rand()%100)/100.0;
+				alpha.push_back(spec3f(c, w[0], w[1], w[2], p));
+			}
+		}
+	}
+
+	sseries3f color = sseries3f::constant(1);
+
+	cout << alpha << endl;
+	cout << color << endl;
+
+	series3f result = project(color, alpha, 2, 2);
+	cout << result << endl;
+	/*int pixels = 10;
+	step = 1.0/(float)pixels;
+	for (int i = 0; i < pixels; i++) {
+		for (int j = 0; j < pixels; j++) {
+			printf("%f, ", result(vec3f(i*step, j*step, 0.0)));
+		}
+		printf("\n");
+	}*/
+
+	/*if (!glfwInit())
 		exit(EXIT_FAILURE);
 
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -242,5 +274,5 @@ int main(int argc, char **argv)
 	//pthread_join(display_thread, &end);
 	
 	glfwDestroyWindow(window);
-	glfwTerminate();
+	glfwTerminate();*/
 }

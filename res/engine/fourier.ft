@@ -1,0 +1,145 @@
+layout(std430, binding=1) buffer fourier
+{
+	vec5f red[];
+	vec5f green[];
+	vec5f blue[];
+	vec5f alpha[];
+}
+
+#define PI=3.14159265358979
+#define PI_INV=0.318310899
+
+uniform float arclength;
+uniform float radius;
+
+in float distance;
+
+out float gl_FragDepth;
+out vec4 frag_color;
+
+float sqr(float x)
+{
+	float tmp = mod(x, 2.0*PI);
+
+	if (tmp < PI) {
+		return 1.0;
+	}
+	return -1.0;
+}
+
+float tri(float x)
+{
+	float tmp = mod(x, 2.0*PI);
+
+	if (tmp < PI) {
+		return x;
+	}
+	return -x;
+	// more to do here
+}
+
+float gauss(float x)
+{
+	// return exp(-x*x);
+	float t = abs(x);
+
+	if (t < 1.0) {
+		t -= 0.5;
+		return 0.778801 + t*(-0.778801 + t*(-0.3894 + t*(0.649001 + t*(0.03245 + t*(-0.26609 + t*0.0335317)))));
+	} else if (t < 2.0) {
+		t -= 1.5;
+		return 0.105399 + t*(-0.316198 + t*(0.368897 + t*(-0.158099 + t*(-0.0658745 + t*(0.102764 + t*-0.029424)))));
+	}
+	return 0.0;
+}
+
+float erf(float x)
+{
+	// return erf(x)
+	float t = clamp(x, -1.0, 1.0);
+	float t2 = t*t;
+	return t*(1.128379167+t2*(-0.376126389+t2*(0.112837917-t2*0.026866171)));
+}
+
+float erf_p(float x)
+{
+	// return sqrt(PI)*erf(x)
+	float t = clamp(x, -1.0, 1.0);
+	float t2 = t*t;
+	return t*(2.0+t2*(-0.666666666+t2*(0.2-t2*0.047619048)));
+}
+
+vec5f eval(vec4f r, float fragSize)
+{
+	float ratio = fragSize/radius;
+
+	// TODO(nbingham) evaluate the fourier series definition given the distance d and fragment arclength s
+
+	// given a point p = (x, y, z, 1.0)
+
+	// each vec5f v represents either
+	// f = v4*sin(v*p)
+	// or
+	// f = v4*square(v*p)
+
+	// Given a line
+	// l(d) = m*d + b
+	// with m = (m0, m1, m2, 0.0), b = (b0, b1, b2, 1.0)
+
+	// Plug it in
+	// f(d) = v4*sin(v*m*d + v*b)
+	// f(d) = v4*sqr(v*m*d + v*b)
+
+	// which integrates to
+	// F(d) = -(v4/(v*m))*cos(v*m*d + v*b)
+	// F(d) = -(v4/(v*m))*tri(v*m*d + v*b)
+
+	// 0.5*erf(4.0*f(x)-2.0)+0.5 as a step function
+	// where f(x) is some stepwise function for alpha
+
+	// integral is 0.00129169 e^((16 - 16 x) x) + 0.5 x + (0.25 - 0.5 x) erf(2 - 4 x)
+
+	// 
+	
+	// front                                            back
+	//  /                                               ___
+	//  | lighting(x, alpha') * color(x) * alpha(x) * ( | | 1-alpha(u)^du ) dx
+	//  /                                               | |
+  // back                                              x
+
+
+	// if premultiplied
+	// front                                      back
+	//  /                                         ___
+	//  | lighting(x, alpha') * coloralpha(x) * ( | | 1-alpha(u)^du ) dx
+	//  /                                         | |
+  // back                                        x
+
+
+	// e^ax can be used to approximate cos^n(x)
+
+	//          inf
+	//           _
+	//          \ 
+	// e^f(x) = /_ (f(x)^n)/n!
+	//          n=0
+
+
+	// This assumes the specs are sorted by minimum frequency
+	for (int i = 0; i < len(alpha) && alpha[i].x > ratio && alpha[i].y > ratio && alpha[i].z > ratio; i++) {
+		
+
+		// The period is greater than the ratio of the object radius to the fragment size
+		for (int j = 0; j < len(red) && red[j].x > ratio && red[j].y > ratio && red[j].z > ratio; j++) {
+			
+
+		}
+	}
+	
+
+}
+
+void main()
+{
+	frag_color = color*dist*dist;
+}
